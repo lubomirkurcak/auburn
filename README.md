@@ -1,5 +1,7 @@
 # auburn
 
+![Auburn Color](auburn.png)
+
 Fast and simple physics library.
 
 ## Bevy
