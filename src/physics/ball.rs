@@ -40,7 +40,7 @@ impl MinkowskiSum<Ball> for Ball {
 impl MinkowskiNegationIsIdentity for Ball {}
 
 impl Collides2d<()> for Ball {
-    fn collides(&self, t: &(), t_transform: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), t_transform: &impl Transform2dTrait) -> bool {
         t_transform.apply_origin().length_squared() < self.radius * self.radius
     }
 }
@@ -69,20 +69,20 @@ impl Penetrates2d<Ball> for () {
     }
 }
 impl Penetrates2d<()> for Ball {
-    fn penetrates(&self, t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
         ().penetrates(self, rel)
     }
 }
 
 impl Sdf2d<()> for Ball {
-    fn sdf(&self, t: &(), rel: &impl Transform2dTrait) -> f32 {
+    fn sdf(&self, _t: &(), rel: &impl Transform2dTrait) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
 impl Sdf2dVector<()> for Ball {
-    fn sdfvector(&self, t: &(), rel: &impl Transform2dTrait) -> Vec2 {
+    fn sdfvector(&self, _t: &(), rel: &impl Transform2dTrait) -> Vec2 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

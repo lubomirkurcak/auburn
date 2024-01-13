@@ -65,7 +65,7 @@ impl Collides2d<()> for RoundedBox2d {
 }
 
 impl Collides2d<()> for RoundedBox2d {
-    fn collides(&self, t: &(), t_transform: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), t_transform: &impl Transform2dTrait) -> bool {
         let bbox = self.symmetric_bounding_box();
         if ().collides(&bbox, t_transform) {
             let delta = t_transform.apply_origin();
@@ -111,7 +111,7 @@ impl Collides2d<RoundedBox2d> for () {
 }
 
 impl Penetrates2d<()> for RoundedBox2d {
-    fn penetrates(&self, t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
         let bbox = self.symmetric_bounding_box();
         if bbox.collides(&(), rel) {
             let delta = rel.apply_origin();

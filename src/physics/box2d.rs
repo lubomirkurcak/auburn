@@ -58,7 +58,7 @@ impl MinkowskiSum<Box2d> for Box2d {
 impl MinkowskiNegationIsIdentity for Box2d {}
 
 impl Collides2d<()> for Box2d {
-    fn collides(&self, t: &(), t_transform: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), t_transform: &impl Transform2dTrait) -> bool {
         let delta = t_transform.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
@@ -91,7 +91,7 @@ impl Penetrates2d<Box2d> for () {
 }
 
 impl Penetrates2d<()> for Box2d {
-    fn penetrates(&self, t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
         ().penetrates(self, rel)
     }
 }

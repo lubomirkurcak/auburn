@@ -17,20 +17,20 @@ impl<T: Copy> MinkowskiSum<T> for () {
 }
 
 impl ExtremePoint2d for () {
-    fn extreme_point(&self, direction: &Vec2) -> Vec2 {
+    fn extreme_point(&self, _direction: &Vec2) -> Vec2 {
         Vec2::ZERO
     }
 }
 
 impl Sdf2d<()> for () {
-    fn sdf(&self, t: &(), rel: &impl Transform2dTrait) -> f32 {
+    fn sdf(&self, _t: &(), rel: &impl Transform2dTrait) -> f32 {
         let delta = rel.apply_origin();
         delta.length()
     }
 }
 
 impl Sdf2dVector<()> for () {
-    fn sdfvector(&self, t: &(), rel: &impl Transform2dTrait) -> Vec2 {
+    fn sdfvector(&self, _t: &(), rel: &impl Transform2dTrait) -> Vec2 {
         rel.apply_origin()
     }
 }
