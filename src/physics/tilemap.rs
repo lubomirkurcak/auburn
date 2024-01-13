@@ -171,11 +171,6 @@ impl Tilemap {
         pos
     }
 
-    // pub fn simple_resolve_character(&self, character: &mut crate::character::Character) {
-    //     // character.pos = self.simple_resolve_ball(&character.col, character.pos, &character.vel);
-    //     character.pos = self.simple_resolve_box(&character.col, character.pos, &character.vel);
-    // }
-
     // pub fn resolve(&self, character: &mut crate::character::Character) {
     //     let rect = self.quantize(&character.col, &character.pos);
     //     self.for_tiles_in_rect(rect, character.vel.x, character.vel.y, |p, t| {
