@@ -1,0 +1,32 @@
+[package]
+name = "auburn"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Fast and simple physics library."
+repository = "https://github.com/lubomirkurcak/auburn/"
+keywords = ["math", "physics", "geometry", "gamedev", "algorithm"]
+categories = ["algorithms", "data-structures", "game-development", "mathematics", "simulation"]
+
+[features]
+#default = ["penetrates_dir"]
+penetrates_dir = []
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glam = "0.25.0"
+lk_math = "0.4.0"
+#lk_math = { path = "c:/repos/lk_math", default-features = true }
+round-to = "0.1.0"
+serde = "1.0.195"
+serde_json = "1.0.111"
+serde_with = "3.4.0"
+
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
