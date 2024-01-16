@@ -1,4 +1,4 @@
-use crate::Vec2;
+use crate::{Vec2, Invertible, Composable};
 
 /// Trait for transforming 2D points.
 pub trait Transform2dTrait {
@@ -10,27 +10,6 @@ pub trait Transform2dTrait {
 
     /// Invert transformation.
     fn unapply(&self, point: Vec2) -> Vec2;
-}
-
-pub trait Invertible {
-    /// Inversion of the transformation.
-    ///
-    /// The operation holds this property:
-    /// ```rust
-    /// assert_eq!(p, a.inverse().apply(a.apply(p)))
-    fn inverse(&self) -> Self;
-}
-
-pub trait Composable {
-    /// Compose two transformations.
-    ///
-    /// The operation holds this property:
-    /// ```rust
-    /// assert_eq!(
-    ///     a.apply(b.apply(p)),
-    ///     a.compose(&b).apply(p),
-    /// )
-    fn compose(&self, other: &Self) -> Self;
 }
 
 #[derive(Default)]

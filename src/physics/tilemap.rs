@@ -1,14 +1,16 @@
-use std::io::{BufReader, BufWriter, Read, Write};
+use std::io::{BufReader, BufWriter, Write};
 
 use lk_math::arraynd::Array2d;
 use lk_math::modular::ModularDecompose;
-use lk_math::vector::{V2i32, Vector};
+use lk_math::vector::V2i32;
 use round_to::*;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-use super::box2d::Box2d;
-use super::*;
+use crate::{
+    Ball, Box2d, Collides2d, Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Vec2,
+};
+
 use crate::{Ledger, Publisher, Rect2i32};
 
 const CHUNK_SIZE: V2i32 = V2i32::from_xy(16, 16);
@@ -129,15 +131,13 @@ impl Tilemap {
                     f(tile_pos, self.get_tile(tile_pos));
                 }
             }
+        } else if flip_x {
+            for tile_pos in rect.iterate_north_west() {
+                f(tile_pos, self.get_tile(tile_pos));
+            }
         } else {
-            if flip_x {
-                for tile_pos in rect.iterate_north_west() {
-                    f(tile_pos, self.get_tile(tile_pos));
-                }
-            } else {
-                for tile_pos in rect.iterate_north_east() {
-                    f(tile_pos, self.get_tile(tile_pos));
-                }
+            for tile_pos in rect.iterate_north_east() {
+                f(tile_pos, self.get_tile(tile_pos));
             }
         }
     }

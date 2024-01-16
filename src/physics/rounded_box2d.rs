@@ -1,4 +1,7 @@
-use super::*;
+use crate::{
+    Ball, Box2d, Collides2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity,
+    MinkowskiSum, Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Translate2d, Vec2,
+};
 
 #[derive(Default, Clone, Copy)]
 pub struct RoundedBox2d {

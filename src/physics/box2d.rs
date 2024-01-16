@@ -1,5 +1,7 @@
-use super::*;
-// use bevy::prelude::*;
+use crate::{
+    Collides2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity, MinkowskiSum,
+    Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Vec2,
+};
 
 /// 2D rectangle *centered at the origin*.
 #[derive(Default, Clone, Copy)]
