@@ -42,18 +42,19 @@ mod transform3d;
 mod transform;
 mod ball2d;
 mod ball3d;
+mod cylinder3d;
 
 // use bevy::prelude::*;
 pub use glam::Vec2;
 pub use glam::Vec3;
 pub use glam::Quat;
 
+pub use point::*;
 pub use ball::*;
 pub use transform::*;
 
 pub use ball2d::*;
 pub use box2d::*;
-pub use point::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;
 pub use tilemap::*;
@@ -61,6 +62,7 @@ pub use transform2d::*;
 
 pub use ball3d::*;
 pub use box3d::*;
+pub use cylinder3d::*;
 pub use transform3d::*;
 
 /// Trait for computing Minkowski sum.

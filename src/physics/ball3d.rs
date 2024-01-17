@@ -17,8 +17,8 @@ impl ExtremePoint3d for Ball {
 }
 
 impl Collides3d<()> for Ball {
-    fn collides(&self, _t: &(), t_transform: &impl Transform3dTrait) -> bool {
-        t_transform.apply_origin().length_squared() < self.radius * self.radius
+    fn collides(&self, _t: &(), rel: &impl Transform3dTrait) -> bool {
+        rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
 impl Collides3d<Ball> for () {

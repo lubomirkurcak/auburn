@@ -68,10 +68,10 @@ impl Collides2d<()> for RoundedBox2d {
 }
 
 impl Collides2d<()> for RoundedBox2d {
-    fn collides(&self, _t: &(), t_transform: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), rel: &impl Transform2dTrait) -> bool {
         let bbox = self.symmetric_bounding_box();
-        if ().collides(&bbox, t_transform) {
-            let delta = t_transform.apply_origin();
+        if ().collides(&bbox, rel) {
+            let delta = rel.apply_origin();
             let x0 = -self.halfsize.x < delta.x;
             let x1 = delta.x < self.halfsize.x;
             if x0 && x1 {
@@ -108,8 +108,8 @@ impl Collides2d<()> for RoundedBox2d {
 }
 
 impl Collides2d<RoundedBox2d> for () {
-    fn collides(&self, t: &RoundedBox2d, t_transform: &impl Transform2dTrait) -> bool {
-        t.collides(&(), t_transform)
+    fn collides(&self, t: &RoundedBox2d, rel: &impl Transform2dTrait) -> bool {
+        t.collides(&(), rel)
     }
 }
 

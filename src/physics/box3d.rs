@@ -65,8 +65,8 @@ impl MinkowskiSum<Box3d> for Box3d {
 impl MinkowskiNegationIsIdentity for Box3d {}
 
 impl Collides3d<()> for Box3d {
-    fn collides(&self, _t: &(), t_transform: &impl Transform3dTrait) -> bool {
-        let delta = t_transform.apply_origin();
+    fn collides(&self, _t: &(), rel: &impl Transform3dTrait) -> bool {
+        let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
             && -self.halfsize.y < delta.y
@@ -76,8 +76,8 @@ impl Collides3d<()> for Box3d {
     }
 }
 impl Collides3d<Box3d> for () {
-    fn collides(&self, t: &Box3d, t_transform: &impl Transform3dTrait) -> bool {
-        t.collides(&(), t_transform)
+    fn collides(&self, t: &Box3d, rel: &impl Transform3dTrait) -> bool {
+        t.collides(&(), rel)
     }
 }
 
@@ -106,7 +106,7 @@ impl Penetrates3d<Box3d> for () {
 
 impl Penetrates3d<()> for Box3d {
     fn penetrates(&self, _t: &(), rel: &impl Transform3dTrait) -> Option<Vec3> {
-        Penetrates3d::penetrates(&(), self, rel)
+        ().penetrates(self, rel)
     }
 }
 
@@ -133,8 +133,8 @@ impl Penetrates3dDir<()> for Box3d {
 }
 
 impl Collides3d<Box3d> for Box3d {
-    fn collides(&self, t: &Box3d, t_transform: &impl Transform3dTrait) -> bool {
-        self.minkowski_difference(t).collides(&(), t_transform)
+    fn collides(&self, t: &Box3d, rel: &impl Transform3dTrait) -> bool {
+        self.minkowski_difference(t).collides(&(), rel)
     }
 }
 

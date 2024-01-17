@@ -60,8 +60,8 @@ impl MinkowskiSum<Box2d> for Box2d {
 impl MinkowskiNegationIsIdentity for Box2d {}
 
 impl Collides2d<()> for Box2d {
-    fn collides(&self, _t: &(), t_transform: &impl Transform2dTrait) -> bool {
-        let delta = t_transform.apply_origin();
+    fn collides(&self, _t: &(), rel: &impl Transform2dTrait) -> bool {
+        let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
             && -self.halfsize.y < delta.y
@@ -69,8 +69,8 @@ impl Collides2d<()> for Box2d {
     }
 }
 impl Collides2d<Box2d> for () {
-    fn collides(&self, t: &Box2d, t_transform: &impl Transform2dTrait) -> bool {
-        t.collides(&(), t_transform)
+    fn collides(&self, t: &Box2d, rel: &impl Transform2dTrait) -> bool {
+        t.collides(&(), rel)
     }
 }
 
@@ -121,8 +121,8 @@ impl Penetrates2dDir<()> for Box2d {
 }
 
 impl Collides2d<Box2d> for Box2d {
-    fn collides(&self, t: &Box2d, t_transform: &impl Transform2dTrait) -> bool {
-        self.minkowski_difference(t).collides(&(), t_transform)
+    fn collides(&self, t: &Box2d, rel: &impl Transform2dTrait) -> bool {
+        self.minkowski_difference(t).collides(&(), rel)
     }
 }
 
