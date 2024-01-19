@@ -5,6 +5,7 @@ pub trait Invertible {
     /// The operation holds this property:
     /// ```rust
     /// assert_eq!(p, a.inverse().apply(a.apply(p)))
+    /// ```
     fn inverse(&self) -> Self;
 }
 
@@ -17,6 +18,7 @@ pub trait Composable {
     ///     a.apply(b.apply(p)),
     ///     a.compose(&b).apply(p),
     /// )
+    /// ```
     fn compose(&self, other: &Self) -> Self;
 }
 
