@@ -1,4 +1,4 @@
-use crate::{
+use super::{
     Ball, Box2d, Collides2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity,
     MinkowskiSum, Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Translate2d, Vec2,
 };

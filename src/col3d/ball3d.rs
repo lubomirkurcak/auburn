@@ -1,6 +1,6 @@
 use std::ops::Mul;
 
-use crate::{
+use super::{
     Ball, Collides3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transform3dTrait, Vec3,
 };
 

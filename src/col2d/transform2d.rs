@@ -1,4 +1,4 @@
-use crate::{Vec2, Invertible, Composable};
+use super::{Composable, Invertible, Vec2};
 
 /// Trait for transforming 2D points.
 pub trait Transform2dTrait {

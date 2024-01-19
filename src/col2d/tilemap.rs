@@ -7,11 +7,11 @@ use round_to::*;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
-use crate::{
+use super::{
     Ball, Box2d, Collides2d, Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Vec2,
 };
 
-use crate::{Ledger, Publisher, Rect2i32};
+use crate::utils::{Ledger, Publisher, Rect2i32};
 
 const CHUNK_SIZE: V2i32 = V2i32::from_xy(16, 16);
 

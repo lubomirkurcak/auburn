@@ -1,6 +1,6 @@
-use crate::{
+use super::{
     Ball, Collides3d, ExtremePoint3d, MinkowskiNegationIsIdentity, MinkowskiSum, Penetrates3d,
-    Vec2, Vec3,
+    Transform3dTrait, Vec2, Vec3,
 };
 
 /// Upright 3D cylinder given by [height] and [radius].
@@ -25,7 +25,7 @@ impl Cylinder3d {
 
 impl ExtremePoint3d for Cylinder3d {
     fn extreme_point(&self, direction: &Vec3) -> Vec3 {
-        let d = crate::ExtremePoint2d::extreme_point(
+        let d = crate::col2d::ExtremePoint2d::extreme_point(
             &self.to_ball(),
             &Vec2::new(direction.x, direction.y),
         );
@@ -54,7 +54,7 @@ impl MinkowskiSum<Cylinder3d> for Cylinder3d {
 impl MinkowskiNegationIsIdentity for Cylinder3d {}
 
 impl Collides3d<()> for Cylinder3d {
-    fn collides(&self, t: &(), rel: &impl crate::Transform3dTrait) -> bool {
+    fn collides(&self, t: &(), rel: &impl Transform3dTrait) -> bool {
         let o = rel.apply_origin();
         if o.z < -self.halfheight || o.z > self.halfheight {
             return false;
@@ -62,18 +62,18 @@ impl Collides3d<()> for Cylinder3d {
 
         let o2d = Vec2::new(o.x, o.y);
 
-        crate::Collides2d::collides(&self.to_ball(), (), &o2d);
+        crate::col2d::Collides2d::collides(&self.to_ball(), &(), &o2d)
     }
 }
 
 impl Collides3d<Cylinder3d> for () {
-    fn collides(&self, t: &Cylinder3d, rel: &impl crate::Transform3dTrait) -> bool {
+    fn collides(&self, t: &Cylinder3d, rel: &impl Transform3dTrait) -> bool {
         t.collides(&(), rel)
     }
 }
 
 impl Penetrates3d<Cylinder3d> for () {
-    fn penetrates(&self, t: &Cylinder3d, rel: &impl crate::Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, t: &Cylinder3d, rel: &impl Transform3dTrait) -> Option<Vec3> {
         if Collides3d::collides(&(), t, rel) {
             let delta = rel.apply_origin();
             let delta2d = Vec2::new(delta.x, delta.y);
@@ -82,7 +82,7 @@ impl Penetrates3d<Cylinder3d> for () {
             if z2 < delta2d_sq {
                 return Some(Vec3::new(0.0, 0.0, delta.z.signum() * t.halfheight));
             } else {
-                return crate::Penetrates2d::penetrates(&(), &t.to_ball(), &delta2d)
+                return crate::col2d::Penetrates2d::penetrates(&(), &t.to_ball(), &delta2d)
                     .map(|v| Vec3::new(v.x, v.y, 0.0));
             }
         }

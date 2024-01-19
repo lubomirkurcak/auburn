@@ -1,7 +1,4 @@
-use crate::Composable;
-use crate::Invertible;
-use crate::Vec3;
-use crate::Quat;
+use super::{Composable, Invertible, Quat, Vec3};
 
 /// Trait for transforming 3D points.
 pub trait Transform3dTrait {
@@ -161,9 +158,6 @@ pub struct Rotor3d {
 
 impl Default for Rotor3d {
     fn default() -> Self {
-        Self {
-            q: Quat::default(),
-        }
+        Self { q: Quat::default() }
     }
 }
-

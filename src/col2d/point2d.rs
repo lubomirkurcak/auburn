@@ -1,18 +1,11 @@
-use super::*;
-
-impl MinkowskiNegationIsIdentity for () {}
+use super::{
+    Ball, Box2d, Collides2d, ExtremePoint2d, Penetrates2d, Sdf2d, Sdf2dVector,
+    SymmetricBoundingBox2d, Transform2dTrait, Vec2,
+};
 
 impl SymmetricBoundingBox2d for () {
     fn symmetric_bounding_box(&self) -> Box2d {
         Box2d::with_halfdims(0.0, 0.0)
-    }
-}
-
-impl<T: Copy> MinkowskiSum<T> for () {
-    type Output = T;
-
-    fn minkowski_sum(&self, t: &T) -> Self::Output {
-        *t
     }
 }
 
