@@ -46,6 +46,20 @@ pub trait MinkowskiSum<T> {
     fn minkowski_sum(&self, t: &T) -> Self::Output;
 }
 
+// NOTE: Could not get these to work since rust tries to define the trait recursively for A == B.
+//     const DEFINE_SYMMETRY: bool;
+// pub trait MinkowskiSumSymmetry<T> {}
+// impl<A, B, C> MinkowskiSum<A> for B
+// where
+//     A: MinkowskiSumSymmetry<B>,
+//     A: MinkowskiSum<B, Output = C>,
+// {
+//     type Output = C;
+//     fn minkowski_sum(&self, t: &A) -> Self::Output {
+//         t.minkowski_sum(self)
+//     }
+// }
+
 /// Marker trait for when the Minkowski negation is identity.
 /// This would usually be true for shapes centered at the origin and symmetric around it.
 ///
@@ -158,4 +172,3 @@ where
         self.minkowski_sum(&t.minkowski_negation())
     }
 }
-

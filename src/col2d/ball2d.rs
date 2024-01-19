@@ -1,9 +1,14 @@
-use std::ops::Mul;
+use super::*;
 
-use super::{
-    Ball, Box2d, CollidesRel2d, ExtremePoint2d, Penetrates2d, Sdf2d, Sdf2dVector,
-    SymmetricBoundingBox2d, Transform2d, Vec2,
-};
+impl MinkowskiSum<Box2d> for Ball {
+    type Output = RoundedBox2d;
+    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
+        Self::Output {
+            halfsize: t.halfsize,
+            radius: self.radius,
+        }
+    }
+}
 
 impl SymmetricBoundingBox2d for Ball {
     fn symmetric_bounding_box(&self) -> Box2d {
@@ -38,7 +43,7 @@ impl Penetrates2d<Ball> for () {
             } else {
                 let old_magn = distance_to_center;
                 let new_magn = t.radius - distance_to_center;
-                let penetration = delta.mul(new_magn / old_magn);
+                let penetration = delta * (new_magn / old_magn);
                 Some(penetration)
             }
         } else {
@@ -65,7 +70,7 @@ impl Sdf2dVector<()> for Ball {
         let length = delta.length();
         if length > 0.0 {
             let new_length = length - self.radius;
-            delta.mul(new_length / length)
+            delta * (new_length / length)
         } else {
             self.radius * Vec2::X
         }

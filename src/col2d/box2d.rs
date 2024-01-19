@@ -1,7 +1,26 @@
-use super::{
-    CollidesRel2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity, MinkowskiSum,
-    Penetrates2d, SymmetricBoundingBox2d, Transform2d, Vec2,
-};
+use super::*;
+
+impl MinkowskiSum<Box2d> for Box2d {
+    type Output = Self;
+
+    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
+        Self::Output {
+            halfsize: self.halfsize + t.halfsize,
+        }
+    }
+}
+
+impl MinkowskiNegationIsIdentity for Box2d {}
+
+impl MinkowskiSum<Ball> for Box2d {
+    type Output = RoundedBox2d;
+    fn minkowski_sum(&self, t: &Ball) -> Self::Output {
+        Self::Output {
+            halfsize: self.halfsize,
+            radius: t.radius,
+        }
+    }
+}
 
 /// 2D rectangle *centered at the origin*.
 #[derive(Default, Clone, Copy)]
@@ -46,18 +65,6 @@ impl ExtremePoint2d for Box2d {
         )
     }
 }
-
-impl MinkowskiSum<Box2d> for Box2d {
-    type Output = Self;
-
-    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize + t.halfsize,
-        }
-    }
-}
-
-impl MinkowskiNegationIsIdentity for Box2d {}
 
 impl CollidesRel2d<()> for Box2d {
     fn collides_rel(&self, _t: &(), rel: &impl Transform2d) -> bool {

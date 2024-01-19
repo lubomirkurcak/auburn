@@ -99,17 +99,20 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
-impl<T, U, V> CollidesRel2d<U> for T
+impl<A, B, C> CollidesRel2d<B> for A
 where
-    T: MinkowskiDifference<U, Output = V>,
-    V: CollidesRel2d<()>,
+    A: MinkowskiDifference<B, Output = C>,
+    C: CollidesRel2d<()>,
 {
-    fn collides_rel(&self, t: &U, rel: &impl Transform2d) -> bool {
+    fn collides_rel(&self, t: &B, rel: &impl Transform2d) -> bool {
         self.minkowski_difference(t).collides_rel(&(), rel)
     }
 }
 
 /// Trait for checking collision between `Self` and `T`.
+///
+/// # Limitations
+/// Currently, transformation types must be the same for both `Self` and `T`.
 ///
 /// # See also
 /// * [BoundingBox2d]
@@ -135,12 +138,12 @@ pub trait Collides2d<T, U: Transform2d> {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
 }
 
-impl<T, U> Collides2d<T, U> for T
+impl<A, B, T> Collides2d<B, T> for A
 where
-    T: CollidesRel2d<T>,
-    U: Transform2d + DeltaTransform,
+    A: CollidesRel2d<B>,
+    T: Transform2d + DeltaTransform,
 {
-    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
+    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
         let rel = transform.delta_transform(t_transform);
         self.collides_rel(t, &rel)
     }

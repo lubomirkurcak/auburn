@@ -1,7 +1,4 @@
-use super::{
-    Ball, Box2d, CollidesRel2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity,
-    MinkowskiSum, Penetrates2d, SymmetricBoundingBox2d, Transform2d, Translate2d, Vec2,
-};
+use super::*;
 
 #[derive(Default, Clone, Copy)]
 pub struct RoundedBox2d {
@@ -26,16 +23,6 @@ impl ExtremePoint2d for RoundedBox2d {
         let a = Ball::new(self.radius);
         let b = Box2d::new(self.halfsize);
         a.extreme_point(direction) + b.extreme_point(direction)
-    }
-}
-
-impl MinkowskiSum<Box2d> for Ball {
-    type Output = RoundedBox2d;
-    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
-        Self::Output {
-            halfsize: t.halfsize,
-            radius: self.radius,
-        }
     }
 }
 
@@ -89,16 +76,19 @@ impl CollidesRel2d<()> for RoundedBox2d {
 
             if x0 {
                 if y0 {
-                    let ct = Translate2d::new(delta - self.halfsize);
-                    return ().collides_rel(&c, &ct);
+                    let cdelta = delta - self.halfsize;
+                    return ().collides_rel(&c, &cdelta);
                 } else {
-                    println!("bottom right");
+                    let cdelta = delta + Vec2::new(-self.halfsize.x, self.halfsize.y);
+                    return ().collides_rel(&c, &cdelta);
                 }
             } else {
                 if y0 {
-                    println!("top left");
+                    let cdelta = delta + Vec2::new(self.halfsize.x, -self.halfsize.y);
+                    return ().collides_rel(&c, &cdelta);
                 } else {
-                    println!("bottom left");
+                    let cdelta = delta + self.halfsize;
+                    return ().collides_rel(&c, &cdelta);
                 }
             }
             return false;
@@ -175,6 +165,11 @@ impl Penetrates2d<RoundedBox2d> for () {
 
 // impl CollidesRel2d<Box2d> for Ball {
 //     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+//         self.minkowski_difference(t).collides_rel(&(), rel)
+//     }
+// }
+// impl<T: Transform2d> Collides2d<Box2d, T> for Ball {
+//     fn collides(&self, transform: &T, t: &Box2d, t_transform: &T) -> bool {
 //         self.minkowski_difference(t).collides_rel(&(), rel)
 //     }
 // }
