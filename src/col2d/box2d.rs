@@ -68,11 +68,11 @@ impl CollidesRel2d<()> for Box2d {
             && delta.y < self.halfsize.y
     }
 }
-impl CollidesRel2d<Box2d> for () {
-    fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-        t.collides_rel(&(), rel)
-    }
-}
+// impl CollidesRel2d<Box2d> for () {
+//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+//         t.collides_rel(&(), rel)
+//     }
+// }
 
 impl Penetrates2d<Box2d> for () {
     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
@@ -120,11 +120,11 @@ impl Penetrates2dDir<()> for Box2d {
     }
 }
 
-impl CollidesRel2d<Box2d> for Box2d {
-    fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-        self.minkowski_difference(t).collides_rel(&(), rel)
-    }
-}
+// impl CollidesRel2d<Box2d> for Box2d {
+//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+//         self.minkowski_difference(t).collides_rel(&(), rel)
+//     }
+// }
 
 impl Penetrates2d<Box2d> for Box2d {
     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {

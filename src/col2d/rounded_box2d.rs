@@ -107,11 +107,11 @@ impl CollidesRel2d<()> for RoundedBox2d {
     }
 }
 
-impl CollidesRel2d<RoundedBox2d> for () {
-    fn collides_rel(&self, t: &RoundedBox2d, rel: &impl Transform2d) -> bool {
-        t.collides_rel(&(), rel)
-    }
-}
+// impl CollidesRel2d<RoundedBox2d> for () {
+//     fn collides_rel(&self, t: &RoundedBox2d, rel: &impl Transform2d) -> bool {
+//         t.collides_rel(&(), rel)
+//     }
+// }
 
 impl Penetrates2d<()> for RoundedBox2d {
     fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
@@ -173,11 +173,11 @@ impl Penetrates2d<RoundedBox2d> for () {
     }
 }
 
-impl CollidesRel2d<Box2d> for Ball {
-    fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-        self.minkowski_difference(t).collides_rel(&(), rel)
-    }
-}
+// impl CollidesRel2d<Box2d> for Ball {
+//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+//         self.minkowski_difference(t).collides_rel(&(), rel)
+//     }
+// }
 impl Penetrates2d<Box2d> for Ball {
     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
         ().penetrates(&self.minkowski_difference(t), rel)

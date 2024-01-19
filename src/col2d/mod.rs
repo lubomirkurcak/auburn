@@ -99,6 +99,16 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
+impl<T, U, V> CollidesRel2d<U> for T
+where
+    T: MinkowskiDifference<U, Output = V>,
+    V: CollidesRel2d<()>,
+{
+    fn collides_rel(&self, t: &U, rel: &impl Transform2d) -> bool {
+        self.minkowski_difference(t).collides_rel(&(), rel)
+    }
+}
+
 /// Trait for checking collision between `Self` and `T`.
 ///
 /// # See also

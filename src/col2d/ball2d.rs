@@ -22,11 +22,11 @@ impl CollidesRel2d<()> for Ball {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
-impl CollidesRel2d<Ball> for () {
-    fn collides_rel(&self, t: &Ball, delta: &impl Transform2d) -> bool {
-        t.collides_rel(&(), delta)
-    }
-}
+// impl CollidesRel2d<Ball> for () {
+//     fn collides_rel(&self, t: &Ball, delta: &impl Transform2d) -> bool {
+//         t.collides_rel(&(), delta)
+//     }
+// }
 
 impl Penetrates2d<Ball> for () {
     fn penetrates(&self, t: &Ball, rel: &impl Transform2d) -> Option<Vec2> {
