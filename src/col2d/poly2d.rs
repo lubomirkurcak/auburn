@@ -49,7 +49,7 @@ impl<const N: usize> ExtremePoint2d for Poly2d<N> {
 }
 
 impl<const N: usize> Collides2d<()> for Poly2d<N> {
-    fn collides(&self, t: &(), rel: &impl Transform2dTrait) -> bool {
+    fn collides(&self, t: &(), rel: &impl Transform2d) -> bool {
         let delta = rel.apply_origin();
         let a = self.extreme_point(&delta);
         todo!()

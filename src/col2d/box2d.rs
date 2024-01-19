@@ -1,6 +1,6 @@
 use super::{
     Collides2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity, MinkowskiSum,
-    Penetrates2d, SymmetricBoundingBox2d, Transform2dTrait, Vec2,
+    Penetrates2d, SymmetricBoundingBox2d, Transform2d, Vec2,
 };
 
 /// 2D rectangle *centered at the origin*.
@@ -60,7 +60,7 @@ impl MinkowskiSum<Box2d> for Box2d {
 impl MinkowskiNegationIsIdentity for Box2d {}
 
 impl Collides2d<()> for Box2d {
-    fn collides(&self, _t: &(), rel: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), rel: &impl Transform2d) -> bool {
         let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
@@ -69,13 +69,13 @@ impl Collides2d<()> for Box2d {
     }
 }
 impl Collides2d<Box2d> for () {
-    fn collides(&self, t: &Box2d, rel: &impl Transform2dTrait) -> bool {
+    fn collides(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
         t.collides(&(), rel)
     }
 }
 
 impl Penetrates2d<Box2d> for () {
-    fn penetrates(&self, t: &Box2d, rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
         if self.collides(t, rel) {
             let delta = rel.apply_origin();
             let delta_x = t.halfsize.x - delta.x.abs();
@@ -93,7 +93,7 @@ impl Penetrates2d<Box2d> for () {
 }
 
 impl Penetrates2d<()> for Box2d {
-    fn penetrates(&self, _t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
         ().penetrates(self, rel)
     }
 }
@@ -121,13 +121,13 @@ impl Penetrates2dDir<()> for Box2d {
 }
 
 impl Collides2d<Box2d> for Box2d {
-    fn collides(&self, t: &Box2d, rel: &impl Transform2dTrait) -> bool {
+    fn collides(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
         self.minkowski_difference(t).collides(&(), rel)
     }
 }
 
 impl Penetrates2d<Box2d> for Box2d {
-    fn penetrates(&self, t: &Box2d, rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
         // self.minkowski_difference(t).penetrates(&(), &delta)
         ().penetrates(&self.minkowski_difference(t), rel)
     }

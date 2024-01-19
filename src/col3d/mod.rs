@@ -67,7 +67,7 @@ pub trait Collides3d<T> {
     ///
     /// # See also
     /// * [Penetrates3d::penetrates].
-    fn collides(&self, t: &T, rel: &impl Transform3dTrait) -> bool;
+    fn collides(&self, t: &T, rel: &impl Transform3d) -> bool;
 }
 
 /// Trait for checking collision between `Self` and `T`.
@@ -75,7 +75,7 @@ pub trait Collides3d<T> {
 /// # See also
 /// * [BoundingBox3d]
 /// * [Penetrates3d]
-pub trait CollidesT3d<T> {
+pub trait CollidesT3d<T, U: Transform3d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -92,12 +92,18 @@ pub trait CollidesT3d<T> {
     ///
     /// # See also
     /// * [Penetrates3d::penetrates].
-    fn collides(
-        &self,
-        transform: &impl Transform3dTrait,
-        t: &T,
-        t_transform: &impl Transform3dTrait,
-    ) -> bool;
+    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
+}
+
+impl<T, U> CollidesT3d<T, U> for T
+where
+    T: Collides3d<T>,
+    U: Transform3d + DeltaTransform,
+{
+    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
+        let rel = transform.delta_transform(t_transform);
+        self.collides(t, &rel)
+    }
 }
 
 /// Trait for computing smallest penetration vector between `Self` and `T`.
@@ -121,7 +127,7 @@ pub trait Penetrates3d<T> {
     ///
     /// # See also
     /// * [Collides3d::collides].
-    fn penetrates(&self, t: &T, rel: &impl Transform3dTrait) -> Option<Vec3>;
+    fn penetrates(&self, t: &T, rel: &impl Transform3d) -> Option<Vec3>;
 }
 
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
@@ -144,7 +150,7 @@ pub trait Sdf3d<T> {
     ///
     /// # See also
     /// * [Sdf3dVector::sdfvector].
-    fn sdf(&self, t: &T, rel: &impl Transform3dTrait) -> f32;
+    fn sdf(&self, t: &T, rel: &impl Transform3d) -> f32;
 }
 
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
@@ -167,5 +173,5 @@ pub trait Sdf3dVector<T> {
     ///
     /// # See also
     /// * [Sdf3d::sdf].
-    fn sdfvector(&self, t: &T, rel: &impl Transform3dTrait) -> Vec3;
+    fn sdfvector(&self, t: &T, rel: &impl Transform3d) -> Vec3;
 }

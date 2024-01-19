@@ -1,6 +1,6 @@
 use super::{
     Ball, Collides3d, ExtremePoint3d, MinkowskiNegationIsIdentity, MinkowskiSum, Penetrates3d,
-    Transform3dTrait, Vec2, Vec3,
+    Transform3d, Vec2, Vec3,
 };
 
 /// Upright 3D cylinder given by [height] and [radius].
@@ -54,7 +54,7 @@ impl MinkowskiSum<Cylinder3d> for Cylinder3d {
 impl MinkowskiNegationIsIdentity for Cylinder3d {}
 
 impl Collides3d<()> for Cylinder3d {
-    fn collides(&self, t: &(), rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, t: &(), rel: &impl Transform3d) -> bool {
         let o = rel.apply_origin();
         if o.z < -self.halfheight || o.z > self.halfheight {
             return false;
@@ -67,13 +67,13 @@ impl Collides3d<()> for Cylinder3d {
 }
 
 impl Collides3d<Cylinder3d> for () {
-    fn collides(&self, t: &Cylinder3d, rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, t: &Cylinder3d, rel: &impl Transform3d) -> bool {
         t.collides(&(), rel)
     }
 }
 
 impl Penetrates3d<Cylinder3d> for () {
-    fn penetrates(&self, t: &Cylinder3d, rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, t: &Cylinder3d, rel: &impl Transform3d) -> Option<Vec3> {
         if Collides3d::collides(&(), t, rel) {
             let delta = rel.apply_origin();
             let delta2d = Vec2::new(delta.x, delta.y);
@@ -90,7 +90,7 @@ impl Penetrates3d<Cylinder3d> for () {
     }
 }
 impl Penetrates3d<()> for Cylinder3d {
-    fn penetrates(&self, _t: &(), rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform3d) -> Option<Vec3> {
         ().penetrates(self, rel)
     }
 }

@@ -7,7 +7,7 @@ pub struct Isotropic2d {
     scale: f32,
 }
 
-impl Transform2dTrait for Isotropic2d {
+impl Transform2d for Isotropic2d {
     fn apply_origin(&self) -> Vec2 {
         todo!()
     }

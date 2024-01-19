@@ -12,7 +12,7 @@ impl AxisTransform2d {
     }
 }
 
-impl Transform2dTrait for AxisTransform2d {
+impl Transform2d for AxisTransform2d {
     fn apply_origin(&self) -> Vec2 {
         self.pos
     }

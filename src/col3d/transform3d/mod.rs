@@ -5,7 +5,7 @@ mod isotropic3d;
 use super::*;
 
 /// Trait for transforming 3D points.
-pub trait Transform3dTrait {
+pub trait Transform3d {
     /// Transform the origin.
     fn apply_origin(&self) -> Vec3;
 

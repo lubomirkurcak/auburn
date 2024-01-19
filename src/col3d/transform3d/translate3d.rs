@@ -5,7 +5,7 @@ pub struct Translate3d {
     pos: Vec3,
 }
 
-impl Transform3dTrait for Vec3 {
+impl Transform3d for Vec3 {
     fn apply_origin(&self) -> Vec3 {
         *self
     }
@@ -37,7 +37,7 @@ impl Translate3d {
     }
 }
 
-impl Transform3dTrait for Translate3d {
+impl Transform3d for Translate3d {
     fn apply_origin(&self) -> Vec3 {
         self.pos
     }

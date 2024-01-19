@@ -5,7 +5,7 @@ pub struct Translate2d {
     pos: Vec2,
 }
 
-impl Transform2dTrait for Vec2 {
+impl Transform2d for Vec2 {
     fn apply_origin(&self) -> Vec2 {
         *self
     }
@@ -37,7 +37,7 @@ impl Translate2d {
     }
 }
 
-impl Transform2dTrait for Translate2d {
+impl Transform2d for Translate2d {
     fn apply_origin(&self) -> Vec2 {
         self.pos
     }

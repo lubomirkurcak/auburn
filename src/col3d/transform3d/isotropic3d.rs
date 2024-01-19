@@ -7,7 +7,7 @@ pub struct Isotropic3d {
     scale: f32,
 }
 
-impl Transform3dTrait for Isotropic3d {
+impl Transform3d for Isotropic3d {
     fn apply_origin(&self) -> Vec3 {
         todo!()
     }

@@ -96,7 +96,7 @@ pub trait Collides2d<T> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides(&self, t: &T, rel: &impl Transform2dTrait) -> bool;
+    fn collides(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
 /// Trait for checking collision between `Self` and `T`.
@@ -104,7 +104,7 @@ pub trait Collides2d<T> {
 /// # See also
 /// * [BoundingBox2d]
 /// * [Penetrates2d]
-pub trait CollidesT2d<T> {
+pub trait CollidesT2d<T, U: Transform2d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -121,12 +121,18 @@ pub trait CollidesT2d<T> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides(
-        &self,
-        transform: &impl Transform2dTrait,
-        t: &T,
-        t_transform: &impl Transform2dTrait,
-    ) -> bool;
+    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
+}
+
+impl<T, U> CollidesT2d<T, U> for T
+where
+    T: Collides2d<T>,
+    U: Transform2d + DeltaTransform,
+{
+    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
+        let rel = transform.delta_transform(t_transform);
+        self.collides(t, &rel)
+    }
 }
 
 /// Trait for computing smallest penetration vector between `Self` and `T`.
@@ -150,7 +156,7 @@ pub trait Penetrates2d<T> {
     ///
     /// # See also
     /// * [Collides2d::collides].
-    fn penetrates(&self, t: &T, rel: &impl Transform2dTrait) -> Option<Vec2>;
+    fn penetrates(&self, t: &T, rel: &impl Transform2d) -> Option<Vec2>;
 }
 
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
@@ -173,7 +179,7 @@ pub trait Sdf2d<T> {
     ///
     /// # See also
     /// * [Sdf2dVector::sdfvector].
-    fn sdf(&self, t: &T, rel: &impl Transform2dTrait) -> f32;
+    fn sdf(&self, t: &T, rel: &impl Transform2d) -> f32;
 }
 
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
@@ -196,6 +202,5 @@ pub trait Sdf2dVector<T> {
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfvector(&self, t: &T, rel: &impl Transform2dTrait) -> Vec2;
+    fn sdfvector(&self, t: &T, rel: &impl Transform2d) -> Vec2;
 }
-

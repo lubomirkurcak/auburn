@@ -9,7 +9,7 @@ pub use axis_transform2d::*;
 pub use isotropic2d::*;
 
 /// Trait for transforming 2D points.
-pub trait Transform2dTrait {
+pub trait Transform2d {
     /// Transform the origin.
     fn apply_origin(&self) -> Vec2;
 

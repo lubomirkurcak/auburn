@@ -1,3 +1,5 @@
+//! Imagine you have transformations `A` and `B`.
+//! You can calculate the difference between them by `A.inverse().compose(&B)`.
 
 pub trait Invertible {
     /// Inversion of the transformation.
@@ -20,5 +22,15 @@ pub trait Composable {
     /// )
     /// ```
     fn compose(&self, other: &Self) -> Self;
+}
+
+pub trait DeltaTransform {
+    fn delta_transform(&self, other: &Self) -> Self;
+}
+
+impl<T: Invertible + Composable> DeltaTransform for T {
+    fn delta_transform(&self, other: &Self) -> Self {
+        self.inverse().compose(other)
+    }
 }
 

@@ -1,6 +1,6 @@
 use super::{
     Collides3d, ExtremePoint3d, MinkowskiDifference, MinkowskiNegationIsIdentity, MinkowskiSum,
-    Penetrates3d, Transform3dTrait, Vec3,
+    Penetrates3d, Transform3d, Vec3,
 };
 
 /// 3D rectangle *centered at the origin*.
@@ -65,7 +65,7 @@ impl MinkowskiSum<Box3d> for Box3d {
 impl MinkowskiNegationIsIdentity for Box3d {}
 
 impl Collides3d<()> for Box3d {
-    fn collides(&self, _t: &(), rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, _t: &(), rel: &impl Transform3d) -> bool {
         let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
@@ -76,13 +76,13 @@ impl Collides3d<()> for Box3d {
     }
 }
 impl Collides3d<Box3d> for () {
-    fn collides(&self, t: &Box3d, rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, t: &Box3d, rel: &impl Transform3d) -> bool {
         t.collides(&(), rel)
     }
 }
 
 impl Penetrates3d<Box3d> for () {
-    fn penetrates(&self, t: &Box3d, rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, t: &Box3d, rel: &impl Transform3d) -> Option<Vec3> {
         if Collides3d::collides(&(), t, rel) {
             let delta = rel.apply_origin();
             let delta_x = t.halfsize.x - delta.x.abs();
@@ -105,7 +105,7 @@ impl Penetrates3d<Box3d> for () {
 }
 
 impl Penetrates3d<()> for Box3d {
-    fn penetrates(&self, _t: &(), rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform3d) -> Option<Vec3> {
         ().penetrates(self, rel)
     }
 }
@@ -133,13 +133,13 @@ impl Penetrates3dDir<()> for Box3d {
 }
 
 impl Collides3d<Box3d> for Box3d {
-    fn collides(&self, t: &Box3d, rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, t: &Box3d, rel: &impl Transform3d) -> bool {
         self.minkowski_difference(t).collides(&(), rel)
     }
 }
 
 impl Penetrates3d<Box3d> for Box3d {
-    fn penetrates(&self, t: &Box3d, rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, t: &Box3d, rel: &impl Transform3d) -> Option<Vec3> {
         // self.minkowski_difference(t).penetrates(&(), &delta)
         Penetrates3d::penetrates(&(), &self.minkowski_difference(t), rel)
     }

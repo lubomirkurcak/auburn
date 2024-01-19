@@ -12,7 +12,7 @@ impl AxisTransform3d {
     }
 }
 
-impl Transform3dTrait for AxisTransform3d {
+impl Transform3d for AxisTransform3d {
     fn apply_origin(&self) -> Vec3 {
         self.pos
     }

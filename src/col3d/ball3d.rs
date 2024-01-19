@@ -1,7 +1,7 @@
 use std::ops::Mul;
 
 use super::{
-    Ball, Collides3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transform3dTrait, Vec3,
+    Ball, Collides3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transform3d, Vec3,
 };
 
 // impl SymmetricBoundingBox3d for Ball {
@@ -17,18 +17,18 @@ impl ExtremePoint3d for Ball {
 }
 
 impl Collides3d<()> for Ball {
-    fn collides(&self, _t: &(), rel: &impl Transform3dTrait) -> bool {
+    fn collides(&self, _t: &(), rel: &impl Transform3d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
 impl Collides3d<Ball> for () {
-    fn collides(&self, t: &Ball, delta: &impl Transform3dTrait) -> bool {
+    fn collides(&self, t: &Ball, delta: &impl Transform3d) -> bool {
         t.collides(&(), delta)
     }
 }
 
 impl Penetrates3d<Ball> for () {
-    fn penetrates(&self, t: &Ball, rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, t: &Ball, rel: &impl Transform3d) -> Option<Vec3> {
         if self.collides(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
@@ -46,20 +46,20 @@ impl Penetrates3d<Ball> for () {
     }
 }
 impl Penetrates3d<()> for Ball {
-    fn penetrates(&self, _t: &(), rel: &impl Transform3dTrait) -> Option<Vec3> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform3d) -> Option<Vec3> {
         ().penetrates(self, rel)
     }
 }
 
 impl Sdf3d<()> for Ball {
-    fn sdf(&self, _t: &(), rel: &impl Transform3dTrait) -> f32 {
+    fn sdf(&self, _t: &(), rel: &impl Transform3d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
 impl Sdf3dVector<()> for Ball {
-    fn sdfvector(&self, _t: &(), rel: &impl Transform3dTrait) -> Vec3 {
+    fn sdfvector(&self, _t: &(), rel: &impl Transform3d) -> Vec3 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

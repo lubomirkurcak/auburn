@@ -2,7 +2,7 @@ use std::ops::Mul;
 
 use super::{
     Ball, Box2d, Collides2d, ExtremePoint2d, Penetrates2d, Sdf2d, Sdf2dVector,
-    SymmetricBoundingBox2d, Transform2dTrait, Vec2,
+    SymmetricBoundingBox2d, Transform2d, Vec2,
 };
 
 impl SymmetricBoundingBox2d for Ball {
@@ -18,18 +18,18 @@ impl ExtremePoint2d for Ball {
 }
 
 impl Collides2d<()> for Ball {
-    fn collides(&self, _t: &(), rel: &impl Transform2dTrait) -> bool {
+    fn collides(&self, _t: &(), rel: &impl Transform2d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
 impl Collides2d<Ball> for () {
-    fn collides(&self, t: &Ball, delta: &impl Transform2dTrait) -> bool {
+    fn collides(&self, t: &Ball, delta: &impl Transform2d) -> bool {
         t.collides(&(), delta)
     }
 }
 
 impl Penetrates2d<Ball> for () {
-    fn penetrates(&self, t: &Ball, rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, t: &Ball, rel: &impl Transform2d) -> Option<Vec2> {
         if self.collides(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
@@ -47,20 +47,20 @@ impl Penetrates2d<Ball> for () {
     }
 }
 impl Penetrates2d<()> for Ball {
-    fn penetrates(&self, _t: &(), rel: &impl Transform2dTrait) -> Option<Vec2> {
+    fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
         ().penetrates(self, rel)
     }
 }
 
 impl Sdf2d<()> for Ball {
-    fn sdf(&self, _t: &(), rel: &impl Transform2dTrait) -> f32 {
+    fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
 impl Sdf2dVector<()> for Ball {
-    fn sdfvector(&self, _t: &(), rel: &impl Transform2dTrait) -> Vec2 {
+    fn sdfvector(&self, _t: &(), rel: &impl Transform2d) -> Vec2 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {
