@@ -74,12 +74,12 @@ pub trait SymmetricBoundingBox2d {
     fn symmetric_bounding_box(&self) -> Box2d;
 }
 
-/// Trait for checking collision between `Self` and `T`.
+/// Trait for checking collision between `Self` and `T` given relative transform between them.
 ///
 /// # See also
 /// * [BoundingBox2d]
 /// * [Penetrates2d]
-pub trait Collides2d<T> {
+pub trait CollidesRel2d<T> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -96,7 +96,7 @@ pub trait Collides2d<T> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides(&self, t: &T, rel: &impl Transform2d) -> bool;
+    fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
 /// Trait for checking collision between `Self` and `T`.
@@ -104,7 +104,7 @@ pub trait Collides2d<T> {
 /// # See also
 /// * [BoundingBox2d]
 /// * [Penetrates2d]
-pub trait CollidesT2d<T, U: Transform2d> {
+pub trait Collides2d<T, U: Transform2d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -113,8 +113,9 @@ pub trait CollidesT2d<T, U: Transform2d> {
     ///
     /// # Example
     /// ```
-    /// let delta = t.pos - self.pos;
-    /// if self.collides(&t, &delta) {
+    /// let transform = Translate2d::new(self.pos);
+    /// let t_transform = Translate2d::new(t.pos);
+    /// if self.collides(&transform, &t, &t_transform) {
     ///     println!("hit!");
     /// }
     /// ```
@@ -124,14 +125,14 @@ pub trait CollidesT2d<T, U: Transform2d> {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
 }
 
-impl<T, U> CollidesT2d<T, U> for T
+impl<T, U> Collides2d<T, U> for T
 where
-    T: Collides2d<T>,
+    T: CollidesRel2d<T>,
     U: Transform2d + DeltaTransform,
 {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
         let rel = transform.delta_transform(t_transform);
-        self.collides(t, &rel)
+        self.collides_rel(t, &rel)
     }
 }
 
@@ -167,13 +168,14 @@ pub trait Sdf2d<T> {
     /// Computes *scalar* signed-distance between `self` and `t`.
     ///
     /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `transform` - Transform of `Self`
+    /// * `t` - The object to check collision against
+    /// * `delta` - Transform of `t`
     ///
     /// # Example
     /// ```
     /// let rel = Translate2d::new(t.pos - self.pos);
-    /// let s = self.sdf(&t, &rel);
+    /// let s = self.sdf(&transform, &t, &t_transform);
     /// println!("distance: {}", s);
     /// ```
     ///

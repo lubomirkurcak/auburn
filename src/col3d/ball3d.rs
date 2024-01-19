@@ -1,7 +1,7 @@
 use std::ops::Mul;
 
 use super::{
-    Ball, Collides3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transform3d, Vec3,
+    Ball, CollidesRel3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transform3d, Vec3,
 };
 
 // impl SymmetricBoundingBox3d for Ball {
@@ -16,20 +16,20 @@ impl ExtremePoint3d for Ball {
     }
 }
 
-impl Collides3d<()> for Ball {
-    fn collides(&self, _t: &(), rel: &impl Transform3d) -> bool {
+impl CollidesRel3d<()> for Ball {
+    fn collides_rel(&self, _t: &(), rel: &impl Transform3d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
-impl Collides3d<Ball> for () {
-    fn collides(&self, t: &Ball, delta: &impl Transform3d) -> bool {
-        t.collides(&(), delta)
+impl CollidesRel3d<Ball> for () {
+    fn collides_rel(&self, t: &Ball, delta: &impl Transform3d) -> bool {
+        t.collides_rel(&(), delta)
     }
 }
 
 impl Penetrates3d<Ball> for () {
     fn penetrates(&self, t: &Ball, rel: &impl Transform3d) -> Option<Vec3> {
-        if self.collides(t, rel) {
+        if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
             if distance_to_center < f32::EPSILON {

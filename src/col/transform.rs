@@ -25,6 +25,14 @@ pub trait Composable {
 }
 
 pub trait DeltaTransform {
+    /// Computes the difference between two transformations.
+    ///
+    /// Useful for functions expecting a relative transform:
+    ///
+    /// ```rust
+    /// let rel = transform.delta_transform(t_transform);
+    /// self.collides_rel(t, &rel)
+    /// ```
     fn delta_transform(&self, other: &Self) -> Self;
 }
 
@@ -33,4 +41,3 @@ impl<T: Invertible + Composable> DeltaTransform for T {
         self.inverse().compose(other)
     }
 }
-

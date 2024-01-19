@@ -45,12 +45,12 @@ pub trait ExtremePoint3d {
     fn extreme_point(&self, direction: &Vec3) -> Vec3;
 }
 
-/// Trait for checking collision between `Self` and `T`.
+/// Trait for checking collision between `Self` and `T` given relative transform between them.
 ///
 /// # See also
 /// * [BoundingBox3d]
 /// * [Penetrates3d]
-pub trait Collides3d<T> {
+pub trait CollidesRel3d<T> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -67,7 +67,7 @@ pub trait Collides3d<T> {
     ///
     /// # See also
     /// * [Penetrates3d::penetrates].
-    fn collides(&self, t: &T, rel: &impl Transform3d) -> bool;
+    fn collides_rel(&self, t: &T, rel: &impl Transform3d) -> bool;
 }
 
 /// Trait for checking collision between `Self` and `T`.
@@ -75,17 +75,19 @@ pub trait Collides3d<T> {
 /// # See also
 /// * [BoundingBox3d]
 /// * [Penetrates3d]
-pub trait CollidesT3d<T, U: Transform3d> {
+pub trait Collides3d<T, U: Transform3d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
+    /// * `transform` - Transform of `Self`
     /// * `t` - The object to check collision against
-    /// * `delta` - The vector from `self` to `t`
+    /// * `delta` - Transform of `t`
     ///
     /// # Example
     /// ```
-    /// let delta = t.pos - self.pos;
-    /// if self.collides(&t, &delta) {
+    /// let transform = Translate3d::new(self.pos);
+    /// let t_transform = Translate3d::new(t.pos);
+    /// if self.collides(&transform, &t, &t_transform) {
     ///     println!("hit!");
     /// }
     /// ```
@@ -95,14 +97,14 @@ pub trait CollidesT3d<T, U: Transform3d> {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
 }
 
-impl<T, U> CollidesT3d<T, U> for T
+impl<T, U> Collides3d<T, U> for T
 where
-    T: Collides3d<T>,
+    T: CollidesRel3d<T>,
     U: Transform3d + DeltaTransform,
 {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
         let rel = transform.delta_transform(t_transform);
-        self.collides(t, &rel)
+        self.collides_rel(t, &rel)
     }
 }
 

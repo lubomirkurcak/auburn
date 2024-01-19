@@ -1,7 +1,7 @@
 use std::ops::Mul;
 
 use super::{
-    Ball, Box2d, Collides2d, ExtremePoint2d, Penetrates2d, Sdf2d, Sdf2dVector,
+    Ball, Box2d, CollidesRel2d, ExtremePoint2d, Penetrates2d, Sdf2d, Sdf2dVector,
     SymmetricBoundingBox2d, Transform2d, Vec2,
 };
 
@@ -17,20 +17,20 @@ impl ExtremePoint2d for Ball {
     }
 }
 
-impl Collides2d<()> for Ball {
-    fn collides(&self, _t: &(), rel: &impl Transform2d) -> bool {
+impl CollidesRel2d<()> for Ball {
+    fn collides_rel(&self, _t: &(), rel: &impl Transform2d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
-impl Collides2d<Ball> for () {
-    fn collides(&self, t: &Ball, delta: &impl Transform2d) -> bool {
-        t.collides(&(), delta)
+impl CollidesRel2d<Ball> for () {
+    fn collides_rel(&self, t: &Ball, delta: &impl Transform2d) -> bool {
+        t.collides_rel(&(), delta)
     }
 }
 
 impl Penetrates2d<Ball> for () {
     fn penetrates(&self, t: &Ball, rel: &impl Transform2d) -> Option<Vec2> {
-        if self.collides(t, rel) {
+        if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
             if distance_to_center < f32::EPSILON {

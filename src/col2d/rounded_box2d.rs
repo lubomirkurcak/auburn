@@ -1,5 +1,5 @@
 use super::{
-    Ball, Box2d, Collides2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity,
+    Ball, Box2d, CollidesRel2d, ExtremePoint2d, MinkowskiDifference, MinkowskiNegationIsIdentity,
     MinkowskiSum, Penetrates2d, SymmetricBoundingBox2d, Transform2d, Translate2d, Vec2,
 };
 
@@ -52,7 +52,7 @@ impl MinkowskiSum<RoundedBox2d> for RoundedBox2d {
 impl MinkowskiNegationIsIdentity for RoundedBox2d {}
 
 #[cfg(disable)]
-impl Collides2d<()> for RoundedBox2d {
+impl CollidesRel2d<()> for RoundedBox2d {
     fn collides(&self, t: &(), delta: &Vec2) -> bool {
         // let b = Box2d::new(self.halfsize);
         // if b.collides(t, delta) {
@@ -67,10 +67,10 @@ impl Collides2d<()> for RoundedBox2d {
     }
 }
 
-impl Collides2d<()> for RoundedBox2d {
-    fn collides(&self, _t: &(), rel: &impl Transform2d) -> bool {
+impl CollidesRel2d<()> for RoundedBox2d {
+    fn collides_rel(&self, _t: &(), rel: &impl Transform2d) -> bool {
         let bbox = self.symmetric_bounding_box();
-        if ().collides(&bbox, rel) {
+        if ().collides_rel(&bbox, rel) {
             let delta = rel.apply_origin();
             let x0 = -self.halfsize.x < delta.x;
             let x1 = delta.x < self.halfsize.x;
@@ -90,7 +90,7 @@ impl Collides2d<()> for RoundedBox2d {
             if x0 {
                 if y0 {
                     let ct = Translate2d::new(delta - self.halfsize);
-                    return ().collides(&c, &ct);
+                    return ().collides_rel(&c, &ct);
                 } else {
                     println!("bottom right");
                 }
@@ -107,16 +107,16 @@ impl Collides2d<()> for RoundedBox2d {
     }
 }
 
-impl Collides2d<RoundedBox2d> for () {
-    fn collides(&self, t: &RoundedBox2d, rel: &impl Transform2d) -> bool {
-        t.collides(&(), rel)
+impl CollidesRel2d<RoundedBox2d> for () {
+    fn collides_rel(&self, t: &RoundedBox2d, rel: &impl Transform2d) -> bool {
+        t.collides_rel(&(), rel)
     }
 }
 
 impl Penetrates2d<()> for RoundedBox2d {
     fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
         let bbox = self.symmetric_bounding_box();
-        if bbox.collides(&(), rel) {
+        if bbox.collides_rel(&(), rel) {
             let delta = rel.apply_origin();
 
             let x0 = -self.halfsize.x < delta.x;
@@ -173,9 +173,9 @@ impl Penetrates2d<RoundedBox2d> for () {
     }
 }
 
-impl Collides2d<Box2d> for Ball {
-    fn collides(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-        self.minkowski_difference(t).collides(&(), rel)
+impl CollidesRel2d<Box2d> for Ball {
+    fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+        self.minkowski_difference(t).collides_rel(&(), rel)
     }
 }
 impl Penetrates2d<Box2d> for Ball {
@@ -185,7 +185,7 @@ impl Penetrates2d<Box2d> for Ball {
 }
 
 #[cfg(disable)]
-impl Collides2d<RoundedBox2d> for RoundedBox2d {
+impl CollidesRel2d<RoundedBox2d> for RoundedBox2d {
     fn collides(&self, t: &RoundedBox2d, delta: &Vec2) -> bool {
         self.minkowski_difference(t).collides(&(), &delta)
     }
