@@ -109,6 +109,36 @@ where
     }
 }
 
+impl<A, B, C> Penetrates2d<B> for A
+where
+    A: MinkowskiDifference<B, Output = C>,
+    C: Penetrates2d<()>,
+{
+    fn penetrates(&self, t: &B, rel: &impl Transform2d) -> Option<Vec2> {
+        self.minkowski_difference(t).penetrates(&(), rel)
+    }
+}
+
+impl<A, B, C> Sdf2d<B> for A
+where
+    A: MinkowskiDifference<B, Output = C>,
+    C: Sdf2d<()>,
+{
+    fn sdf(&self, t: &B, rel: &impl Transform2d) -> f32 {
+        self.minkowski_difference(t).sdf(&(), rel)
+    }
+}
+
+impl<A, B, C> Sdf2dVector<B> for A
+where
+    A: MinkowskiDifference<B, Output = C>,
+    C: Sdf2dVector<()>,
+{
+    fn sdfvector(&self, t: &B, rel: &impl Transform2d) -> Vec2 {
+        self.minkowski_difference(t).sdfvector(&(), rel)
+    }
+}
+
 /// Trait for checking collision between `Self` and `T`.
 ///
 /// # Limitations

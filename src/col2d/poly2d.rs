@@ -5,10 +5,10 @@ pub struct Poly2d<const N: usize> {
     pub points: [Vec2; N],
 }
 
-type Point2d = Poly2d<1>;
-type Line2d = Poly2d<2>;
-type Triangle2d = Poly2d<3>;
-type Simplex2d = Triangle2d;
+// type PolyPoint2d = Poly2d<1>;
+// type Line2d = Poly2d<2>;
+pub type Triangle2d = Poly2d<3>;
+// type Simplex2d = Triangle2d;
 
 pub struct PolyDifference2d<'a, const N: usize> {
     pub a: &'a Poly2d<N>,
@@ -16,6 +16,14 @@ pub struct PolyDifference2d<'a, const N: usize> {
 
 impl<const N: usize> Poly2d<N> {
     pub const fn new(points: [Vec2; N]) -> Self {
+        Self { points }
+    }
+    pub fn regular(radius: f32) -> Self {
+        let mut points = [Vec2::ZERO; N];
+        for i in 0..N {
+            let angle = 2.0 * std::f32::consts::PI * (i as f32) / (N as f32);
+            points[i] = radius * Vec2::new(angle.cos(), angle.sin());
+        }
         Self { points }
     }
 }
@@ -48,8 +56,17 @@ impl<const N: usize> ExtremePoint2d for Poly2d<N> {
     }
 }
 
+// NOTE(lubo): aka GJK
 impl<const N: usize> CollidesRel2d<()> for Poly2d<N> {
     fn collides_rel(&self, t: &(), rel: &impl Transform2d) -> bool {
+        let delta = rel.apply_origin();
+        let a = self.extreme_point(&delta);
+        todo!()
+    }
+}
+
+impl<const N: usize, const M: usize> CollidesRel2d<Poly2d<M>> for Poly2d<N> {
+    fn collides_rel(&self, t: &Poly2d<M>, rel: &impl Transform2d) -> bool {
         let delta = rel.apply_origin();
         let a = self.extreme_point(&delta);
         todo!()

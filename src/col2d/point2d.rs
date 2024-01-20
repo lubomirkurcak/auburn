@@ -15,15 +15,15 @@ impl ExtremePoint2d for () {
     }
 }
 
-impl Sdf2d<()> for () {
-    fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {
-        let delta = rel.apply_origin();
-        delta.length()
-    }
-}
-
-impl Sdf2dVector<()> for () {
-    fn sdfvector(&self, _t: &(), rel: &impl Transform2d) -> Vec2 {
-        rel.apply_origin()
-    }
-}
+// impl Sdf2d<()> for () {
+//     fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {
+//         let delta = rel.apply_origin();
+//         delta.length()
+//     }
+// }
+//
+// impl Sdf2dVector<()> for () {
+//     fn sdfvector(&self, _t: &(), rel: &impl Transform2d) -> Vec2 {
+//         rel.apply_origin()
+//     }
+// }

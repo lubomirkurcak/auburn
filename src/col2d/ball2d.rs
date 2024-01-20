@@ -33,16 +33,16 @@ impl CollidesRel2d<()> for Ball {
 //     }
 // }
 
-impl Penetrates2d<Ball> for () {
-    fn penetrates(&self, t: &Ball, rel: &impl Transform2d) -> Option<Vec2> {
+impl Penetrates2d<()> for Ball {
+    fn penetrates(&self, t: &(), rel: &impl Transform2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
             if distance_to_center < f32::EPSILON {
-                Some(Vec2::new(t.radius, 0.0))
+                Some(Vec2::new(self.radius, 0.0))
             } else {
                 let old_magn = distance_to_center;
-                let new_magn = t.radius - distance_to_center;
+                let new_magn = self.radius - distance_to_center;
                 let penetration = delta * (new_magn / old_magn);
                 Some(penetration)
             }
@@ -51,11 +51,11 @@ impl Penetrates2d<Ball> for () {
         }
     }
 }
-impl Penetrates2d<()> for Ball {
-    fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
-        ().penetrates(self, rel)
-    }
-}
+// impl Penetrates2d<()> for Ball {
+//     fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
+//         ().penetrates(self, rel)
+//     }
+// }
 
 impl Sdf2d<()> for Ball {
     fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {

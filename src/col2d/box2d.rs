@@ -81,23 +81,23 @@ impl CollidesRel2d<()> for Box2d {
 //     }
 // }
 
-impl Penetrates2d<Box2d> for () {
-    fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
-        if self.collides_rel(t, rel) {
-            let delta = rel.apply_origin();
-            let delta_x = t.halfsize.x - delta.x.abs();
-            let delta_y = t.halfsize.y - delta.y.abs();
-            let x_smaller = delta_x < delta_y;
-
-            if x_smaller {
-                return Some(Vec2::new(delta_x * delta.x.signum(), 0.0));
-            } else {
-                return Some(Vec2::new(0.0, delta_y * delta.y.signum()));
-            }
-        }
-        None
-    }
-}
+// impl Penetrates2d<Box2d> for () {
+//     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
+//         if self.collides_rel(t, rel) {
+//             let delta = rel.apply_origin();
+//             let delta_x = t.halfsize.x - delta.x.abs();
+//             let delta_y = t.halfsize.y - delta.y.abs();
+//             let x_smaller = delta_x < delta_y;
+//
+//             if x_smaller {
+//                 return Some(Vec2::new(delta_x * delta.x.signum(), 0.0));
+//             } else {
+//                 return Some(Vec2::new(0.0, delta_y * delta.y.signum()));
+//             }
+//         }
+//         None
+//     }
+// }
 
 impl Penetrates2d<()> for Box2d {
     fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
@@ -133,12 +133,12 @@ impl Penetrates2dDir<()> for Box2d {
 //     }
 // }
 
-impl Penetrates2d<Box2d> for Box2d {
-    fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
-        // self.minkowski_difference(t).penetrates(&(), &delta)
-        ().penetrates(&self.minkowski_difference(t), rel)
-    }
-}
+// impl Penetrates2d<Box2d> for Box2d {
+//     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
+//         // self.minkowski_difference(t).penetrates(&(), &delta)
+//         ().penetrates(&self.minkowski_difference(t), rel)
+//     }
+// }
 
 #[cfg(penetrates_dir)]
 impl Penetrates2dDir<Box2d> for Box2d {
