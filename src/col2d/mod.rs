@@ -2,7 +2,7 @@
 //!
 //! # Generic
 //!
-//! * `()` - point (the origin)
+//! * [Point] - point (the origin)
 //! * [Ball] - ball
 //!
 //! # 2D
@@ -26,7 +26,7 @@ mod box2d;
 mod point2d;
 mod poly2d;
 mod rounded_box2d;
-mod tilemap;
+// mod tilemap;
 mod transform2d;
 
 pub use crate::col::*;
@@ -35,7 +35,7 @@ pub use box2d::*;
 pub use point2d::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;
-pub use tilemap::*;
+// pub use tilemap::*;
 pub use transform2d::*;
 
 #[doc(alias = "Support")]
@@ -99,46 +99,48 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
+/*
 // NOTE(lubo): This is wrong, only works for transformations without rotations.
 impl<A, B, C> CollidesRel2d<B> for A
 where
     A: MinkowskiDifference<B, Output = C>,
-    C: CollidesRel2d<()>,
+    C: CollidesRel2d<Point>,
 {
     fn collides_rel(&self, t: &B, rel: &impl Transform2d) -> bool {
-        self.minkowski_difference(t).collides_rel(&(), rel)
+        self.minkowski_difference(t).collides_rel(&Point, rel)
     }
 }
 
 impl<A, B, C> Penetrates2d<B> for A
 where
     A: MinkowskiDifference<B, Output = C>,
-    C: Penetrates2d<()>,
+    C: Penetrates2d<Point>,
 {
     fn penetrates(&self, t: &B, rel: &impl Transform2d) -> Option<Vec2> {
-        self.minkowski_difference(t).penetrates(&(), rel)
+        self.minkowski_difference(t).penetrates(&Point, rel)
     }
 }
 
 impl<A, B, C> Sdf2d<B> for A
 where
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf2d<()>,
+    C: Sdf2d<Point>,
 {
     fn sdf(&self, t: &B, rel: &impl Transform2d) -> f32 {
-        self.minkowski_difference(t).sdf(&(), rel)
+        self.minkowski_difference(t).sdf(&Point, rel)
     }
 }
 
 impl<A, B, C> Sdf2dVector<B> for A
 where
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf2dVector<()>,
+    C: Sdf2dVector<Point>,
 {
     fn sdfvector(&self, t: &B, rel: &impl Transform2d) -> Vec2 {
-        self.minkowski_difference(t).sdfvector(&(), rel)
+        self.minkowski_difference(t).sdfvector(&Point, rel)
     }
 }
+*/
 
 /// Trait for checking collision between `Self` and `T`.
 ///

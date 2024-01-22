@@ -2,7 +2,7 @@
 //!
 //! # Generic
 //!
-//! * `()` - point (the origin)
+//! * [Point] - point (the origin)
 //! * [Ball] - ball
 //!
 //! # 3D

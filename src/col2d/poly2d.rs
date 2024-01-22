@@ -1,6 +1,7 @@
 use super::*;
 
 #[derive(Clone)]
+#[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 pub struct Poly2d<const N: usize> {
     pub points: [Vec2; N],
 }

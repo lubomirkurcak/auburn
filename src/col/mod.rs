@@ -26,7 +26,7 @@ pub use transform::*;
 /// # See also
 /// * [MinkowskiNegation]
 /// * [MinkowskiDifference]
-pub trait MinkowskiSum<T> {
+pub(crate) trait MinkowskiSum<T> {
     type Output;
     /// Computes Minkowski sum of `self` and `t`.
     ///
@@ -67,7 +67,7 @@ pub trait MinkowskiSum<T> {
 /// * [MinkowskiNegation]
 /// * [MinkowskiSum]
 /// * [MinkowskiDifference]
-pub trait MinkowskiNegationIsIdentity: Copy {}
+pub(crate) trait MinkowskiNegationIsIdentity: Copy {}
 
 /// Trait for computing Minkowski negation.
 ///
@@ -75,7 +75,7 @@ pub trait MinkowskiNegationIsIdentity: Copy {}
 /// * [MinkowskiNegationIsIdentity]
 /// * [MinkowskiSum]
 /// * [MinkowskiDifference]
-pub trait MinkowskiNegation {
+pub(crate) trait MinkowskiNegation {
     /// Computes Minkowski negation. (Reflection about the origin)
     ///
     /// # Example
@@ -130,7 +130,7 @@ pub trait MinkowskiNegation {
 /// # See also
 /// * [MinkowskiSum]
 /// * [MinkowskiNegation]
-pub trait MinkowskiDifference<T> {
+pub(crate) trait MinkowskiDifference<T> {
     type Output;
     /// Computes Minkowski difference between `self` and `t`.
     ///

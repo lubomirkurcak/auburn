@@ -22,19 +22,14 @@ impl ExtremePoint2d for Ball {
     }
 }
 
-impl CollidesRel2d<()> for Ball {
-    fn collides_rel(&self, _t: &(), rel: &impl Transform2d) -> bool {
+impl CollidesRel2d<Point> for Ball {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
-// impl CollidesRel2d<Ball> for () {
-//     fn collides_rel(&self, t: &Ball, delta: &impl Transform2d) -> bool {
-//         t.collides_rel(&(), delta)
-//     }
-// }
 
-impl Penetrates2d<()> for Ball {
-    fn penetrates(&self, t: &(), rel: &impl Transform2d) -> Option<Vec2> {
+impl Penetrates2d<Point> for Ball {
+    fn penetrates(&self, t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
@@ -51,21 +46,16 @@ impl Penetrates2d<()> for Ball {
         }
     }
 }
-// impl Penetrates2d<()> for Ball {
-//     fn penetrates(&self, _t: &(), rel: &impl Transform2d) -> Option<Vec2> {
-//         ().penetrates(self, rel)
-//     }
-// }
 
-impl Sdf2d<()> for Ball {
-    fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {
+impl Sdf2d<Point> for Ball {
+    fn sdf(&self, _t: &Point, rel: &impl Transform2d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
-impl Sdf2dVector<()> for Ball {
-    fn sdfvector(&self, _t: &(), rel: &impl Transform2d) -> Vec2 {
+impl Sdf2dVector<Point> for Ball {
+    fn sdfvector(&self, _t: &Point, rel: &impl Transform2d) -> Vec2 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

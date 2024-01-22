@@ -6,16 +6,23 @@ license = "MIT OR Apache-2.0"
 description = "Fast and simple physics library."
 repository = "https://github.com/lubomirkurcak/auburn/"
 keywords = ["math", "physics", "geometry", "gamedev", "algorithm"]
-categories = ["algorithms", "data-structures", "game-development", "mathematics", "simulation"]
+categories = [
+    "algorithms",
+    "data-structures",
+    "game-development",
+    "mathematics",
+    "simulation",
+]
 
 [features]
-#default = ["penetrates_dir"]
-penetrates_dir = []
+#default = []
+bevy = ["dep:bevy"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-glam = "0.24.1" # matching bevy 0.12.1
+bevy = { version = "0.12.1", optional = true }
+glam = "0.24.1"                                # matching bevy 0.12.1
 lk_math = "0.4.0"
 #lk_math = { path = "c:/repos/lk_math", default-features = true }
 round-to = "0.1.0"
