@@ -148,6 +148,46 @@ impl Penetrates2dDir<Box2d> for Box2d {
     }
 }
 
+impl Sdf2d<()> for Box2d {
+    fn sdf(&self, _t: &(), rel: &impl Transform2d) -> f32 {
+        let delta = rel.apply_origin();
+        let delta_x = delta.x.abs() - self.halfsize.x;
+        let delta_y = delta.y.abs() - self.halfsize.y;
+
+        if self.collides_rel(_t, rel) {
+            return delta_x.max(delta_y);
+        } else {
+            if delta_x < 0.0 {
+                return delta_y;
+            } else if delta_y < 0.0 {
+                return delta_x;
+            } else {
+                return Vec2::new(delta_x, delta_y).length();
+            }
+        }
+    }
+}
+
+impl Sdf2dVector<()> for Box2d {
+    fn sdfvector(&self, _t: &(), rel: &impl Transform2d) -> Vec2 {
+        let delta = rel.apply_origin();
+        let delta_x = delta.x.abs() - self.halfsize.x;
+        let delta_y = delta.y.abs() - self.halfsize.y;
+
+        if self.collides_rel(_t, rel) {
+            if delta_x > delta_y {
+                return Vec2::new(delta_x * delta.x.signum(), 0.0);
+            } else {
+                return Vec2::new(0.0, delta_y * delta.y.signum());
+            }
+        } else {
+            let delta_x = delta_x.max(0.0);
+            let delta_y = delta_y.max(0.0);
+            return Vec2::new(delta_x * delta.x.signum(), delta_y * delta.y.signum());
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

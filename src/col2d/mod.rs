@@ -99,6 +99,7 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
+// NOTE(lubo): This is wrong, only works for transformations without rotations.
 impl<A, B, C> CollidesRel2d<B> for A
 where
     A: MinkowskiDifference<B, Output = C>,
