@@ -1,27 +1,5 @@
 use super::*;
 
-impl MinkowskiSum<Box2d> for Box2d {
-    type Output = Self;
-
-    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize + t.halfsize,
-        }
-    }
-}
-
-impl MinkowskiNegationIsIdentity for Box2d {}
-
-impl MinkowskiSum<Ball> for Box2d {
-    type Output = RoundedBox2d;
-    fn minkowski_sum(&self, t: &Ball) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize,
-            radius: t.radius,
-        }
-    }
-}
-
 /// 2D rectangle *centered at the origin*.
 #[derive(Default, Clone, Copy)]
 #[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
@@ -44,6 +22,8 @@ impl Box2d {
     }
 }
 
+//
+
 impl SymmetricBoundingBox2d for Box2d {
     fn symmetric_bounding_box(&self) -> Box2d {
         *self
@@ -64,6 +44,28 @@ impl ExtremePoint2d for Box2d {
                 -self.halfsize.y
             },
         )
+    }
+}
+
+impl MinkowskiNegationIsIdentity for Box2d {}
+
+impl MinkowskiSum<Box2d> for Box2d {
+    type Output = Self;
+
+    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
+        Self::Output {
+            halfsize: self.halfsize + t.halfsize,
+        }
+    }
+}
+
+impl MinkowskiSum<Ball> for Box2d {
+    type Output = RoundedBox2d;
+    fn minkowski_sum(&self, t: &Ball) -> Self::Output {
+        Self::Output {
+            halfsize: self.halfsize,
+            radius: t.radius,
+        }
     }
 }
 

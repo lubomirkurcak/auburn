@@ -16,6 +16,8 @@ impl RoundedBox2d {
     }
 }
 
+//
+
 impl SymmetricBoundingBox2d for RoundedBox2d {
     fn symmetric_bounding_box(&self) -> Box2d {
         Box2d::with_halfdims(self.halfsize.x + self.radius, self.halfsize.y + self.radius)
@@ -30,17 +32,17 @@ impl ExtremePoint2d for RoundedBox2d {
     }
 }
 
-impl MinkowskiSum<RoundedBox2d> for RoundedBox2d {
-    type Output = Self;
-    fn minkowski_sum(&self, t: &RoundedBox2d) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize + t.halfsize,
-            radius: self.radius + t.radius,
-        }
-    }
-}
-
 impl MinkowskiNegationIsIdentity for RoundedBox2d {}
+
+// impl MinkowskiSum<RoundedBox2d> for RoundedBox2d {
+//     type Output = Self;
+//     fn minkowski_sum(&self, t: &RoundedBox2d) -> Self::Output {
+//         Self::Output {
+//             halfsize: self.halfsize + t.halfsize,
+//             radius: self.radius + t.radius,
+//         }
+//     }
+// }
 
 #[cfg(disable)]
 impl CollidesRel2d<Point> for RoundedBox2d {
@@ -58,10 +60,12 @@ impl CollidesRel2d<Point> for RoundedBox2d {
     }
 }
 
+// Collides
+
 impl CollidesRel2d<Point> for RoundedBox2d {
     fn collides_rel(&self, t: &Point, rel: &impl Transform2d) -> bool {
         let bbox = self.symmetric_bounding_box();
-        if self.collides_rel(t, rel) {
+        if bbox.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let x0 = -self.halfsize.x < delta.x;
             let x1 = delta.x < self.halfsize.x;
@@ -105,6 +109,8 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 //         t.collides_rel(&Point, rel)
 //     }
 // }
+
+// Penetrates
 
 impl Penetrates2d<Point> for RoundedBox2d {
     fn penetrates(&self, t: &Point, rel: &impl Transform2d) -> Option<Vec2> {

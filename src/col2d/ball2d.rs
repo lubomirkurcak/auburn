@@ -22,11 +22,17 @@ impl ExtremePoint2d for Ball {
     }
 }
 
+// Collides
+
 impl CollidesRel2d<Point> for Ball {
     fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
+
+impl DefaultCol2dImpls for Ball {}
+
+// Penetrates
 
 impl Penetrates2d<Point> for Ball {
     fn penetrates(&self, t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
