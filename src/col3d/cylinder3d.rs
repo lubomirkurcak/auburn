@@ -24,7 +24,7 @@ impl ExtremePoint3d for Cylinder3d {
     fn extreme_point(&self, direction: &Vec3) -> Vec3 {
         let d = crate::col2d::ExtremePoint2d::extreme_point(
             &self.to_ball(),
-            &Vec2::new(direction.x, direction.y),
+            Vec2::new(direction.x, direction.y),
         );
 
         let z = if direction.z > 0.0 {

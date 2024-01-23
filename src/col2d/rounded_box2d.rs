@@ -23,7 +23,7 @@ impl SymmetricBoundingBox2d for RoundedBox2d {
 }
 
 impl ExtremePoint2d for RoundedBox2d {
-    fn extreme_point(&self, direction: &Vec2) -> Vec2 {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         let a = Ball::new(self.radius);
         let b = Box2d::new(self.halfsize);
         a.extreme_point(direction) + b.extreme_point(direction)

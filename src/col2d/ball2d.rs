@@ -17,7 +17,7 @@ impl SymmetricBoundingBox2d for Ball {
 }
 
 impl ExtremePoint2d for Ball {
-    fn extreme_point(&self, direction: &Vec2) -> Vec2 {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         self.radius * direction.normalize_or_zero()
     }
 }

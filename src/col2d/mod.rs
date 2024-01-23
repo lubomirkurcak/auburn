@@ -38,9 +38,6 @@ pub use rounded_box2d::*;
 // pub use tilemap::*;
 pub use transform2d::*;
 
-#[doc(alias = "Support")]
-#[doc(alias = "SupportPoint")]
-#[doc(alias = "SupportPoint2d")]
 /// Trait for computing extreme points of a shape along a direction.
 pub trait ExtremePoint2d {
     /// Computes the farthest point along a direction.
@@ -51,7 +48,21 @@ pub trait ExtremePoint2d {
     /// let point = sphere.extreme_point(&Vec2::X);
     /// assert_eq!(point, Vec2::new(2.0, 0.0));
     /// ```
-    fn extreme_point(&self, direction: &Vec2) -> Vec2;
+    fn extreme_point(&self, direction: Vec2) -> Vec2;
+}
+
+pub trait Support2d<T> {
+    fn support(&self, other: &T, direction: Vec2) -> Vec2;
+}
+
+impl<T, U> Support2d<U> for T
+where
+    T: ExtremePoint2d,
+    U: ExtremePoint2d,
+{
+    fn support(&self, other: &U, direction: Vec2) -> Vec2 {
+        self.extreme_point(direction) - other.extreme_point(-direction)
+    }
 }
 
 /// Trait for computing bounding box of a shape.
@@ -99,10 +110,23 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
 }
 
-/*
-// NOTE(lubo): This is wrong, only works for transformations without rotations.
+// TODO(lubo): These could be simplified with specialization. (RFC 1210)
+
+trait DefaultCol2dImpls {}
+
+impl<A> CollidesRel2d<A> for Point
+where
+    A: DefaultCol2dImpls,
+    A: CollidesRel2d<Point>,
+{
+    fn collides_rel(&self, other: &A, rel: &impl Transform2d) -> bool {
+        other.collides_rel(&Point, rel)
+    }
+}
+
 impl<A, B, C> CollidesRel2d<B> for A
 where
+    A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
     C: CollidesRel2d<Point>,
 {
@@ -113,6 +137,7 @@ where
 
 impl<A, B, C> Penetrates2d<B> for A
 where
+    A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
     C: Penetrates2d<Point>,
 {
@@ -123,6 +148,7 @@ where
 
 impl<A, B, C> Sdf2d<B> for A
 where
+    A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
     C: Sdf2d<Point>,
 {
@@ -133,6 +159,7 @@ where
 
 impl<A, B, C> Sdf2dVector<B> for A
 where
+    A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
     C: Sdf2dVector<Point>,
 {
@@ -140,7 +167,6 @@ where
         self.minkowski_difference(t).sdfvector(&Point, rel)
     }
 }
-*/
 
 /// Trait for checking collision between `Self` and `T`.
 ///

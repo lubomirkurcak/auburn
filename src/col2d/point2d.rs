@@ -7,7 +7,7 @@ impl SymmetricBoundingBox2d for Point {
 }
 
 impl ExtremePoint2d for Point {
-    fn extreme_point(&self, _direction: &Vec2) -> Vec2 {
+    fn extreme_point(&self, _direction: Vec2) -> Vec2 {
         Vec2::ZERO
     }
 }

@@ -32,11 +32,11 @@ pub(crate) trait MinkowskiSum<T> {
     ///
     /// # Example
     /// ```rust
-    /// let a = Sphere::with_radius(1.0).at_origin();
-    /// let b = Sphere::with_radius(1.0).at_position(Vec2::new(1.0, 0.0));
+    /// let a = Ball::with_radius(1.0);
+    /// let b = Box2d::with_halfdims(Vec2::new(0.5, 0.5));
     /// assert_eq!(
     ///     a.minkowski_sum(&b),
-    ///     Sphere::with_radius(2.0).at_position(Vec2::new(1.0, 0.0))
+    ///     RoundedRectangle2d::new(Vec2::new(0.5, 0.5), 1.0)
     /// );
     /// ```
     ///
@@ -45,20 +45,6 @@ pub(crate) trait MinkowskiSum<T> {
     /// * [MinkowskiDifference::minkowski_difference]
     fn minkowski_sum(&self, t: &T) -> Self::Output;
 }
-
-// NOTE: Could not get these to work since rust tries to define the trait recursively for A == B.
-//     const DEFINE_SYMMETRY: bool;
-// pub trait MinkowskiSumSymmetry<T> {}
-// impl<A, B, C> MinkowskiSum<A> for B
-// where
-//     A: MinkowskiSumSymmetry<B>,
-//     A: MinkowskiSum<B, Output = C>,
-// {
-//     type Output = C;
-//     fn minkowski_sum(&self, t: &A) -> Self::Output {
-//         t.minkowski_sum(self)
-//     }
-// }
 
 /// Marker trait for when the Minkowski negation is identity.
 /// This would usually be true for shapes centered at the origin and symmetric around it.

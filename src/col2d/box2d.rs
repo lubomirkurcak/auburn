@@ -1,13 +1,5 @@
 use super::*;
 
-impl MinkowskiSum<Point> for Box2d {
-    type Output = Self;
-
-    fn minkowski_sum(&self, _t: &Point) -> Self::Output {
-        self.clone()
-    }
-}
-
 impl MinkowskiSum<Box2d> for Box2d {
     type Output = Self;
 
@@ -59,7 +51,7 @@ impl SymmetricBoundingBox2d for Box2d {
 }
 
 impl ExtremePoint2d for Box2d {
-    fn extreme_point(&self, direction: &Vec2) -> Vec2 {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         Vec2::new(
             if direction.x > 0.0 {
                 self.halfsize.x
@@ -75,6 +67,8 @@ impl ExtremePoint2d for Box2d {
     }
 }
 
+// Collides
+
 impl CollidesRel2d<Point> for Box2d {
     fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
         let delta = rel.apply_origin();
@@ -86,10 +80,20 @@ impl CollidesRel2d<Point> for Box2d {
 }
 
 // impl CollidesRel2d<Box2d> for Point {
-//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-//         t.collides_rel(&Point, rel)
+//     fn collides_rel(&self, other: &Box2d, rel: &impl Transform2d) -> bool {
+//         other.collides_rel(&Point, &rel.inverse())
 //     }
 // }
+
+impl DefaultCol2dImpls for Box2d {}
+
+// impl CollidesRel2d<Box2d> for Box2d {
+//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
+//         self.minkowski_difference(t).collides_rel(&Point, rel)
+//     }
+// }
+
+// Penetrates
 
 impl Penetrates2d<Point> for Box2d {
     fn penetrates(&self, _t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
@@ -188,9 +192,9 @@ mod tests {
         assert!(b.collides_rel(&Point, &y2));
         assert!(b.collides_rel(&Point, &y3));
 
-        // assert!(Point.collides_rel(&b, &y1));
-        // assert!(Point.collides_rel(&b, &y2));
-        // assert!(Point.collides_rel(&b, &y3));
+        assert!(Point.collides_rel(&b, &y1));
+        assert!(Point.collides_rel(&b, &y2));
+        assert!(Point.collides_rel(&b, &y3));
 
         assert!(!b.collides_rel(&Point, &n1));
         assert!(!b.collides_rel(&Point, &n2));
@@ -198,14 +202,13 @@ mod tests {
         assert!(!b.collides_rel(&Point, &n4));
         assert!(!b.collides_rel(&Point, &n5));
 
-        // assert!(!Point.collides_rel(&b, &n1));
-        // assert!(!Point.collides_rel(&b, &n2));
-        // assert!(!Point.collides_rel(&b, &n3));
-        // assert!(!Point.collides_rel(&b, &n4));
-        // assert!(!Point.collides_rel(&b, &n5));
+        assert!(!Point.collides_rel(&b, &n1));
+        assert!(!Point.collides_rel(&b, &n2));
+        assert!(!Point.collides_rel(&b, &n3));
+        assert!(!Point.collides_rel(&b, &n4));
+        assert!(!Point.collides_rel(&b, &n5));
     }
 
-    #[ignore]
     #[test]
     fn point_v_box_penetrates() {
         let b = Box2d::with_halfdims(2.0, 1.0);
@@ -245,7 +248,6 @@ mod tests {
         */
     }
 
-    #[ignore]
     #[test]
     fn point_v_box_sdf() {
         let b = Box2d::with_halfdims(2.0, 1.0);
@@ -262,16 +264,14 @@ mod tests {
         assert_eq!(b.sdf(&Point, &y2), -0.5);
     }
 
-    #[ignore]
     #[test]
     fn box_v_box_no_collision() {
         let b = Box2d::with_halfdims(0.5, 0.5);
         let delta = Vec2::new(2.0, 0.0);
         assert!(!b.collides_rel(&b, &delta));
-        assert_eq!(b.penetrates(&b, &delta), None);
+        // assert_eq!(b.penetrates(&b, &delta), None);
     }
 
-    #[ignore]
     #[test]
     fn box_v_box_perfect_overlap() {
         let b = Box2d::with_halfdims(0.5, 0.5);
