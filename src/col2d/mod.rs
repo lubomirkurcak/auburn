@@ -53,19 +53,19 @@ pub trait ExtremePoint2d {
     fn extreme_point(&self, direction: Vec2) -> Vec2;
 }
 
-pub trait Support2d<T> {
-    fn support(&self, other: &T, direction: Vec2) -> Vec2;
-}
-
-impl<T, U> Support2d<U> for T
-where
-    T: ExtremePoint2d,
-    U: ExtremePoint2d,
-{
-    fn support(&self, other: &U, direction: Vec2) -> Vec2 {
-        self.extreme_point(direction) - other.extreme_point(-direction)
-    }
-}
+// pub trait Support2d<T> {
+//     fn support(&self, other: &T, direction: Vec2) -> Vec2;
+// }
+//
+// impl<T, U> Support2d<U> for T
+// where
+//     T: ExtremePoint2d,
+//     U: ExtremePoint2d,
+// {
+//     fn support(&self, other: &U, direction: Vec2) -> Vec2 {
+//         self.extreme_point(direction) - other.extreme_point(-direction)
+//     }
+// }
 
 /// Trait for computing bounding box of a shape.
 ///
@@ -164,6 +164,16 @@ where
     }
 }
 
+impl<A> Sdf2d<A> for Point
+where
+    A: DefaultCol2dImpls,
+    A: Sdf2d<Point>,
+{
+    fn sdf(&self, t: &A, rel: &impl Transform2d) -> f32 {
+        t.sdf(&Point, rel)
+    }
+}
+
 impl<A, B, C> Sdf2dVector<B> for A
 where
     A: DefaultCol2dImpls,
@@ -172,6 +182,16 @@ where
 {
     fn sdfvector(&self, t: &B, rel: &impl Transform2d) -> Vec2 {
         self.minkowski_difference(t).sdfvector(&Point, rel)
+    }
+}
+
+impl<A> Sdf2dVector<A> for Point
+where
+    A: DefaultCol2dImpls,
+    A: Sdf2dVector<Point>,
+{
+    fn sdfvector(&self, t: &A, rel: &impl Transform2d) -> Vec2 {
+        t.sdfvector(&Point, rel)
     }
 }
 

@@ -112,9 +112,25 @@ pub(crate) trait MinkowskiDifference<T> {
     fn minkowski_difference(&self, t: &T) -> Self::Output;
 }
 
+pub(crate) trait MinkowskiDifferenceLifetimed<'a, T: 'a> {
+    type Output: 'a;
+    fn minkowski_difference(&'a self, t: &'a T) -> Self::Output;
+}
+
 impl<T: MinkowskiNegationIsIdentity> MinkowskiNegation for T {
     fn minkowski_negation(&self) -> Self {
         *self
+    }
+}
+
+impl<'l, A, B: 'l, C: 'l> MinkowskiDifferenceLifetimed<'l, B> for A
+where
+    A: MinkowskiDifference<B, Output = C>,
+{
+    type Output = C;
+
+    fn minkowski_difference(&'_ self, t: &'l B) -> Self::Output {
+        MinkowskiDifference::minkowski_difference(self, t)
     }
 }
 

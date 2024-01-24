@@ -9,6 +9,13 @@ pub struct Poly2d {
     pub points: Vec<Vec2>,
 }
 
+pub struct Poly2dDiff<'a> {
+    a: &'a Poly2d,
+    b: &'a Poly2d,
+}
+
+//
+
 impl Poly2d {
     pub fn new(points: &[Vec2]) -> Self {
         Self {
@@ -16,10 +23,11 @@ impl Poly2d {
         }
     }
     pub fn regular(sides: usize, radius: f32) -> Self {
-        let mut points = vec![];
+        let mut points = Vec::with_capacity(sides);
         for i in 0..sides {
             let angle = 2.0 * std::f32::consts::PI * (i as f32) / (sides as f32);
-            points[i] = radius * Vec2::new(angle.cos(), angle.sin());
+            // points[i] = radius * Vec2::new(angle.cos(), angle.sin());
+            points.push(radius * Vec2::new(angle.cos(), angle.sin()))
         }
         Self { points }
     }
@@ -53,6 +61,22 @@ impl ExtremePoint2d for Poly2d {
     }
 }
 
+impl ExtremePoint2d for Poly2dDiff<'_> {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
+        self.a.extreme_point(direction) - self.b.extreme_point(-direction)
+    }
+}
+
+impl<'a> MinkowskiDifferenceLifetimed<'a, Poly2d> for Poly2d {
+    type Output = Poly2dDiff<'a>;
+
+    fn minkowski_difference(&'a self, t: &'a Poly2d) -> Self::Output {
+        Poly2dDiff { a: self, b: t }
+    }
+}
+
+//
+
 fn cross_aba(a: Vec2, b: Vec2) -> Vec2 {
     Vec2::new(
         a.y * a.y * b.x - a.x * a.y * b.y,
@@ -60,19 +84,36 @@ fn cross_aba(a: Vec2, b: Vec2) -> Vec2 {
     )
 }
 
-impl CollidesRel2d<Poly2d> for Poly2d {
-    fn collides_rel(&self, t: &Poly2d, rel: &impl Transform2d) -> bool {
+impl CollidesRel2d<Point> for Poly2dDiff<'_> {
+    fn collides_rel(&self, t: &Point, rel: &impl Transform2d) -> bool {
         let delta = rel.apply_origin();
-        let a = self.support(t, delta);
+        let a = self.extreme_point(delta);
         if a.dot(delta) < 0.0 {
             return false;
         }
 
         let delta = -a;
-        let b = self.support(t, delta);
+        let b = self.extreme_point(delta);
 
         let delta = cross_aba(a - b, -a);
-        let c = self.support(t, delta);
+        let c = self.extreme_point(delta);
+        todo!()
+    }
+}
+
+impl CollidesRel2d<Poly2d> for Poly2d {
+    fn collides_rel(&self, t: &Poly2d, rel: &impl Transform2d) -> bool {
+        // let delta = rel.apply_origin();
+        // let a = self.support(t, delta);
+        // if a.dot(delta) < 0.0 {
+        //     return false;
+        // }
+
+        // let delta = -a;
+        // let b = self.support(t, delta);
+
+        // let delta = cross_aba(a - b, -a);
+        // let c = self.support(t, delta);
         todo!()
     }
 }
