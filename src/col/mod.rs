@@ -12,12 +12,13 @@ pub use transform::*;
 ///
 /// # Example
 /// ```rust
-/// impl MinkowskiSum<Sphere> for Box2d {
-///     type Output = Box2d;
+/// impl MinkowskiSum<Ball> for Box2d {
+///     type Output = RoundedRectangle2d;
 ///
 ///     fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
 ///         Self::Output {
-///             halfsize: self.halfsize + t.halfsize,
+///             radius: t.radius,
+///             halfsize: self.halfsize,
 ///         }
 ///     }
 /// }
@@ -67,10 +68,10 @@ pub(crate) trait MinkowskiNegation {
     /// # Example
     ///
     /// ```rust
-    /// let a = Sphere::with_radius(1.0).at_position(Vec2::new(1.0, 0.0));
+    /// let a = Ball::with_radius(1.0);
     /// assert_eq!(
     ///     a.minkowski_negation();
-    ///     Sphere::with_radius(1.0).at_position(Vec2::new(-1.0, 0.0))
+    ///     Ball::with_radius(1.0)
     /// );
     /// ```
     ///
@@ -82,37 +83,6 @@ pub(crate) trait MinkowskiNegation {
 
 /// Trait for computing Minkowski difference.
 ///
-/// # Default implementations:
-///
-/// For [MinkowskiNegation]:
-/// ```rust
-/// impl<T, U, V> MinkowskiDifference<U> for T
-/// where
-///     T: MinkowskiSum<U, Output = V>,
-///     U: MinkowskiNegation,
-/// {
-///     type Output = V;
-///
-///     fn minkowski_difference(&self, t: &U) -> Self::Output {
-///         self.minkowski_sum(&t.minkowski_negation())
-///     }
-/// }
-/// ```
-///
-/// For [MinkowskiNegationIsIdentity]:
-/// ```rust
-/// impl<T, U, V> MinkowskiDifference<U> for T
-/// where
-///     T: MinkowskiSum<U, Output = V>,
-///     U: MinkowskiNegationIsIdentity,
-/// {
-///     type Output = V;
-///     fn minkowski_difference(&self, t: &U) -> Self::Output {
-///         self.minkowski_sum(&t)
-///     }
-/// }
-/// ```
-///
 /// # See also
 /// * [MinkowskiSum]
 /// * [MinkowskiNegation]
@@ -122,11 +92,11 @@ pub(crate) trait MinkowskiDifference<T> {
     ///
     /// # Example
     /// ```rust
-    /// let a = Sphere::with_radius(1.0).at_origin();
-    /// let b = Sphere::with_radius(1.0).at_position(Vec2::new(1.0, 0.0));
+    /// let a = Ball::with_radius(1.0);
+    /// let b = Ball::with_radius(1.0);
     /// assert_eq!(
     ///     a.minkowski_difference(&b),
-    ///     Sphere::with_radius(2.0).at_position(Vec2::new(-1.0, 0.0))
+    ///     Ball::with_radius(2.0)
     /// );
     /// ```
     ///

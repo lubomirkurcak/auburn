@@ -43,9 +43,11 @@ pub trait ExtremePoint2d {
     /// Computes the farthest point along a direction.
     ///
     /// # Example
-    /// ```rust
-    /// let sphere = Sphere::with_radius(2.0);
-    /// let point = sphere.extreme_point(&Vec2::X);
+    /// ```
+    /// use auburn::col2d::*;
+    /// use auburn::Vec2;
+    /// let sphere = Ball::with_radius(2.0);
+    /// let point = sphere.extreme_point(Vec2::X);
     /// assert_eq!(point, Vec2::new(2.0, 0.0));
     /// ```
     fn extreme_point(&self, direction: Vec2) -> Vec2;
@@ -74,6 +76,7 @@ pub trait SymmetricBoundingBox2d {
     ///
     /// # Example
     /// ```
+    /// use auburn::col2d::*;
     /// assert_eq!(
     ///     Ball::with_radius(1.0).bounding_box(),
     ///     Box2d::with_halfdims(1.0, 1.0)
@@ -99,8 +102,12 @@ pub trait CollidesRel2d<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate2d::new(t.pos - self.pos);
-    /// if self.collides(&t, &rel) {
+    /// use auburn::col2d::*;
+    /// use auburn::Vec2;
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// if a.collides_rel(&b, &rel) {
     ///     println!("hit!");
     /// }
     /// ```
@@ -184,13 +191,17 @@ pub trait Collides2d<T, U: Transform2d> {
     /// * `delta` - The vector from `self` to `t`
     ///
     /// # Example
-    /// ```
-    /// let transform = Translate2d::new(self.pos);
-    /// let t_transform = Translate2d::new(t.pos);
-    /// if self.collides(&transform, &t, &t_transform) {
+    /// `` TODO(lubo): fix example
+    /// use auburn::col2d::{Box2d, Translate2d};
+    /// use auburn::Vec2;
+    /// let transform = Translate2d::from(Vec2::new(0.0, 0.0));
+    /// let t_transform = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// if a.collides(&transform, &b, &t_transform) {
     ///     println!("hit!");
     /// }
-    /// ```
+    /// ``
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
@@ -220,12 +231,16 @@ pub trait Penetrates2d<T> {
     /// * `rel` - The *relative* transform from `self` to `t`
     ///
     /// # Example
-    /// ```
-    /// let rel = Translate2d::new(t.pos - self.pos);
-    /// if let Some(p) = self.penetration(&t, &rel) {
-    ///     t.pos += p; // push `t`
+    /// `` TODO(lubo): fix example
+    /// use auburn::col2d::*;
+    /// use auburn::Vec2;
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// if let Some(p) = a.penetration(&b, &rel) {
+    ///     // push `t`
     /// }
-    /// ```
+    /// ``
     ///
     /// # See also
     /// * [Collides2d::collides].
@@ -246,8 +261,12 @@ pub trait Sdf2d<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate2d::new(t.pos - self.pos);
-    /// let s = self.sdf(&transform, &t, &t_transform);
+    /// use auburn::col2d::*;
+    /// use auburn::Vec2;
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let s = a.sdf(&b, &rel);
     /// println!("distance: {}", s);
     /// ```
     ///
@@ -269,9 +288,14 @@ pub trait Sdf2dVector<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate2d::new(t.pos - self.pos);
-    /// let p = self.sdfvector(&t, &rel);
-    /// t.pos += p; // push or pull `t` such that it touches `self`
+    /// use auburn::col2d::*;
+    /// use auburn::Vec2;
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let p = a.sdfvector(&b, &rel);
+    /// // push or pull `t` such that it touches `self`
+    /// assert_eq!(p, Vec2::new(1.0, 0.0));
     /// ```
     ///
     /// # See also
