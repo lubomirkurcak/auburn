@@ -255,6 +255,16 @@ where
     }
 }
 
+impl<A> Penetrates2d<A> for Point
+where
+    A: DefaultCol2dImpls,
+    A: Penetrates2d<Point>,
+{
+    fn penetrates(&self, other: &A, rel: &impl Transform2d) -> Option<Vec2> {
+        other.penetrates(&Point, rel) // .map(|v| -v)
+    }
+}
+
 impl<A, B, C> Penetrates2d<B> for A
 where
     A: DefaultCol2dImpls,

@@ -11,7 +11,7 @@ use super::{
 // }
 
 impl ExtremePoint3d for Ball {
-    fn extreme_point(&self, direction: &Vec3) -> Vec3 {
+    fn extreme_point(&self, direction: Vec3) -> Vec3 {
         self.radius * direction.normalize_or_zero()
     }
 }

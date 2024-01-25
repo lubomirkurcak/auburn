@@ -106,12 +106,12 @@ impl Penetrates2d<Point> for Box2d {
 // Sdf
 
 impl Sdf2d<Point> for Box2d {
-    fn sdf(&self, _t: &Point, rel: &impl Transform2d) -> f32 {
+    fn sdf(&self, t: &Point, rel: &impl Transform2d) -> f32 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
 
-        if self.collides_rel(_t, rel) {
+        if self.collides_rel(t, rel) {
             delta_x.max(delta_y)
         } else {
             if delta_x < 0.0 {
@@ -198,16 +198,17 @@ mod tests {
 
         // TODO(lubo): Actualy check if this is reasonable
         assert!(b.penetrates(&Point, &y1).is_some());
-        /*
         assert!(Point.penetrates(&b, &y1).is_some());
-        */
 
-        /*
-        assert_eq!(b.penetrates(&Point, &y2), Some(Vec2::new(0.5, 0.0)));
-        assert_eq!(Point.penetrates(&b, &y2), Some(Vec2::new(0.5, 0.0)));
+        // assert_eq!(b.penetrates(&Point, &y2), Some(Vec2::new(0.5, 0.0)));
+        // assert_eq!(Point.penetrates(&b, &y2), Some(Vec2::new(0.5, 0.0)));
+        assert_eq!(b.penetrates(&Point, &y2), Some(Vec2::new(-0.5, 0.0)));
+        assert_eq!(Point.penetrates(&b, &y2), Some(Vec2::new(-0.5, 0.0)));
 
-        assert_eq!(b.penetrates(&Point, &y3), Some(Vec2::new(0.0, -0.5)));
-        assert_eq!(Point.penetrates(&b, &y3), Some(Vec2::new(0.0, -0.5)));
+        // assert_eq!(b.penetrates(&Point, &y3), Some(Vec2::new(0.0, -0.5)));
+        // assert_eq!(Point.penetrates(&b, &y3), Some(Vec2::new(0.0, -0.5)));
+        assert_eq!(b.penetrates(&Point, &y3), Some(Vec2::new(0.0, 0.5)));
+        assert_eq!(Point.penetrates(&b, &y3), Some(Vec2::new(0.0, 0.5)));
 
         assert_eq!(None, b.penetrates(&Point, &n1));
         assert_eq!(None, b.penetrates(&Point, &n2));
@@ -220,7 +221,6 @@ mod tests {
         assert_eq!(None, Point.penetrates(&b, &n3));
         assert_eq!(None, Point.penetrates(&b, &n4));
         assert_eq!(None, Point.penetrates(&b, &n5));
-        */
     }
 
     #[test]
@@ -244,16 +244,16 @@ mod tests {
         let b = Box2d::with_halfdims(0.5, 0.5);
         let delta = Vec2::new(2.0, 0.0);
         assert!(!b.collides_rel(&b, &delta));
-        // assert_eq!(b.penetrates(&b, &delta), None);
+        assert_eq!(b.penetrates(&b, &delta), None);
     }
 
     #[test]
     fn box_v_box_perfect_overlap() {
         let b = Box2d::with_halfdims(0.5, 0.5);
         let delta = Vec2::new(0.0, 0.0);
-        // assert!(b.collides_rel(&b, &delta));
+        assert!(b.collides_rel(&b, &delta));
         // TODO(lubo): Actualy check if this is reasonable
-        // assert!(b.penetrates(&b, &delta).is_some());
+        assert!(b.penetrates(&b, &delta).is_some());
     }
 
     #[test]
@@ -261,8 +261,9 @@ mod tests {
         let b = Box2d::with_halfdims(0.5, 0.5);
         for i in 1..=9 {
             let delta = Vec2::new(i as f32 / 10.0, 0.0);
-            // assert!(b.collides_rel(&b, &delta));
+            assert!(b.collides_rel(&b, &delta));
             // assert_eq!(Some(Vec2::new(1.0, 0.0) - delta), b.penetrates(&b, &delta));
+            assert_eq!(Some(delta - Vec2::new(1.0, 0.0)), b.penetrates(&b, &delta));
         }
     }
 }

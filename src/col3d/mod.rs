@@ -21,12 +21,14 @@ pub use crate::{Quat, Vec2, Vec3};
 mod ball3d;
 mod box3d;
 mod cylinder3d;
+mod point3d;
 mod transform3d;
 
 pub use crate::col::*;
 pub use ball3d::*;
 pub use box3d::*;
 pub use cylinder3d::*;
+pub use point3d::*;
 pub use transform3d::*;
 
 #[doc(alias = "Support")]
@@ -40,10 +42,10 @@ pub trait ExtremePoint3d {
     /// ```
     /// # use auburn::col3d::*;
     /// let ball = Ball::with_radius(2.0);
-    /// let point = ball.extreme_point(&Vec3::X);
+    /// let point = ball.extreme_point(Vec3::X);
     /// assert_eq!(point, Vec3::new(2.0, 0.0, 0.0));
     /// ```
-    fn extreme_point(&self, direction: &Vec3) -> Vec3;
+    fn extreme_point(&self, direction: Vec3) -> Vec3;
 }
 
 /// Trait for checking collision between `Self` and `T` given relative transform between them.
@@ -208,6 +210,16 @@ where
 {
     fn collides_rel(&self, t: &B, rel: &impl Transform3d) -> bool {
         self.minkowski_difference(t).collides_rel(&Point, rel)
+    }
+}
+
+impl<A> Penetrates3d<A> for Point
+where
+    A: DefaultCol3dImpls,
+    A: Penetrates3d<Point>,
+{
+    fn penetrates(&self, other: &A, rel: &impl Transform3d) -> Option<Vec3> {
+        other.penetrates(&Point, rel) // .map(|v| -v)
     }
 }
 
