@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct RoundedBox2d {
     pub halfsize: Vec2,
     pub radius: f32,

@@ -1,5 +1,3 @@
-use crate::{Quat, Vec2, Vec3};
-
 mod ball;
 mod point;
 mod transform;
@@ -11,14 +9,17 @@ pub use transform::*;
 /// Trait for computing Minkowski sum.
 ///
 /// # Example
-/// ```rust
-/// impl MinkowskiSum<Ball> for Box2d {
-///     type Output = RoundedRectangle2d;
+/// ```
+/// use auburn::col2d::*;
+/// struct Ball {
+///     radius: f32,
+/// }
+/// impl MinkowskiSum<Ball> for Ball {
+///     type Output = Ball;
 ///
-///     fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
+///     fn minkowski_sum(&self, b: &Ball) -> Self::Output {
 ///         Self::Output {
-///             radius: t.radius,
-///             halfsize: self.halfsize,
+///             radius: self.radius + b.radius,
 ///         }
 ///     }
 /// }
@@ -27,17 +28,18 @@ pub use transform::*;
 /// # See also
 /// * [MinkowskiNegation]
 /// * [MinkowskiDifference]
-pub(crate) trait MinkowskiSum<T> {
+pub trait MinkowskiSum<T> {
     type Output;
     /// Computes Minkowski sum of `self` and `t`.
     ///
     /// # Example
-    /// ```rust
+    /// ```
+    /// use auburn::col2d::*;
     /// let a = Ball::with_radius(1.0);
-    /// let b = Box2d::with_halfdims(Vec2::new(0.5, 0.5));
+    /// let b = Box2d::with_halfdims(0.5, 0.5);
     /// assert_eq!(
     ///     a.minkowski_sum(&b),
-    ///     RoundedRectangle2d::new(Vec2::new(0.5, 0.5), 1.0)
+    ///     RoundedBox2d::new(Vec2::new(0.5, 0.5), 1.0)
     /// );
     /// ```
     ///
@@ -54,7 +56,7 @@ pub(crate) trait MinkowskiSum<T> {
 /// * [MinkowskiNegation]
 /// * [MinkowskiSum]
 /// * [MinkowskiDifference]
-pub(crate) trait MinkowskiNegationIsIdentity: Copy {}
+pub trait MinkowskiNegationIsIdentity: Copy {}
 
 /// Trait for computing Minkowski negation.
 ///
@@ -62,15 +64,16 @@ pub(crate) trait MinkowskiNegationIsIdentity: Copy {}
 /// * [MinkowskiNegationIsIdentity]
 /// * [MinkowskiSum]
 /// * [MinkowskiDifference]
-pub(crate) trait MinkowskiNegation {
+pub trait MinkowskiNegation {
     /// Computes Minkowski negation. (Reflection about the origin)
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```
+    /// use auburn::col2d::*;
     /// let a = Ball::with_radius(1.0);
     /// assert_eq!(
-    ///     a.minkowski_negation();
+    ///     a.minkowski_negation(),
     ///     Ball::with_radius(1.0)
     /// );
     /// ```
@@ -86,12 +89,13 @@ pub(crate) trait MinkowskiNegation {
 /// # See also
 /// * [MinkowskiSum]
 /// * [MinkowskiNegation]
-pub(crate) trait MinkowskiDifference<T> {
+pub trait MinkowskiDifference<T> {
     type Output;
     /// Computes Minkowski difference between `self` and `t`.
     ///
     /// # Example
-    /// ```rust
+    /// ```
+    /// use auburn::col2d::*;
     /// let a = Ball::with_radius(1.0);
     /// let b = Ball::with_radius(1.0);
     /// assert_eq!(
@@ -112,9 +116,9 @@ pub(crate) trait MinkowskiDifference<T> {
     fn minkowski_difference(&self, t: &T) -> Self::Output;
 }
 
-pub(crate) trait MinkowskiDifferenceLifetimed<'a, T: 'a> {
+pub trait MinkowskiDifferenceLifetimed<'a, T: 'a> {
     type Output: 'a;
-    fn minkowski_difference(&'a self, t: &'a T) -> Self::Output;
+    fn minkowski_difference_lt(&'a self, t: &'a T) -> Self::Output;
 }
 
 impl<T: MinkowskiNegationIsIdentity> MinkowskiNegation for T {
@@ -129,7 +133,7 @@ where
 {
     type Output = C;
 
-    fn minkowski_difference(&'_ self, t: &'l B) -> Self::Output {
+    fn minkowski_difference_lt(&'_ self, t: &'l B) -> Self::Output {
         MinkowskiDifference::minkowski_difference(self, t)
     }
 }

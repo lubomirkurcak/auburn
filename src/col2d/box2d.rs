@@ -1,7 +1,7 @@
 use super::*;
 
 /// 2D rectangle *centered at the origin*.
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
 #[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 pub struct Box2d {
     pub halfsize: Vec2,

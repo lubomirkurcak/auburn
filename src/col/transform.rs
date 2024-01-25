@@ -5,7 +5,10 @@ pub trait Invertible {
     /// Inversion of the transformation.
     ///
     /// The operation holds this property:
-    /// ```rust
+    /// ```
+    /// use auburn::col2d::*;
+    /// let p = Vec2::new(1.0, 1.0);
+    /// let a = Translate2d::from(Vec2::new(1.0, 0.0));
     /// assert_eq!(p, a.inverse().apply(a.apply(p)))
     /// ```
     fn inverse(&self) -> Self;
@@ -16,6 +19,10 @@ pub trait Composable {
     ///
     /// The operation holds this property:
     /// ```rust
+    /// use auburn::col2d::*;
+    /// let p = Vec2::new(1.0, 1.0);
+    /// let a = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let b = Translate2d::from(Vec2::new(0.0, 1.0));
     /// assert_eq!(
     ///     a.apply(b.apply(p)),
     ///     a.compose(&b).apply(p),
@@ -29,9 +36,15 @@ pub trait DeltaTransform {
     ///
     /// Useful for functions expecting a relative transform:
     ///
-    /// ```rust
-    /// let rel = transform.delta_transform(t_transform);
-    /// self.collides_rel(t, &rel)
+    /// ```
+    /// use auburn::col2d::*;
+    /// let a = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// let b = Translate2d::from(Vec2::new(0.0, 1.0));
+    /// assert_eq!(
+    ///     a.delta_transform(&b),
+    ///     // Translate2d::from(Vec2::new(1.0, -1.0)),
+    ///     Translate2d::from(Vec2::new(-1.0, 1.0)),
+    /// )
     /// ```
     fn delta_transform(&self, other: &Self) -> Self;
 }

@@ -78,8 +78,8 @@ pub trait SymmetricBoundingBox2d {
     /// ```
     /// use auburn::col2d::*;
     /// assert_eq!(
-    ///     Ball::with_radius(1.0).bounding_box(),
-    ///     Box2d::with_halfdims(1.0, 1.0)
+    ///     Ball::with_radius(1.0).symmetric_bounding_box(),
+    ///     Box2d::with_halfdims(1.0, 1.0),
     /// );
     /// ```
     ///
@@ -286,8 +286,7 @@ pub trait Sdf2d<T> {
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// let s = a.sdf(&b, &rel);
-    /// println!("distance: {}", s);
+    /// assert_eq!(a.sdf(&b, &rel), -1.0);
     /// ```
     ///
     /// # See also
@@ -314,8 +313,7 @@ pub trait Sdf2dVector<T> {
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
     /// let p = a.sdfvector(&b, &rel);
-    /// // push or pull `t` such that it touches `self`
-    /// assert_eq!(p, Vec2::new(1.0, 0.0));
+    /// assert_eq!(p, Vec2::new(-1.0, 0.0));
     /// ```
     ///
     /// # See also

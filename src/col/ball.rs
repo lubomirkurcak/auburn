@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 #[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 pub struct Ball {
     pub radius: f32,

@@ -70,7 +70,7 @@ impl ExtremePoint2d for Poly2dDiff<'_> {
 impl<'a> MinkowskiDifferenceLifetimed<'a, Poly2d> for Poly2d {
     type Output = Poly2dDiff<'a>;
 
-    fn minkowski_difference(&'a self, t: &'a Poly2d) -> Self::Output {
+    fn minkowski_difference_lt(&'a self, t: &'a Poly2d) -> Self::Output {
         Poly2dDiff { a: self, b: t }
     }
 }

@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Translate2d {
     pos: Vec2,
 }
