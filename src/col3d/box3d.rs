@@ -1,10 +1,8 @@
-use super::{
-    CollidesRel3d, ExtremePoint3d, MinkowskiDifference, MinkowskiNegationIsIdentity, MinkowskiSum,
-    Penetrates3d, Transform3d, Vec3,
-};
+use super::*;
 
 /// 3D rectangle *centered at the origin*.
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
+#[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 pub struct Box3d {
     pub halfsize: Vec3,
 }
@@ -52,6 +50,8 @@ impl ExtremePoint3d for Box3d {
     }
 }
 
+impl MinkowskiNegationIsIdentity for Box3d {}
+
 impl MinkowskiSum<Box3d> for Box3d {
     type Output = Self;
 
@@ -62,10 +62,12 @@ impl MinkowskiSum<Box3d> for Box3d {
     }
 }
 
-impl MinkowskiNegationIsIdentity for Box3d {}
+impl DefaultCol3dImpls for Box3d {}
 
-impl CollidesRel3d<()> for Box3d {
-    fn collides_rel(&self, _t: &(), rel: &impl Transform3d) -> bool {
+// Collides
+
+impl CollidesRel3d<Point> for Box3d {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transform3d) -> bool {
         let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
@@ -75,81 +77,29 @@ impl CollidesRel3d<()> for Box3d {
             && delta.z < self.halfsize.z
     }
 }
-impl CollidesRel3d<Box3d> for () {
-    fn collides_rel(&self, t: &Box3d, rel: &impl Transform3d) -> bool {
-        t.collides_rel(&(), rel)
-    }
-}
 
-impl Penetrates3d<Box3d> for () {
-    fn penetrates(&self, t: &Box3d, rel: &impl Transform3d) -> Option<Vec3> {
-        if CollidesRel3d::collides_rel(&(), t, rel) {
+// Penetrates
+
+impl Penetrates3d<Point> for Box3d {
+    fn penetrates(&self, t: &Point, rel: &impl Transform3d) -> Option<Vec3> {
+        if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
-            let delta_x = t.halfsize.x - delta.x.abs();
-            let delta_y = t.halfsize.y - delta.y.abs();
-            let delta_z = t.halfsize.z - delta.z.abs();
-            if delta_x < delta_y {
-                if delta_z < delta_x {
+            let delta_x = delta.x.abs() - self.halfsize.x;
+            let delta_y = delta.y.abs() - self.halfsize.y;
+            let delta_z = delta.z.abs() - self.halfsize.z;
+            if delta_x > delta_y {
+                if delta_z > delta_x {
                     return Some(Vec3::new(0.0, 0.0, delta_z * delta.z.signum()));
                 } else {
                     return Some(Vec3::new(delta_x * delta.x.signum(), 0.0, 0.0));
                 }
-            } else if delta_z < delta_y {
+            } else if delta_z > delta_y {
                 return Some(Vec3::new(0.0, 0.0, delta_z * delta.z.signum()));
             } else {
                 return Some(Vec3::new(0.0, delta_y * delta.y.signum(), 0.0));
             }
         }
         None
-    }
-}
-
-impl Penetrates3d<()> for Box3d {
-    fn penetrates(&self, _t: &(), rel: &impl Transform3d) -> Option<Vec3> {
-        ().penetrates(self, rel)
-    }
-}
-
-#[cfg(penetrates_dir)]
-impl Penetrates3dDir<()> for Box3d {
-    fn penetrates_dir(&self, t: &(), delta: &Vec3, dir: &Vec3) -> Option<Vec3> {
-        if self.collides(t, delta) {
-            self.extreme_point(dir);
-
-            todo!();
-
-            let delta_x = self.halfsize.x - delta.x.abs();
-            let delta_y = self.halfsize.y - delta.y.abs();
-            let x_smaller = delta_x < delta_y;
-
-            if x_smaller {
-                return Some(Vec3::new(delta_x * delta.x.signum(), 0.0));
-            } else {
-                return Some(Vec3::new(0.0, delta_y * delta.y.signum()));
-            }
-        }
-        None
-    }
-}
-
-impl CollidesRel3d<Box3d> for Box3d {
-    fn collides_rel(&self, t: &Box3d, rel: &impl Transform3d) -> bool {
-        self.minkowski_difference(t).collides_rel(&(), rel)
-    }
-}
-
-impl Penetrates3d<Box3d> for Box3d {
-    fn penetrates(&self, t: &Box3d, rel: &impl Transform3d) -> Option<Vec3> {
-        // self.minkowski_difference(t).penetrates(&(), &delta)
-        Penetrates3d::penetrates(&(), &self.minkowski_difference(t), rel)
-    }
-}
-
-#[cfg(penetrates_dir)]
-impl Penetrates3dDir<Box3d> for Box3d {
-    fn penetrates_dir(&self, t: &Box3d, delta: &Vec3, dir: &Vec3) -> Option<Vec3> {
-        self.minkowski_difference(t)
-            .penetrates_dir(&(), &delta, &dir)
     }
 }
 
@@ -169,42 +119,42 @@ mod tests {
         let n4 = Vec3::new(0.0, -2.0, 0.0);
         let n5 = Vec3::new(-2.1, 1.1, 0.0);
 
-        assert!(b.collides_rel(&(), &y1));
-        assert!(().collides_rel(&b, &y1));
+        assert!(b.collides_rel(&Point, &y1));
+        assert!(Point.collides_rel(&b, &y1));
         // TODO(lubo): Actualy check if this is reasonable
-        assert!(b.penetrates(&(), &y1).is_some());
-        assert!(().penetrates(&b, &y1).is_some());
+        assert!(b.penetrates(&Point, &y1).is_some());
+        assert!(Point.penetrates(&b, &y1).is_some());
 
-        assert!(b.collides_rel(&(), &y2));
-        assert!(().collides_rel(&b, &y2));
-        assert_eq!(b.penetrates(&(), &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
-        assert_eq!(().penetrates(&b, &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
+        assert!(b.collides_rel(&Point, &y2));
+        assert!(Point.collides_rel(&b, &y2));
+        assert_eq!(b.penetrates(&Point, &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
+        assert_eq!(Point.penetrates(&b, &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
 
-        assert!(b.collides_rel(&(), &y3));
-        assert!(().collides_rel(&b, &y3));
-        assert_eq!(b.penetrates(&(), &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
-        assert_eq!(().penetrates(&b, &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
+        assert!(b.collides_rel(&Point, &y3));
+        assert!(Point.collides_rel(&b, &y3));
+        assert_eq!(b.penetrates(&Point, &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
+        assert_eq!(Point.penetrates(&b, &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
 
-        assert!(!b.collides_rel(&(), &n1));
-        assert!(!b.collides_rel(&(), &n2));
-        assert!(!b.collides_rel(&(), &n3));
-        assert!(!b.collides_rel(&(), &n4));
-        assert!(!b.collides_rel(&(), &n5));
-        assert_eq!(None, b.penetrates(&(), &n1));
-        assert_eq!(None, b.penetrates(&(), &n2));
-        assert_eq!(None, b.penetrates(&(), &n3));
-        assert_eq!(None, b.penetrates(&(), &n4));
-        assert_eq!(None, b.penetrates(&(), &n5));
-        assert!(!().collides_rel(&b, &n1));
-        assert!(!().collides_rel(&b, &n2));
-        assert!(!().collides_rel(&b, &n3));
-        assert!(!().collides_rel(&b, &n4));
-        assert!(!().collides_rel(&b, &n5));
-        assert_eq!(None, ().penetrates(&b, &n1));
-        assert_eq!(None, ().penetrates(&b, &n2));
-        assert_eq!(None, ().penetrates(&b, &n3));
-        assert_eq!(None, ().penetrates(&b, &n4));
-        assert_eq!(None, ().penetrates(&b, &n5));
+        assert!(!b.collides_rel(&Point, &n1));
+        assert!(!b.collides_rel(&Point, &n2));
+        assert!(!b.collides_rel(&Point, &n3));
+        assert!(!b.collides_rel(&Point, &n4));
+        assert!(!b.collides_rel(&Point, &n5));
+        assert_eq!(None, b.penetrates(&Point, &n1));
+        assert_eq!(None, b.penetrates(&Point, &n2));
+        assert_eq!(None, b.penetrates(&Point, &n3));
+        assert_eq!(None, b.penetrates(&Point, &n4));
+        assert_eq!(None, b.penetrates(&Point, &n5));
+        assert!(!Point.collides_rel(&b, &n1));
+        assert!(!Point.collides_rel(&b, &n2));
+        assert!(!Point.collides_rel(&b, &n3));
+        assert!(!Point.collides_rel(&b, &n4));
+        assert!(!Point.collides_rel(&b, &n5));
+        assert_eq!(None, Point.penetrates(&b, &n1));
+        assert_eq!(None, Point.penetrates(&b, &n2));
+        assert_eq!(None, Point.penetrates(&b, &n3));
+        assert_eq!(None, Point.penetrates(&b, &n4));
+        assert_eq!(None, Point.penetrates(&b, &n5));
     }
 
     #[test]

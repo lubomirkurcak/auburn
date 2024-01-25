@@ -1,8 +1,12 @@
-mod translate3d;
+use super::*;
+
 mod axis_transform3d;
 mod isotropic3d;
+mod translate3d;
 
-use super::*;
+pub use axis_transform3d::*;
+pub use isotropic3d::*;
+pub use translate3d::*;
 
 /// Trait for transforming 3D points.
 pub trait Transform3d {

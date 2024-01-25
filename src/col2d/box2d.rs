@@ -69,6 +69,8 @@ impl MinkowskiSum<Ball> for Box2d {
     }
 }
 
+impl DefaultCol2dImpls for Box2d {}
+
 // Collides
 
 impl CollidesRel2d<Point> for Box2d {
@@ -81,29 +83,15 @@ impl CollidesRel2d<Point> for Box2d {
     }
 }
 
-// impl CollidesRel2d<Box2d> for Point {
-//     fn collides_rel(&self, other: &Box2d, rel: &impl Transform2d) -> bool {
-//         other.collides_rel(&Point, &rel.inverse())
-//     }
-// }
-
-impl DefaultCol2dImpls for Box2d {}
-
-// impl CollidesRel2d<Box2d> for Box2d {
-//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-//         self.minkowski_difference(t).collides_rel(&Point, rel)
-//     }
-// }
-
 // Penetrates
 
 impl Penetrates2d<Point> for Box2d {
-    fn penetrates(&self, _t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
-        let delta = rel.apply_origin();
-        let delta_x = delta.x.abs() - self.halfsize.x;
-        let delta_y = delta.y.abs() - self.halfsize.y;
+    fn penetrates(&self, t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
+        if self.collides_rel(t, rel) {
+            let delta = rel.apply_origin();
+            let delta_x = delta.x.abs() - self.halfsize.x;
+            let delta_y = delta.y.abs() - self.halfsize.y;
 
-        if self.collides_rel(_t, rel) {
             if delta_x > delta_y {
                 Some(Vec2::new(delta_x * delta.x.signum(), 0.0))
             } else {
@@ -115,24 +103,7 @@ impl Penetrates2d<Point> for Box2d {
     }
 }
 
-// impl Penetrates2d<Point> for Box2d {
-//     fn penetrates(&self, _t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
-//         Point.penetrates(self, rel)
-//     }
-// }
-
-// impl CollidesRel2d<Box2d> for Box2d {
-//     fn collides_rel(&self, t: &Box2d, rel: &impl Transform2d) -> bool {
-//         self.minkowski_difference(t).collides_rel(&(), rel)
-//     }
-// }
-
-// impl Penetrates2d<Box2d> for Box2d {
-//     fn penetrates(&self, t: &Box2d, rel: &impl Transform2d) -> Option<Vec2> {
-//         // self.minkowski_difference(t).penetrates(&(), &delta)
-//         ().penetrates(&self.minkowski_difference(t), rel)
-//     }
-// }
+// Sdf
 
 impl Sdf2d<Point> for Box2d {
     fn sdf(&self, _t: &Point, rel: &impl Transform2d) -> f32 {
@@ -153,6 +124,8 @@ impl Sdf2d<Point> for Box2d {
         }
     }
 }
+
+// Sdf Vector
 
 impl Sdf2dVector<Point> for Box2d {
     fn sdfvector(&self, t: &Point, rel: &impl Transform2d) -> Vec2 {

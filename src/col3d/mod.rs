@@ -37,10 +37,11 @@ pub trait ExtremePoint3d {
     /// Computes the farthest point along a direction.
     ///
     /// # Example
-    /// ```rust
-    /// let sphere = Sphere::with_radius(2.0);
-    /// let point = sphere.extreme_point(&Vec3::X);
-    /// assert_eq!(point, Vec2::new(2.0, 0.0, 0.0));
+    /// ```
+    /// # use auburn::col3d::*;
+    /// let ball = Ball::with_radius(2.0);
+    /// let point = ball.extreme_point(&Vec3::X);
+    /// assert_eq!(point, Vec3::new(2.0, 0.0, 0.0));
     /// ```
     fn extreme_point(&self, direction: &Vec3) -> Vec3;
 }
@@ -59,10 +60,11 @@ pub trait CollidesRel3d<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate3d::new(t.pos - self.pos);
-    /// if self.collides(&t, &rel) {
-    ///     println!("hit!");
-    /// }
+    /// # use auburn::col3d::*;
+    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
+    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// assert!(a.collides_rel(&b, &rel))
     /// ```
     ///
     /// # See also
@@ -85,11 +87,12 @@ pub trait Collides3d<T, U: Transform3d> {
     ///
     /// # Example
     /// ```
-    /// let transform = Translate3d::new(self.pos);
-    /// let t_transform = Translate3d::new(t.pos);
-    /// if self.collides(&transform, &t, &t_transform) {
-    ///     println!("hit!");
-    /// }
+    /// # use auburn::col3d::*;
+    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let a_t = Translate3d::from(Vec3::new(0.0, 0.0, 0.0));
+    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let b_t = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
+    /// assert!(a.collides(&a_t, &b, &b_t))
     /// ```
     ///
     /// # See also
@@ -121,10 +124,11 @@ pub trait Penetrates3d<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate3d::new(t.pos - self.pos);
-    /// if let Some(p) = self.penetration(&t, &rel) {
-    ///     t.pos += p; // push `t`
-    /// }
+    /// # use auburn::col3d::*;
+    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
+    /// assert_eq!(a.penetrates(&b, &rel), Some(Vec3::new(-1.0, 0.0, 0.0)));
     /// ```
     ///
     /// # See also
@@ -145,9 +149,11 @@ pub trait Sdf3d<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate3d::new(t.pos - self.pos);
-    /// let s = self.sdf(&t, &rel);
-    /// println!("distance: {}", s);
+    /// # use auburn::col3d::*;
+    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
+    /// assert_eq!(a.sdf(&b, &rel), -1.0);
     /// ```
     ///
     /// # See also
@@ -168,12 +174,92 @@ pub trait Sdf3dVector<T> {
     ///
     /// # Example
     /// ```
-    /// let rel = Translate3d::new(t.pos - self.pos);
-    /// let p = self.sdfvector(&t, &rel);
-    /// t.pos += p; // push or pull `t` such that it touches `self`
+    /// # use auburn::col3d::*;
+    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
+    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
+    /// assert_eq!(a.sdfvector(&b, &rel), Vec3::new(-1.0, 0.0, 0.0));
     /// ```
     ///
     /// # See also
     /// * [Sdf3d::sdf].
     fn sdfvector(&self, t: &T, rel: &impl Transform3d) -> Vec3;
+}
+
+// TODO(lubo): These could be simplified with specialization. (RFC 1210)
+
+trait DefaultCol3dImpls {}
+
+impl<A> CollidesRel3d<A> for Point
+where
+    A: DefaultCol3dImpls,
+    A: CollidesRel3d<Point>,
+{
+    fn collides_rel(&self, other: &A, rel: &impl Transform3d) -> bool {
+        other.collides_rel(&Point, rel)
+    }
+}
+
+impl<A, B, C> CollidesRel3d<B> for A
+where
+    A: DefaultCol3dImpls,
+    A: MinkowskiDifference<B, Output = C>,
+    C: CollidesRel3d<Point>,
+{
+    fn collides_rel(&self, t: &B, rel: &impl Transform3d) -> bool {
+        self.minkowski_difference(t).collides_rel(&Point, rel)
+    }
+}
+
+impl<A, B, C> Penetrates3d<B> for A
+where
+    A: DefaultCol3dImpls,
+    A: MinkowskiDifference<B, Output = C>,
+    C: Penetrates3d<Point>,
+{
+    fn penetrates(&self, t: &B, rel: &impl Transform3d) -> Option<Vec3> {
+        self.minkowski_difference(t).penetrates(&Point, rel)
+    }
+}
+
+impl<A, B, C> Sdf3d<B> for A
+where
+    A: DefaultCol3dImpls,
+    A: MinkowskiDifference<B, Output = C>,
+    C: Sdf3d<Point>,
+{
+    fn sdf(&self, t: &B, rel: &impl Transform3d) -> f32 {
+        self.minkowski_difference(t).sdf(&Point, rel)
+    }
+}
+
+impl<A> Sdf3d<A> for Point
+where
+    A: DefaultCol3dImpls,
+    A: Sdf3d<Point>,
+{
+    fn sdf(&self, t: &A, rel: &impl Transform3d) -> f32 {
+        t.sdf(&Point, rel)
+    }
+}
+
+impl<A, B, C> Sdf3dVector<B> for A
+where
+    A: DefaultCol3dImpls,
+    A: MinkowskiDifference<B, Output = C>,
+    C: Sdf3dVector<Point>,
+{
+    fn sdfvector(&self, t: &B, rel: &impl Transform3d) -> Vec3 {
+        self.minkowski_difference(t).sdfvector(&Point, rel)
+    }
+}
+
+impl<A> Sdf3dVector<A> for Point
+where
+    A: DefaultCol3dImpls,
+    A: Sdf3dVector<Point>,
+{
+    fn sdfvector(&self, t: &A, rel: &impl Transform3d) -> Vec3 {
+        t.sdfvector(&Point, rel)
+    }
 }

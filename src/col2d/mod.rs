@@ -44,10 +44,9 @@ pub trait ExtremePoint2d {
     ///
     /// # Example
     /// ```
-    /// use auburn::col2d::*;
-    /// use auburn::Vec2;
-    /// let sphere = Ball::with_radius(2.0);
-    /// let point = sphere.extreme_point(Vec2::X);
+    /// # use auburn::col2d::*;
+    /// let ball = Ball::with_radius(2.0);
+    /// let point = ball.extreme_point(Vec2::X);
     /// assert_eq!(point, Vec2::new(2.0, 0.0));
     /// ```
     fn extreme_point(&self, direction: Vec2) -> Vec2;
@@ -102,19 +101,133 @@ pub trait CollidesRel2d<T> {
     ///
     /// # Example
     /// ```
-    /// use auburn::col2d::*;
-    /// use auburn::Vec2;
-    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// # use auburn::col2d::*;
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// if a.collides_rel(&b, &rel) {
-    ///     println!("hit!");
-    /// }
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert!(a.collides_rel(&b, &rel))
     /// ```
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
     fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
+}
+
+/// Trait for checking collision between `Self` and `T`.
+///
+/// # Limitations
+/// Currently, transformation types must be the same for both `Self` and `T`.
+///
+/// # See also
+/// * [BoundingBox2d]
+/// * [Penetrates2d]
+pub trait Collides2d<T, U: Transform2d> {
+    /// Checks whether objects collide.
+    ///
+    /// # Arguments
+    /// * `t` - The object to check collision against
+    /// * `delta` - The vector from `self` to `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert!(a.collides(&a_t, &b, &b_t))
+    /// ```
+    ///
+    /// # See also
+    /// * [Penetrates2d::penetrates].
+    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
+}
+
+impl<A, B, T> Collides2d<B, T> for A
+where
+    A: CollidesRel2d<B>,
+    T: Transform2d + DeltaTransform,
+{
+    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
+        let rel = transform.delta_transform(t_transform);
+        self.collides_rel(t, &rel)
+    }
+}
+
+/// Trait for computing smallest penetration vector between `Self` and `T`.
+///
+/// # See also
+/// * [`Collides2d`]
+pub trait Penetrates2d<T> {
+    /// Computes the smallest penetration vector between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `t` - The object to compute penetration into
+    /// * `rel` - The *relative* transform from `self` to `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.penetrates(&b, &rel), Some(Vec2::new(-1.0, 0.0)));
+    /// ```
+    ///
+    /// # See also
+    /// * [Collides2d::collides].
+    fn penetrates(&self, t: &T, rel: &impl Transform2d) -> Option<Vec2>;
+}
+
+/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+///
+/// # See also
+/// * [`Sdf2dVector`]
+pub trait Sdf2d<T> {
+    /// Computes *scalar* signed-distance between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `transform` - Transform of `Self`
+    /// * `t` - The object to check collision against
+    /// * `delta` - Transform of `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.sdf(&b, &rel), -1.0);
+    /// ```
+    ///
+    /// # See also
+    /// * [Sdf2dVector::sdfvector].
+    fn sdf(&self, t: &T, rel: &impl Transform2d) -> f32;
+}
+
+/// Trait for computing the *vector* signed-distance between `Self` and `T`.
+///
+/// # See also
+/// * [`Sdf2d`]
+pub trait Sdf2dVector<T> {
+    /// Computes *vector* signed-distance between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `t` - The object to compute distance to
+    /// * `rel` - The *relative* transform from `self` to `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.sdfvector(&b, &rel), Vec2::new(-1.0, 0.0));
+    /// ```
+    ///
+    /// # See also
+    /// * [Sdf2d::sdf].
+    fn sdfvector(&self, t: &T, rel: &impl Transform2d) -> Vec2;
 }
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
@@ -193,130 +306,4 @@ where
     fn sdfvector(&self, t: &A, rel: &impl Transform2d) -> Vec2 {
         t.sdfvector(&Point, rel)
     }
-}
-
-/// Trait for checking collision between `Self` and `T`.
-///
-/// # Limitations
-/// Currently, transformation types must be the same for both `Self` and `T`.
-///
-/// # See also
-/// * [BoundingBox2d]
-/// * [Penetrates2d]
-pub trait Collides2d<T, U: Transform2d> {
-    /// Checks whether objects collide.
-    ///
-    /// # Arguments
-    /// * `t` - The object to check collision against
-    /// * `delta` - The vector from `self` to `t`
-    ///
-    /// # Example
-    /// `` TODO(lubo): fix example
-    /// use auburn::col2d::{Box2d, Translate2d};
-    /// use auburn::Vec2;
-    /// let transform = Translate2d::from(Vec2::new(0.0, 0.0));
-    /// let t_transform = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// if a.collides(&transform, &b, &t_transform) {
-    ///     println!("hit!");
-    /// }
-    /// ``
-    ///
-    /// # See also
-    /// * [Penetrates2d::penetrates].
-    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
-}
-
-impl<A, B, T> Collides2d<B, T> for A
-where
-    A: CollidesRel2d<B>,
-    T: Transform2d + DeltaTransform,
-{
-    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
-        let rel = transform.delta_transform(t_transform);
-        self.collides_rel(t, &rel)
-    }
-}
-
-/// Trait for computing smallest penetration vector between `Self` and `T`.
-///
-/// # See also
-/// * [`Collides2d`]
-pub trait Penetrates2d<T> {
-    /// Computes the smallest penetration vector between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute penetration into
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// `` TODO(lubo): fix example
-    /// use auburn::col2d::*;
-    /// use auburn::Vec2;
-    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// if let Some(p) = a.penetration(&b, &rel) {
-    ///     // push `t`
-    /// }
-    /// ``
-    ///
-    /// # See also
-    /// * [Collides2d::collides].
-    fn penetrates(&self, t: &T, rel: &impl Transform2d) -> Option<Vec2>;
-}
-
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
-///
-/// # See also
-/// * [`Sdf2dVector`]
-pub trait Sdf2d<T> {
-    /// Computes *scalar* signed-distance between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
-    ///
-    /// # Example
-    /// ```
-    /// use auburn::col2d::*;
-    /// use auburn::Vec2;
-    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// assert_eq!(a.sdf(&b, &rel), -1.0);
-    /// ```
-    ///
-    /// # See also
-    /// * [Sdf2dVector::sdfvector].
-    fn sdf(&self, t: &T, rel: &impl Transform2d) -> f32;
-}
-
-/// Trait for computing the *vector* signed-distance between `Self` and `T`.
-///
-/// # See also
-/// * [`Sdf2d`]
-pub trait Sdf2dVector<T> {
-    /// Computes *vector* signed-distance between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// use auburn::col2d::*;
-    /// use auburn::Vec2;
-    /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// let p = a.sdfvector(&b, &rel);
-    /// assert_eq!(p, Vec2::new(-1.0, 0.0));
-    /// ```
-    ///
-    /// # See also
-    /// * [Sdf2d::sdf].
-    fn sdfvector(&self, t: &T, rel: &impl Transform2d) -> Vec2;
 }

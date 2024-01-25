@@ -5,6 +5,12 @@ pub struct Translate3d {
     pos: Vec3,
 }
 
+impl From<Vec3> for Translate3d {
+    fn from(pos: Vec3) -> Self {
+        Self::new(pos)
+    }
+}
+
 impl Transform3d for Vec3 {
     fn apply_origin(&self) -> Vec3 {
         *self
