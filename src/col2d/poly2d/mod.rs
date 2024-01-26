@@ -1,5 +1,7 @@
 use super::*;
 
+mod gjk2d;
+
 #[derive(Clone, Default)]
 #[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 // pub struct Poly2d<const N: usize> {
@@ -97,23 +99,6 @@ impl CollidesRel2d<Point> for Poly2dDiff<'_> {
 
         let delta = cross_aba(a - b, -a);
         let c = self.extreme_point(delta);
-        todo!()
-    }
-}
-
-impl CollidesRel2d<Poly2d> for Poly2d {
-    fn collides_rel(&self, t: &Poly2d, rel: &impl Transform2d) -> bool {
-        // let delta = rel.apply_origin();
-        // let a = self.support(t, delta);
-        // if a.dot(delta) < 0.0 {
-        //     return false;
-        // }
-
-        // let delta = -a;
-        // let b = self.support(t, delta);
-
-        // let delta = cross_aba(a - b, -a);
-        // let c = self.support(t, delta);
         todo!()
     }
 }

@@ -23,6 +23,7 @@ mod box3d;
 mod cylinder3d;
 mod point3d;
 mod transform3d;
+mod poly3d;
 
 pub use crate::col::*;
 pub use ball3d::*;
