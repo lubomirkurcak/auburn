@@ -85,13 +85,15 @@ impl DefaultCol2dImpls for Poly2d {}
 impl CollidesRel2d<Point> for Poly2dDiff<'_> {
     fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
         let mut point_count = 1;
-        let mut points = [Vec2::ZERO; 4];
+        let mut points = [Vec2::ZERO; 3];
 
         let delta = rel.apply_origin();
+        // let delta = -delta;
         let a = self.extreme_point(delta);
         if a.dot(delta) < 0.0 {
             return false;
         }
+        // return true;
 
         let mut delta = -a;
         for _ in 0..16 {
@@ -137,5 +139,17 @@ mod tests {
         assert_eq!(c, triangle.extreme_point(Vec2::new(-1.0, 1.0)));
         assert_eq!(a, triangle.extreme_point(Vec2::new(-1.0, -1.0)));
         assert_eq!(b, triangle.extreme_point(Vec2::new(1.0, -1.0)));
+    }
+
+    #[test]
+    fn box_box_gjk() {
+        let a = Poly2d::new(&[
+            Vec2::new(0.0, 0.0),
+            Vec2::new(0.0, 1.0),
+            Vec2::new(1.0, 0.0),
+            Vec2::new(1.0, 1.0),
+        ]);
+        let poly_diff = a.minkowski_difference_lt(&a);
+        assert!(poly_diff.collides_rel(&Point, &Translate2d::from(Vec2::new(0.5, 0.0))));
     }
 }

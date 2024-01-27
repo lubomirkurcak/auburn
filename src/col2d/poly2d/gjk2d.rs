@@ -4,6 +4,9 @@ fn same_direction(v: Vec2, ao: Vec2) -> bool {
     v.dot(ao) > 0.0
 }
 
+/// Calculates `a * b * a` where `*` is the cross product.
+///
+/// The result is a vector perpendicular to `a` facing towards `b`.
 fn cross_aba(a: Vec2, b: Vec2) -> Vec2 {
     Vec2::new(
         a.y * a.y * b.x - a.x * a.y * b.y,
@@ -644,3 +647,40 @@ fn gjk(mut dir: Vec3) -> bool
     return collision_info;
 }
 */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cross_aba_test() {
+        let ab = Vec2::new(1.0, 0.0);
+        let ao = Vec2::new(1.0, 1.0);
+        cross_aba(ab, ao);
+        assert_eq!(cross_aba(ab, ao), Vec2::new(0.0, 1.0));
+    }
+
+    #[test]
+    fn cross_aba_test2() {
+        let ab = Vec2::new(0.0, 1.0);
+        let ao = Vec2::new(1.0, 1.0);
+        cross_aba(ab, ao);
+        assert_eq!(cross_aba(ab, ao), Vec2::new(1.0, 0.0));
+    }
+
+    #[test]
+    fn cross_aba_test3() {
+        let ab = Vec2::new(-1.0, 0.0);
+        let ao = Vec2::new(1.0, 1.0);
+        cross_aba(ab, ao);
+        assert_eq!(cross_aba(ab, ao), Vec2::new(0.0, 1.0));
+    }
+
+    #[test]
+    fn cross_aba_test4() {
+        let ab = Vec2::new(0.0, -1.0);
+        let ao = Vec2::new(1.0, 1.0);
+        cross_aba(ab, ao);
+        assert_eq!(cross_aba(ab, ao), Vec2::new(1.0, 0.0));
+    }
+}
