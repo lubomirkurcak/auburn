@@ -26,7 +26,7 @@ mod box2d;
 mod point2d;
 mod poly2d;
 mod rounded_box2d;
-// mod tilemap;
+mod tilemap;
 mod transform2d;
 
 pub use crate::col::*;
@@ -35,7 +35,7 @@ pub use box2d::*;
 pub use point2d::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;
-// pub use tilemap::*;
+pub use tilemap::*;
 pub use transform2d::*;
 
 /// Trait for computing extreme points of a shape along a direction.

@@ -35,14 +35,11 @@ fn do_simplex_2(points: &mut [Vec2], _point_count: &mut usize) -> Option<Vec2> {
     let b = points[0];
     let ao = -a;
     let ab = b - a;
-    println!("[simplex2] a: {}, b: {}, ao: {}, ab: {}", a, b, ao, ab);
     let dir = cross_aba(ab, ao);
 
     if is_zero(dir) {
-        println!("[simplex2] contained origin!");
         None
     } else {
-        println!("[simplex2] returning dir: {}", dir);
         Some(dir)
     }
 }
@@ -74,6 +71,7 @@ fn do_simplex_3(points: &mut [Vec2], point_count: &mut usize) -> Option<Vec2> {
                 dir = ao;
                 points[0] = a;
                 *point_count = 1;
+                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
                 unreachable!("IS THIS EVEN REACHABLE?");
             }
         }
@@ -88,20 +86,18 @@ fn do_simplex_3(points: &mut [Vec2], point_count: &mut usize) -> Option<Vec2> {
                 dir = ao;
                 points[0] = a;
                 *point_count = 1;
+                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
                 unreachable!("IS THIS EVEN REACHABLE?");
             }
         } else {
-            println!("[simplex3] contained origin!");
             return None;
         }
     }
 
     if is_zero(dir) {
         // @todo(lubo): is this correct?
-        println!("[simplex3] contained origin!");
         None
     } else {
-        println!("[simplex3] returning dir: {}", dir);
         Some(dir)
     }
 }

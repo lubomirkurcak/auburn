@@ -74,14 +74,6 @@ impl ExtremePoint2d for Poly2d {
 
 impl<T: Transform2d> ExtremePoint2d for Poly2dDiff<'_, T> {
     fn extreme_point(&self, direction: Vec2) -> Vec2 {
-        println!("Poly2dDiff::extreme_point");
-        println!(" direction: {}", direction);
-        println!(" a: {}", self.a.extreme_point(direction));
-        println!(" b: {}", self.b.extreme_point(-direction));
-        println!(
-            " diff: {}",
-            self.a.extreme_point(direction) - self.rel.apply(self.b.extreme_point(-direction))
-        );
         self.a.extreme_point(direction) - self.rel.apply(self.b.extreme_point(-direction))
     }
 }
@@ -108,11 +100,8 @@ impl<T: Transform2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
 
         // TODO: This sucks. We should probably ditch Poly2dDiff?
         let delta = rel.apply_origin();
-        println!("initial direction: {}", delta);
         // let delta = -delta;
         let a = self.extreme_point(delta);
-
-        println!("new point: {}", a);
 
         if a.dot(delta) < 0.0 {
             return false;
@@ -121,27 +110,20 @@ impl<T: Transform2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
 
         points[0] = a;
         let mut delta = -a;
-        println!("new direction: {}", delta);
 
         for _ in 0..16 {
             let p = self.extreme_point(delta);
-            println!("new point: {} (score = {})", p, p.dot(delta));
             if p.dot(delta) <= 0.0 {
-                println!("NOT COLLIDING");
                 return false;
             }
 
             points[point_count] = p;
             point_count += 1;
 
-            println!("points: {:?}", &points[0..point_count]);
-
             match gjk2d::do_simplex(&mut points, &mut point_count) {
                 Some(new_direction) => delta = new_direction,
                 None => return true,
             }
-
-            println!("new direction: {}", delta);
         }
 
         false
@@ -203,7 +185,6 @@ mod tests {
         for i in 0..steps {
             let p = start.lerp(end, i as f32 / steps as f32);
             let a = unit_box();
-            println!("p = {}\n", p);
             let rel = Translate2d::from(p);
             let poly_diff = Poly2dDiff::new(&a, &a, &rel);
             assert_eq!(

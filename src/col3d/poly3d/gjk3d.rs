@@ -88,6 +88,8 @@ fn do_simplex_3(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
                 dir = ao;
                 points[0] = a;
                 *point_count = 1;
+                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
+                unreachable!("IS THIS EVEN REACHABLE?");
             }
         }
     } else {
@@ -103,6 +105,8 @@ fn do_simplex_3(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
                 dir = ao;
                 points[0] = a;
                 *point_count = 1;
+                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
+                unreachable!("IS THIS EVEN REACHABLE?");
             }
         } else {
             if same_direction(abc, ao) {

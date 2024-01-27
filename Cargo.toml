@@ -30,6 +30,9 @@ serde = "1.0.195"
 serde_json = "1.0.111"
 serde_with = "3.4.0"
 
+[dev-dependencies]
+approx = "0.5.1"
+
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1

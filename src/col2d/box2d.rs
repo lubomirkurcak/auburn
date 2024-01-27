@@ -149,6 +149,8 @@ impl Sdf2dVector<Point> for Box2d {
 
 #[cfg(test)]
 mod tests {
+    use approx::assert_relative_eq;
+
     use super::*;
 
     #[test]
@@ -237,6 +239,11 @@ mod tests {
 
         assert_eq!(b.sdf(&Point, &y1), -1.0);
         assert_eq!(b.sdf(&Point, &y2), -0.5);
+        assert_eq!(b.sdf(&Point, &n1), 1.0);
+        assert_eq!(b.sdf(&Point, &n2), 1.0);
+        assert_eq!(b.sdf(&Point, &n3), 1.0);
+        assert_eq!(b.sdf(&Point, &n4), 1.0);
+        assert_relative_eq!(b.sdf(&Point, &n5), 0.1414213);
     }
 
     #[test]

@@ -174,6 +174,8 @@ impl Sdf3dVector<Point> for Box3d {
 
 #[cfg(test)]
 mod tests {
+    use approx::assert_relative_eq;
+
     use super::*;
 
     #[test]
@@ -258,8 +260,13 @@ mod tests {
         let n4 = Vec3::new(0.0, -2.0, 0.0);
         let n5 = Vec3::new(-2.1, 1.1, 0.0);
 
-        // assert_eq!(b.sdf(&Point, &y1), -1.0);
-        // assert_eq!(b.sdf(&Point, &y2), -0.5);
+        assert_eq!(b.sdf(&Point, &y1), -1.0);
+        assert_eq!(b.sdf(&Point, &y2), -0.5);
+        assert_eq!(b.sdf(&Point, &n1), 1.0);
+        assert_eq!(b.sdf(&Point, &n2), 1.0);
+        assert_eq!(b.sdf(&Point, &n3), 1.0);
+        assert_eq!(b.sdf(&Point, &n4), 1.0);
+        assert_relative_eq!(b.sdf(&Point, &n5), 0.1414213);
     }
 
     #[test]
