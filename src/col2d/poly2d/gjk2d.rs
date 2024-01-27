@@ -18,14 +18,33 @@ fn is_zero(v: Vec2) -> bool {
     v.x == 0.0 && v.y == 0.0
 }
 
+fn cross_2d(a: Vec2, b: Vec2) -> f32 {
+    a.x * b.y - a.y * b.x
+}
+
+fn cross_f32_v2(az: f32, b: Vec2) -> Vec2 {
+    Vec2::new(-az * b.y, az * b.x)
+}
+
+fn cross_v2_f32(a: Vec2, bz: f32) -> Vec2 {
+    Vec2::new(a.y * bz, -a.x * bz)
+}
+
 fn do_simplex_2(points: &mut [Vec2], _point_count: &mut usize) -> Option<Vec2> {
     let a = points[1];
     let b = points[0];
     let ao = -a;
     let ab = b - a;
+    println!("[simplex2] a: {}, b: {}, ao: {}, ab: {}", a, b, ao, ab);
     let dir = cross_aba(ab, ao);
 
-    return Some(dir);
+    if is_zero(dir) {
+        println!("[simplex2] contained origin!");
+        None
+    } else {
+        println!("[simplex2] returning dir: {}", dir);
+        Some(dir)
+    }
 }
 
 fn do_simplex_3(points: &mut [Vec2], point_count: &mut usize) -> Option<Vec2> {
@@ -35,41 +54,56 @@ fn do_simplex_3(points: &mut [Vec2], point_count: &mut usize) -> Option<Vec2> {
     let ao = -a;
     let ab = b - a;
     let ac = c - a;
+    let abc = cross_2d(ab, ac);
 
     let dir;
 
-    // ab normal facing the origin
-    let abn = cross_aba(ab, ao);
-
-    // ac normal facing the origin
-    let acn = cross_aba(ac, ao);
-
-    if same_direction(abn, ao) {
-        if same_direction(acn, ao) {
-            return None;
-        } else {
-            dir = acn;
+    if same_direction(cross_f32_v2(abc, ac), ao) {
+        if same_direction(ac, ao) {
+            dir = cross_aba(ac, ao);
             // points[0] = c;
             points[1] = a;
             *point_count = 2;
+        } else {
+            if same_direction(ab, ao) {
+                dir = cross_aba(ab, ao);
+                points[0] = b;
+                points[1] = a;
+                *point_count = 2;
+            } else {
+                dir = ao;
+                points[0] = a;
+                *point_count = 1;
+                unreachable!("IS THIS EVEN REACHABLE?");
+            }
         }
     } else {
-        if same_direction(acn, ao) {
-            dir = abn;
-            // points[0] = b;
-            // points[1] = a;
-            *point_count = 2;
+        if same_direction(cross_v2_f32(ab, abc), ao) {
+            if same_direction(ab, ao) {
+                dir = cross_aba(ab, ao);
+                points[0] = b;
+                points[1] = a;
+                *point_count = 2;
+            } else {
+                dir = ao;
+                points[0] = a;
+                *point_count = 1;
+                unreachable!("IS THIS EVEN REACHABLE?");
+            }
         } else {
-            // @todo(lubo): Can this happen?
-            dir = ao;
-            points[0] = a;
-            *point_count = 1;
+            println!("[simplex3] contained origin!");
+            return None;
         }
     }
 
-    // let contains_origin = is_zero(dir);
-    // return contains_origin;
-    return Some(dir);
+    if is_zero(dir) {
+        // @todo(lubo): is this correct?
+        println!("[simplex3] contained origin!");
+        None
+    } else {
+        println!("[simplex3] returning dir: {}", dir);
+        Some(dir)
+    }
 }
 
 /// Selects the closest feature of the simplex, checks whether it contains the origin, and calculates new direction to the origin if it does not.

@@ -13,9 +13,16 @@ pub struct Poly2d {
     pub points: Vec<Vec2>,
 }
 
-pub struct Poly2dDiff<'a> {
+pub struct Poly2dDiff<'a, T: Transform2d> {
     a: &'a Poly2d,
     b: &'a Poly2d,
+    rel: &'a T,
+}
+
+impl<'a, T: Transform2d> Poly2dDiff<'a, T> {
+    pub fn new(a: &'a Poly2d, b: &'a Poly2d, rel: &'a T) -> Poly2dDiff<'a, T> {
+        Self { a, b, rel }
+    }
 }
 
 //
@@ -65,50 +72,76 @@ impl ExtremePoint2d for Poly2d {
     }
 }
 
-impl ExtremePoint2d for Poly2dDiff<'_> {
+impl<T: Transform2d> ExtremePoint2d for Poly2dDiff<'_, T> {
     fn extreme_point(&self, direction: Vec2) -> Vec2 {
-        self.a.extreme_point(direction) - self.b.extreme_point(-direction)
+        println!("Poly2dDiff::extreme_point");
+        println!(" direction: {}", direction);
+        println!(" a: {}", self.a.extreme_point(direction));
+        println!(" b: {}", self.b.extreme_point(-direction));
+        println!(
+            " diff: {}",
+            self.a.extreme_point(direction) - self.rel.apply(self.b.extreme_point(-direction))
+        );
+        self.a.extreme_point(direction) - self.rel.apply(self.b.extreme_point(-direction))
     }
 }
 
-impl<'a> MinkowskiDifferenceLifetimed<'a, Poly2d> for Poly2d {
-    type Output = Poly2dDiff<'a>;
-    fn minkowski_difference_lt(&'a self, t: &'a Poly2d) -> Self::Output {
-        Poly2dDiff { a: self, b: t }
-    }
-}
+// impl<'a, T: Transform2d> MinkowskiDifferenceLifetimed<'a, Poly2d> for Poly2d {
+//     type Output = Poly2dDiff<'a, T>;
+//     fn minkowski_difference_lt(&'a self, t: &'a Poly2d) -> Self::Output {
+//         Poly2dDiff {
+//             a: self,
+//             b: t,
+//             rel: todo!(),
+//         }
+//     }
+// }
 
 impl DefaultCol2dImpls for Poly2d {}
 
 // Collides
 
-impl CollidesRel2d<Point> for Poly2dDiff<'_> {
+impl<T: Transform2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
     fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
         let mut point_count = 1;
         let mut points = [Vec2::ZERO; 3];
 
+        // TODO: This sucks. We should probably ditch Poly2dDiff?
         let delta = rel.apply_origin();
+        println!("initial direction: {}", delta);
         // let delta = -delta;
         let a = self.extreme_point(delta);
+
+        println!("new point: {}", a);
+
         if a.dot(delta) < 0.0 {
             return false;
         }
         // return true;
 
+        points[0] = a;
         let mut delta = -a;
+        println!("new direction: {}", delta);
+
         for _ in 0..16 {
             let p = self.extreme_point(delta);
+            println!("new point: {} (score = {})", p, p.dot(delta));
             if p.dot(delta) <= 0.0 {
+                println!("NOT COLLIDING");
                 return false;
             }
 
             points[point_count] = p;
             point_count += 1;
 
+            println!("points: {:?}", &points[0..point_count]);
+
             match gjk2d::do_simplex(&mut points, &mut point_count) {
                 Some(new_direction) => delta = new_direction,
                 None => return true,
             }
+
+            println!("new direction: {}", delta);
         }
 
         false
@@ -118,6 +151,15 @@ impl CollidesRel2d<Point> for Poly2dDiff<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn unit_box() -> Poly2d {
+        Poly2d::new(&[
+            Vec2::new(0.0, 0.0),
+            Vec2::new(0.0, 1.0),
+            Vec2::new(1.0, 1.0),
+            Vec2::new(1.0, 0.0),
+        ])
+    }
 
     #[test]
     fn triangle_extreme_points() {
@@ -143,13 +185,71 @@ mod tests {
 
     #[test]
     fn box_box_gjk() {
-        let a = Poly2d::new(&[
-            Vec2::new(0.0, 0.0),
-            Vec2::new(0.0, 1.0),
-            Vec2::new(1.0, 0.0),
-            Vec2::new(1.0, 1.0),
-        ]);
-        let poly_diff = a.minkowski_difference_lt(&a);
-        assert!(poly_diff.collides_rel(&Point, &Translate2d::from(Vec2::new(0.5, 0.0))));
+        let a = unit_box();
+        let rel = Translate2d::from(Vec2::new(0.5, 0.0));
+        let poly_diff = Poly2dDiff::new(&a, &a, &rel);
+        assert!(poly_diff.collides_rel(&Point, &IdentityTransform));
+    }
+
+    #[test]
+    fn box_box_gjk2() {
+        let a = unit_box();
+        let rel = Translate2d::from(Vec2::new(2.0, 2.0));
+        let poly_diff = Poly2dDiff::new(&a, &a, &rel);
+        assert!(!poly_diff.collides_rel(&Point, &IdentityTransform));
+    }
+
+    fn box_box_gjk_sweep(start: Vec2, end: Vec2, steps: usize, expected_collides: bool) {
+        for i in 0..steps {
+            let p = start.lerp(end, i as f32 / steps as f32);
+            let a = unit_box();
+            println!("p = {}\n", p);
+            let rel = Translate2d::from(p);
+            let poly_diff = Poly2dDiff::new(&a, &a, &rel);
+            assert_eq!(
+                expected_collides,
+                poly_diff.collides_rel(&Point, &IdentityTransform)
+            );
+        }
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_far_right() {
+        box_box_gjk_sweep(Vec2::new(1.1, -1.1), Vec2::new(1.1, 1.1), 10, false);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_near_right() {
+        box_box_gjk_sweep(Vec2::new(0.9, -0.9), Vec2::new(0.9, 0.9), 10, true);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_far_up() {
+        box_box_gjk_sweep(Vec2::new(-1.1, 1.1), Vec2::new(1.1, 1.1), 10, false);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_near_up() {
+        box_box_gjk_sweep(Vec2::new(-0.9, 0.9), Vec2::new(0.9, 0.9), 10, true);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_far_left() {
+        box_box_gjk_sweep(Vec2::new(-1.1, -1.1), Vec2::new(-1.1, 1.1), 10, false);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_near_left() {
+        box_box_gjk_sweep(Vec2::new(-0.9, -0.9), Vec2::new(-0.9, 0.9), 10, true);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_far_down() {
+        box_box_gjk_sweep(Vec2::new(-1.1, -1.1), Vec2::new(1.1, -1.1), 10, false);
+    }
+
+    #[test]
+    fn box_box_gjk_sweep_near_down() {
+        box_box_gjk_sweep(Vec2::new(-0.9, -0.9), Vec2::new(0.9, -0.9), 10, true);
     }
 }

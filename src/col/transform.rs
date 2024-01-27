@@ -1,6 +1,9 @@
 //! Imagine you have transformations `A` and `B`.
 //! You can calculate the difference between them by `A.inverse().compose(&B)`.
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub struct IdentityTransform;
+
 pub trait Invertible {
     /// Inversion of the transformation.
     ///
