@@ -1,4 +1,3 @@
-use crate::col2d::Poly2d;
 use crate::Vec3;
 
 /* ========================================================================
@@ -47,18 +46,19 @@ fn is_zero(v: Vec3) -> bool {
 /// Function assumes GJK started with proper initial direction, meaning that the new point `a` has to overshoot the origin along the direction `dir`, i.e. `a` cannot be strictly better than `b` when the direction generally faces the origin.
 ///
 /// If `a` was strictly better than `b`, the alrogithm should have terminated in the previous step.
-fn do_simplex_2(points: &mut [Vec3], dir: &mut Vec3, _point_count: &mut usize) -> bool {
+fn do_simplex_2(points: &mut [Vec3], _point_count: &mut usize) -> Option<Vec3> {
     let a = points[1];
     let b = points[0];
     let ao = -a;
     let ab = b - a;
-    *dir = cross_aba(ab, ao);
+    let dir = cross_aba(ab, ao);
 
-    let contains_origin = is_zero(*dir);
-    return contains_origin;
+    // let contains_origin = is_zero(dir);
+    // return (contains_origin, dir);
+    return Some(dir);
 }
 
-fn do_simplex_3(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) -> bool {
+fn do_simplex_3(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
     let a = points[2];
     let b = points[1];
     let c = points[0];
@@ -67,58 +67,61 @@ fn do_simplex_3(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) ->
     let ac = c - a;
     let abc = ab.cross(ac);
 
+    let dir;
+
     if same_direction(abc.cross(ac), ao) {
         if same_direction(ac, ao) {
             //[A,C] ACxAOxAC
-            *dir = cross_aba(ac, ao);
+            dir = cross_aba(ac, ao);
             points[0] = c;
             points[1] = a;
             *point_count = 2;
         } else {
             if same_direction(ab, ao) {
                 // [A,B] ABxAOxAB
-                *dir = cross_aba(ab, ao);
+                dir = cross_aba(ab, ao);
                 points[0] = b;
                 points[1] = a;
                 *point_count = 2;
             } else {
                 // [A] AO
-                *dir = ao;
+                dir = ao;
                 points[0] = a;
                 *point_count = 1;
             }
         }
     } else {
         if same_direction(ab.cross(abc), ao) {
-            if (same_direction(ab, ao)) {
+            if same_direction(ab, ao) {
                 // [A,B] ABxAOxAB
-                *dir = cross_aba(ab, ao);
+                dir = cross_aba(ab, ao);
                 points[0] = b;
                 points[1] = a;
                 *point_count = 2;
             } else {
                 // [A] AO
-                *dir = ao;
+                dir = ao;
                 points[0] = a;
                 *point_count = 1;
             }
         } else {
             if same_direction(abc, ao) {
                 //[A,B,C] ABC
-                *dir = abc;
+                dir = abc;
             } else {
                 //[A,C,B] -ABC
-                *dir = -abc;
+                dir = -abc;
                 points.swap(0, 1)
             }
         }
     }
 
-    let contains_origin = is_zero(*dir);
-    return contains_origin;
+    // let contains_origin = is_zero(dir);
+    // return contains_origin;
+    return Some(dir);
 }
 
-fn do_simplex_4(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) -> bool {
+fn do_simplex_4(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
     let a = points[3];
     let b = points[2];
     let c = points[1];
@@ -131,29 +134,31 @@ fn do_simplex_4(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) ->
     let acd = ac.cross(ad);
     let adb = ad.cross(ab);
 
+    let dir;
+
     // NOTE(lubo): Not really get what this comment is about. ABC ACD at the same time IS defined...
     // TODO(lubo): This is not complete - it can be ABC and ACD at the same time, for example.
     let mut contains_origin = false;
-    if (same_direction(abc, ao)) {
-        if (same_direction(acd, ao)) {
-            if (same_direction(adb, ao)) {
+    if same_direction(abc, ao) {
+        if same_direction(acd, ao) {
+            if same_direction(adb, ao) {
                 // TODO(lubo): Weird to think, how this could be possible.
                 // Maybe it's not?
                 // Also maybe this is not the only one.
                 // [A] AO
-                *dir = ao;
+                dir = ao;
                 points[0] = a;
                 *point_count = 1;
             } else {
                 // [A,C] ACxAOxAC ?
-                *dir = cross_aba(ac, ao);
+                dir = cross_aba(ac, ao);
                 points[0] = c;
                 points[1] = a;
                 *point_count = 2;
             }
-        } else if (same_direction(adb, ao)) {
+        } else if same_direction(adb, ao) {
             // [A,B], ABxAOxAB
-            *dir = cross_aba(ab, ao);
+            dir = cross_aba(ab, ao);
             points[0] = b;
             points[1] = a;
             *point_count = 2;
@@ -163,12 +168,12 @@ fn do_simplex_4(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) ->
             points[1] = b;
             points[2] = a;
             *point_count = 3;
-            *dir = abc;
+            dir = abc;
         }
-    } else if (same_direction(acd, ao)) {
-        if (same_direction(adb, ao)) {
+    } else if same_direction(acd, ao) {
+        if same_direction(adb, ao) {
             // [A,D] ADxAOxAD ?
-            *dir = cross_aba(ad, ao);
+            dir = cross_aba(ad, ao);
             points[0] = d;
             points[1] = a;
             *point_count = 2;
@@ -178,44 +183,49 @@ fn do_simplex_4(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) ->
             points[1] = c;
             points[2] = a;
             *point_count = 3;
-            *dir = acd;
+            dir = acd;
         }
-    } else if (same_direction(adb, ao)) {
+    } else if same_direction(adb, ao) {
         // [A,D,B], ADB
         points[1] = d;
         points[0] = b;
         points[2] = a;
         *point_count = 3;
-        *dir = adb;
+        dir = adb;
     } else {
-        contains_origin = true;
+        // contains_origin = true;
+        return None;
     }
 
-    if (!contains_origin) {
-        contains_origin = is_zero(*dir);
+    if !contains_origin {
+        contains_origin = is_zero(dir);
+        if contains_origin {
+            return None;
+        }
     }
 
-    return contains_origin;
+    Some(dir)
 }
 
+/// Selects the closest feature of the simplex, checks whether it contains the origin, and calculates new direction to the origin if it does not.
 ///
-/// NOTE(lubo): This function selects the closest region of the simplex and:
-///   1. puts the points into [v3 *points], and sets the [int *point_count] accordingly,
-///   2. sets the [v3 *dir]ection, such that it is perpendicular to the selected region,
-///      and aims in the general direction towards the origin.
+/// Updates [points] and [point_count] accordingly. (Arguments are I/O)
 ///
-/// All arguments are Input/Output.
+/// # Returns
 ///
-/// Returns true if (possbily partial) simplex contains the origin. (it's possible that,
-/// for example just a line contained the origin, thus collision is detected early)
+/// Returns `None` if the (possbily partial) simplex contains the origin. (it's possible that, for example just a line contained the origin, thus collision is detected early)
 ///
-/// Returns false if (possbily partial) simplex did not contain the origin.
+/// Returns the new direction to origin otherwise.
 ///
-fn do_simplex(points: &mut [Vec3], dir: &mut Vec3, point_count: &mut usize) -> bool {
-    match (*point_count) {
-        2 => do_simplex_2(points, dir, point_count),
-        3 => do_simplex_3(points, dir, point_count),
-        4 => do_simplex_4(points, dir, point_count),
+/// # Safety
+///
+/// This function assumes previous points were computed in a certain order and exploits that. Do
+/// not use if you don't know what you are doing.
+pub fn do_simplex(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
+    match *point_count {
+        2 => do_simplex_2(points, point_count),
+        3 => do_simplex_3(points, point_count),
+        4 => do_simplex_4(points, point_count),
         _ => unreachable!(),
     }
 }
@@ -656,37 +666,18 @@ struct Collision_Info
     //v3 closest_point;
     int point_count;
 };
+*/
 
-internal Collision_Info gjk(Transform *transform_a, Polyhedron poly_a, float radius_a,
-                            Transform *transform_b, Polyhedron poly_b, float radius_b,
-                            //Entity *entity_a, Entity *entity_b,
-                            b32x calc_distance, b32x calc_penetration)
+/*
+/// The initial `dir`
+fn gjk(mut dir: Vec3) -> bool
 {
-    Collision_Info collision_info = {};
 
-    int point_count;
+    let mut point_count: usize = 0;
 
-    v3 points[4];
+    let mut points: [Vec3; 4] = [Vec3::ZERO; 4];
 
-    float scale_a = greatest_magnitude_component(transform_a->scale);
-    float scale_b = greatest_magnitude_component(transform_b->scale);
-
-    quaternion orientation_a = transform_a->orientation;
-    quaternion orientation_b = transform_b->orientation;
-
-    v3 pos_a = transform_a->pos;
-    v3 pos_b = transform_b->pos;
-    v3 delta = pos_a - pos_b;
-
-    // NOTE(lubo): Iteration limit mainly solves touching surfaces case
-    int iteration_count = 0;
-    int max_allowed_iterations = poly_a.vertex_count + poly_b.vertex_count + 4;
-
-    // TODO(lubo): Something better for initial_dir?
-    v3 dir = -delta;
-    if(is_zero(dir)) dir = V3(Phi32, 1, 1/Phi32);
-
-    v3 start_point = support_function(scale_a, scale_b, orientation_a, orientation_b, poly_a, poly_b, radius_a, radius_b, delta, dir);
+    let start_point = support_function(scale_a, scale_b, orientation_a, orientation_b, poly_a, poly_b, radius_a, radius_b, delta, dir);
     point_count = 1;
     points[0] = start_point;
     dir = -start_point;

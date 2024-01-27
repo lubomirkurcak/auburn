@@ -7,6 +7,8 @@ mod gjk2d;
 // pub struct Poly2d<const N: usize> {
 //     pub points: [Vec2; N],
 // }
+/// # Limitation
+/// Must contain the origin.
 pub struct Poly2d {
     pub points: Vec<Vec2>,
 }
@@ -71,35 +73,43 @@ impl ExtremePoint2d for Poly2dDiff<'_> {
 
 impl<'a> MinkowskiDifferenceLifetimed<'a, Poly2d> for Poly2d {
     type Output = Poly2dDiff<'a>;
-
     fn minkowski_difference_lt(&'a self, t: &'a Poly2d) -> Self::Output {
         Poly2dDiff { a: self, b: t }
     }
 }
 
-//
+impl DefaultCol2dImpls for Poly2d {}
 
-fn cross_aba(a: Vec2, b: Vec2) -> Vec2 {
-    Vec2::new(
-        a.y * a.y * b.x - a.x * a.y * b.y,
-        a.x * a.x * b.y - a.x * a.y * b.x,
-    )
-}
+// Collides
 
 impl CollidesRel2d<Point> for Poly2dDiff<'_> {
-    fn collides_rel(&self, t: &Point, rel: &impl Transform2d) -> bool {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
+        let mut point_count = 1;
+        let mut points = [Vec2::ZERO; 4];
+
         let delta = rel.apply_origin();
         let a = self.extreme_point(delta);
         if a.dot(delta) < 0.0 {
             return false;
         }
 
-        let delta = -a;
-        let b = self.extreme_point(delta);
+        let mut delta = -a;
+        for _ in 0..16 {
+            let p = self.extreme_point(delta);
+            if p.dot(delta) <= 0.0 {
+                return false;
+            }
 
-        let delta = cross_aba(a - b, -a);
-        let c = self.extreme_point(delta);
-        todo!()
+            points[point_count] = p;
+            point_count += 1;
+
+            match gjk2d::do_simplex(&mut points, &mut point_count) {
+                Some(new_direction) => delta = new_direction,
+                None => return true,
+            }
+        }
+
+        false
     }
 }
 
