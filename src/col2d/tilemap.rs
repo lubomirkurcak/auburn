@@ -150,7 +150,7 @@ impl Tilemap {
                 let b = Box2d::with_halfdims(0.5, 0.5);
                 let delta = self.tile_to_world_pos(&p) - pos;
                 if let Some(error) = col.penetrates(&b, &delta) {
-                    pos -= error;
+                    pos += error;
                 }
             }
         });
@@ -164,7 +164,7 @@ impl Tilemap {
                 let b = Box2d::with_halfdims(0.5, 0.5);
                 let delta = self.tile_to_world_pos(&p) - pos;
                 if let Some(error) = col.penetrates(&b, &delta) {
-                    pos -= error;
+                    pos += error;
                 }
             }
         });
