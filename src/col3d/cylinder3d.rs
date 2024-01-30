@@ -80,3 +80,44 @@ impl Penetrates3d<Point> for Cylinder3d {
         None
     }
 }
+
+impl Sdf3d<Point> for Cylinder3d {
+    fn sdf(&self, t: &Point, rel: &impl Transform3d) -> f32 {
+        let o = rel.apply_origin();
+        let o2d = Vec2::new(o.x, o.y);
+        let o2d_sq = o2d.length_squared();
+        let z = o.z.abs() - self.halfheight;
+        let z_sq = z * z;
+        if z_sq > o2d_sq {
+            z
+        } else {
+            crate::col2d::Sdf2d::sdf(&self.to_ball(), t, &o2d)
+        }
+    }
+}
+
+impl Sdf3dVector<Point> for Cylinder3d {
+    fn sdfvector(&self, t: &Point, rel: &impl Transform3d) -> Vec3 {
+        let o = rel.apply_origin();
+        let o2d = Vec2::new(o.x, o.y);
+        let o2d_sq = o2d.length_squared();
+        let z = o.z.abs() - self.halfheight;
+        let z_sq = z * z;
+        let r = self.radius;
+        let r_sq = r * r;
+
+        if z < 0.0 {
+            if z_sq > o2d_sq {
+                Vec3::new(0.0, 0.0, o.z.signum() * z)
+            } else {
+                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d)
+            }
+        } else {
+            if o2d_sq <= r_sq {
+                Vec3::new(0.0, 0.0, o.z.signum() * z)
+            } else {
+                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d).extend(z.signum() * z)
+            }
+        }
+    }
+}
