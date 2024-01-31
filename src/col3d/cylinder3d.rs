@@ -110,13 +110,14 @@ impl Sdf3dVector<Point> for Cylinder3d {
             if z_sq > o2d_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d)
+                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d).extend(0.0)
             }
         } else {
             if o2d_sq <= r_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d).extend(z.signum() * z)
+                crate::col2d::Sdf2dVector::sdfvector(&self.to_ball(), t, &o2d)
+                    .extend(z.signum() * z)
             }
         }
     }

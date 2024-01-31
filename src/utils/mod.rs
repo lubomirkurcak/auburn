@@ -1,4 +1,3 @@
-mod publisher;
-mod rect2;
-pub use publisher::*;
-pub use rect2::*;
+pub mod publisher;
+pub mod rect2;
+pub mod approx;

@@ -11,7 +11,8 @@ use super::{
     Ball, Box2d, CollidesRel2d, Penetrates2d, Point, SymmetricBoundingBox2d, Transform2d, Vec2,
 };
 
-use crate::utils::{Ledger, Publisher, Rect2i32};
+use crate::utils::publisher::{Ledger, Publisher};
+use crate::utils::rect2::Rect2i32;
 
 const CHUNK_SIZE: V2i32 = V2i32::from_xy(16, 16);
 

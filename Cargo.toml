@@ -17,6 +17,7 @@ categories = [
 [features]
 #default = []
 bevy = ["dep:bevy"]
+# approx = ["dep:approx"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

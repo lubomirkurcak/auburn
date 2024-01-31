@@ -32,15 +32,3 @@ impl Composable for Isotropic2d {
         todo!()
     }
 }
-
-pub struct Rotor2d {
-    a: Vec2,
-}
-
-impl Default for Rotor2d {
-    fn default() -> Self {
-        Self {
-            a: Vec2::new(0.0, 1.0),
-        }
-    }
-}

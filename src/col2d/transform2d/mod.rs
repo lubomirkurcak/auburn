@@ -33,3 +33,15 @@ impl Transform2d for IdentityTransform {
         point
     }
 }
+
+pub struct Rotor2d {
+    a: Vec2,
+}
+
+impl Default for Rotor2d {
+    fn default() -> Self {
+        Self {
+            a: Vec2::new(0.0, 1.0),
+        }
+    }
+}
