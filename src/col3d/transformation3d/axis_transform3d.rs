@@ -1,32 +1,32 @@
 use super::*;
 
 #[derive(Default)]
-pub struct AxisTransform2d {
-    pos: Vec2,
+pub struct AxisTransform3d {
+    pos: Vec3,
     scale: f32,
 }
 
-impl AxisTransform2d {
-    pub const fn new(pos: Vec2, scale: f32) -> Self {
+impl AxisTransform3d {
+    pub const fn new(pos: Vec3, scale: f32) -> Self {
         Self { pos, scale }
     }
 }
 
-impl Transform2d for AxisTransform2d {
-    fn apply_origin(&self) -> Vec2 {
+impl Transformation3d for AxisTransform3d {
+    fn apply_origin(&self) -> Vec3 {
         self.pos
     }
 
-    fn apply(&self, point: Vec2) -> Vec2 {
+    fn apply(&self, point: Vec3) -> Vec3 {
         self.pos + self.scale * point
     }
 
-    fn unapply(&self, point: Vec2) -> Vec2 {
+    fn unapply(&self, point: Vec3) -> Vec3 {
         (point - self.pos) / self.scale
     }
 }
 
-impl Invertible for AxisTransform2d {
+impl Invertible for AxisTransform3d {
     fn inverse(&self) -> Self {
         Self {
             pos: -self.pos,
@@ -35,7 +35,7 @@ impl Invertible for AxisTransform2d {
     }
 }
 
-impl Composable for AxisTransform2d {
+impl Composable for AxisTransform3d {
     fn compose(&self, other: &Self) -> Self {
         Self {
             pos: self.apply(other.pos),

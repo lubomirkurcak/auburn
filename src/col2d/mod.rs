@@ -1,23 +1,24 @@
-//! 2D Collisions.
+//! 2D Collisions
 //!
-//! # Generic
-//!
-//! * [Point] - point (the origin)
+//! # Shapes:
 //! * [Ball] - ball
+//! * [Box2d] - 2D box
+//! * [RoundedBox2d] - 2D rounded box
+//! * [Poly2d] - 2D convex polygon
+//! * [Tilemap] - 2D tilemap
 //!
-//! # 2D
-//!
-//! Collision and Resolution:
+//! # Collision and Resolution:
 //! * [Collides2d::collides]
 //! * [Penetrates2d::penetrates]
 //! * [Sdf2d::sdf]
 //! * [Sdf2dVector::sdfvector].
 //!
-//! Shapes:
-//! * [Box2d] - 2D box
-//! * [RoundedBox2d] - 2D box
-//! * [Poly2d] - 2D box
-//! * [Tilemap] - 2D tilemap
+//! # Transformations:
+//! * [Translate2d] - translation
+//! * [Transform2d] - standard 2D transform
+//! * [Isotropic2d] - scale-uniform transform
+//! * [AxisTransform2d]
+//! * [bevy::prelude::Transform] - bevy transform (requires feature `"bevy"`)
 
 pub use crate::Vec2;
 
@@ -27,7 +28,7 @@ mod point2d;
 mod poly2d;
 mod rounded_box2d;
 mod tilemap;
-mod transform2d;
+mod transformation2d;
 
 pub use crate::col::*;
 pub use ball2d::*;
@@ -36,7 +37,7 @@ pub use point2d::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;
 pub use tilemap::*;
-pub use transform2d::*;
+pub use transformation2d::*;
 
 /// Trait for computing extreme points of a shape along a direction.
 pub trait ExtremePoint2d {
@@ -110,7 +111,7 @@ pub trait CollidesRel2d<T> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides_rel(&self, t: &T, rel: &impl Transform2d) -> bool;
+    fn collides_rel(&self, t: &T, rel: &impl Transformation2d) -> bool;
 }
 
 /// Trait for checking collision between `Self` and `T`.
@@ -121,7 +122,7 @@ pub trait CollidesRel2d<T> {
 /// # See also
 /// * [BoundingBox2d]
 /// * [Penetrates2d]
-pub trait Collides2d<T, U: Transform2d> {
+pub trait Collides2d<T, U: Transformation2d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -146,7 +147,7 @@ pub trait Collides2d<T, U: Transform2d> {
 impl<A, B, T> Collides2d<B, T> for A
 where
     A: CollidesRel2d<B>,
-    T: Transform2d + DeltaTransform,
+    T: Transformation2d + DeltaTransform,
 {
     fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
         let rel = transform.delta_transform(t_transform);
@@ -176,7 +177,7 @@ pub trait Penetrates2d<T> {
     ///
     /// # See also
     /// * [Collides2d::collides].
-    fn penetrates(&self, t: &T, rel: &impl Transform2d) -> Option<Vec2>;
+    fn penetrates(&self, t: &T, rel: &impl Transformation2d) -> Option<Vec2>;
 }
 
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
@@ -202,7 +203,7 @@ pub trait Sdf2d<T> {
     ///
     /// # See also
     /// * [Sdf2dVector::sdfvector].
-    fn sdf(&self, t: &T, rel: &impl Transform2d) -> f32;
+    fn sdf(&self, t: &T, rel: &impl Transformation2d) -> f32;
 }
 
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
@@ -227,7 +228,7 @@ pub trait Sdf2dVector<T> {
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfvector(&self, t: &T, rel: &impl Transform2d) -> Vec2;
+    fn sdfvector(&self, t: &T, rel: &impl Transformation2d) -> Vec2;
 }
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
@@ -239,7 +240,7 @@ where
     A: DefaultCol2dImpls,
     A: CollidesRel2d<Point>,
 {
-    fn collides_rel(&self, other: &A, rel: &impl Transform2d) -> bool {
+    fn collides_rel(&self, other: &A, rel: &impl Transformation2d) -> bool {
         other.collides_rel(&Point, rel)
     }
 }
@@ -250,7 +251,7 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: CollidesRel2d<Point>,
 {
-    fn collides_rel(&self, t: &B, rel: &impl Transform2d) -> bool {
+    fn collides_rel(&self, t: &B, rel: &impl Transformation2d) -> bool {
         self.minkowski_difference(t).collides_rel(&Point, rel)
     }
 }
@@ -260,7 +261,7 @@ where
     A: DefaultCol2dImpls,
     A: Penetrates2d<Point>,
 {
-    fn penetrates(&self, other: &A, rel: &impl Transform2d) -> Option<Vec2> {
+    fn penetrates(&self, other: &A, rel: &impl Transformation2d) -> Option<Vec2> {
         other.penetrates(&Point, rel) // .map(|v| -v)
     }
 }
@@ -271,7 +272,7 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: Penetrates2d<Point>,
 {
-    fn penetrates(&self, t: &B, rel: &impl Transform2d) -> Option<Vec2> {
+    fn penetrates(&self, t: &B, rel: &impl Transformation2d) -> Option<Vec2> {
         self.minkowski_difference(t).penetrates(&Point, rel)
     }
 }
@@ -282,7 +283,7 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: Sdf2d<Point>,
 {
-    fn sdf(&self, t: &B, rel: &impl Transform2d) -> f32 {
+    fn sdf(&self, t: &B, rel: &impl Transformation2d) -> f32 {
         self.minkowski_difference(t).sdf(&Point, rel)
     }
 }
@@ -292,7 +293,7 @@ where
     A: DefaultCol2dImpls,
     A: Sdf2d<Point>,
 {
-    fn sdf(&self, t: &A, rel: &impl Transform2d) -> f32 {
+    fn sdf(&self, t: &A, rel: &impl Transformation2d) -> f32 {
         t.sdf(&Point, rel)
     }
 }
@@ -303,7 +304,7 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: Sdf2dVector<Point>,
 {
-    fn sdfvector(&self, t: &B, rel: &impl Transform2d) -> Vec2 {
+    fn sdfvector(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
         self.minkowski_difference(t).sdfvector(&Point, rel)
     }
 }
@@ -313,7 +314,7 @@ where
     A: DefaultCol2dImpls,
     A: Sdf2dVector<Point>,
 {
-    fn sdfvector(&self, t: &A, rel: &impl Transform2d) -> Vec2 {
+    fn sdfvector(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
         t.sdfvector(&Point, rel)
     }
 }

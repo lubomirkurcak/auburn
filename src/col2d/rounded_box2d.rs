@@ -63,7 +63,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 // Collides
 
 impl CollidesRel2d<Point> for RoundedBox2d {
-    fn collides_rel(&self, t: &Point, rel: &impl Transform2d) -> bool {
+    fn collides_rel(&self, t: &Point, rel: &impl Transformation2d) -> bool {
         let bbox = self.symmetric_bounding_box();
         if bbox.collides_rel(t, rel) {
             let delta = rel.apply_origin();
@@ -113,7 +113,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 // Penetrates
 
 impl Penetrates2d<Point> for RoundedBox2d {
-    fn penetrates(&self, t: &Point, rel: &impl Transform2d) -> Option<Vec2> {
+    fn penetrates(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let bbox = self.symmetric_bounding_box();
         if bbox.collides_rel(&Point, rel) {
             let delta = rel.apply_origin();
@@ -203,13 +203,13 @@ impl Penetrates2d<RoundedBox2d> for RoundedBox2d {
 }
 
 impl Sdf2d<Point> for RoundedBox2d {
-    fn sdf(&self, t: &Point, rel: &impl Transform2d) -> f32 {
+    fn sdf(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
         Sdf2d::sdf(&self.box_part(), t, rel) - self.radius
     }
 }
 
 impl Sdf2dVector<Point> for RoundedBox2d {
-    fn sdfvector(&self, t: &Point, rel: &impl Transform2d) -> Vec2 {
+    fn sdfvector(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
         // let d = Sdf2dVector::sdfvector(&self.box_part(), t, rel);
         // let l = d.length();
         // if l > 0.0 {

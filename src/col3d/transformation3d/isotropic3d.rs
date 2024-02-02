@@ -24,7 +24,7 @@ pub struct Isotropic3d {
 //     }
 // }
 
-impl Transform3d for Isotropic3d {
+impl Transformation3d for Isotropic3d {
     fn apply_origin(&self) -> Vec3 {
         self.pos
     }
@@ -305,9 +305,21 @@ mod tests {
     }
 }
 
+// #[cfg(feature = "bevy")]
+// impl AsRef<Isotropic3d> for bevy::prelude::Transform {
+//     fn as_ref(&self) -> &Isotropic3d {
+//         &Isotropic3d {
+//             pos: self.translation,
+//             rot: self.rotation,
+//             scale: self.scale.x,
+//         }
+//     }
+// }
+
 #[cfg(feature = "bevy")]
-impl From<bevy::prelude::Transform> for Isotropic3d {
-    fn from(transform: bevy::prelude::Transform) -> Self {
+impl<T: std::borrow::Borrow<bevy::prelude::Transform>> From<T> for Isotropic3d {
+    fn from(value: T) -> Self {
+        let transform = value.borrow();
         Self {
             pos: transform.translation,
             rot: transform.rotation,
@@ -317,16 +329,25 @@ impl From<bevy::prelude::Transform> for Isotropic3d {
 }
 
 #[cfg(feature = "bevy")]
-impl Transform3d for bevy::prelude::Transform {
-    fn apply_origin(&self) -> Vec3 {
-        Into::<Isotropic3d>::into(*self).apply_origin()
-    }
+#[cfg(test)]
+mod tests_bevy {
+    use super::*;
+    use bevy::math::Quat;
+    use bevy::math::Vec3;
+    use bevy::prelude::Transform;
 
-    fn apply(&self, point: Vec3) -> Vec3 {
-        Into::<Isotropic3d>::into(*self).apply(point)
-    }
+    #[test]
+    fn test_from_transform() {
+        let transform = Transform {
+            translation: Vec3::new(1.0, 2.0, 3.0),
+            rotation: Quat::from_rotation_z(0.5),
+            scale: Vec3::new(1.0, 1.0, 1.0),
+        };
 
-    fn unapply(&self, point: Vec3) -> Vec3 {
-        Into::<Isotropic3d>::into(*self).unapply(point)
+        let isotropic3d: Isotropic3d = (&transform).into();
+
+        assert_eq!(isotropic3d.pos, transform.translation);
+        assert_eq!(isotropic3d.rot, transform.rotation);
+        assert_eq!(isotropic3d.scale, transform.scale.x);
     }
 }

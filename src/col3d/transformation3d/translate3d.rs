@@ -11,7 +11,7 @@ impl From<Vec3> for Translate3d {
     }
 }
 
-impl Transform3d for Vec3 {
+impl Transformation3d for Vec3 {
     fn apply_origin(&self) -> Vec3 {
         *self
     }
@@ -43,7 +43,7 @@ impl Translate3d {
     }
 }
 
-impl Transform3d for Translate3d {
+impl Transformation3d for Translate3d {
     fn apply_origin(&self) -> Vec3 {
         self.pos
     }

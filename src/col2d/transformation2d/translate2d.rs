@@ -11,7 +11,7 @@ impl From<Vec2> for Translate2d {
     }
 }
 
-impl Transform2d for Vec2 {
+impl Transformation2d for Vec2 {
     fn apply_origin(&self) -> Vec2 {
         *self
     }
@@ -43,7 +43,7 @@ impl Translate2d {
     }
 }
 
-impl Transform2d for Translate2d {
+impl Transformation2d for Translate2d {
     fn apply_origin(&self) -> Vec2 {
         self.pos
     }

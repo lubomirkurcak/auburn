@@ -81,7 +81,7 @@ impl<'a> MinkowskiDifferenceLifetimed<'a, Poly3d> for Poly3d {
 }
 
 impl CollidesRel3d<Point> for Poly3dDiff<'_> {
-    fn collides_rel(&self, _t: &Point, rel: &impl Transform3d) -> bool {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transformation3d) -> bool {
         let mut point_count = 1;
         let mut points = [Vec3::ZERO; 4];
 

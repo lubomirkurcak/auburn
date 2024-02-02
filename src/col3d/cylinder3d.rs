@@ -2,7 +2,7 @@ use super::*;
 
 /// Upright 3D cylinder given by [height] and [radius].
 #[derive(Default, Clone, Copy)]
-struct Cylinder3d {
+pub struct Cylinder3d {
     halfheight: f32,
     radius: f32,
 }
@@ -51,7 +51,7 @@ impl MinkowskiSum<Cylinder3d> for Cylinder3d {
 impl MinkowskiNegationIsIdentity for Cylinder3d {}
 
 impl CollidesRel3d<Point> for Cylinder3d {
-    fn collides_rel(&self, t: &Point, rel: &impl Transform3d) -> bool {
+    fn collides_rel(&self, t: &Point, rel: &impl Transformation3d) -> bool {
         let o = rel.apply_origin();
         if o.z < -self.halfheight || o.z > self.halfheight {
             return false;
@@ -64,7 +64,7 @@ impl CollidesRel3d<Point> for Cylinder3d {
 }
 
 impl Penetrates3d<Point> for Cylinder3d {
-    fn penetrates(&self, t: &Point, rel: &impl Transform3d) -> Option<Vec3> {
+    fn penetrates(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let delta2d = Vec2::new(delta.x, delta.y);
@@ -82,7 +82,7 @@ impl Penetrates3d<Point> for Cylinder3d {
 }
 
 impl Sdf3d<Point> for Cylinder3d {
-    fn sdf(&self, t: &Point, rel: &impl Transform3d) -> f32 {
+    fn sdf(&self, t: &Point, rel: &impl Transformation3d) -> f32 {
         let o = rel.apply_origin();
         let o2d = Vec2::new(o.x, o.y);
         let o2d_sq = o2d.length_squared();
@@ -97,7 +97,7 @@ impl Sdf3d<Point> for Cylinder3d {
 }
 
 impl Sdf3dVector<Point> for Cylinder3d {
-    fn sdfvector(&self, t: &Point, rel: &impl Transform3d) -> Vec3 {
+    fn sdfvector(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let o = rel.apply_origin();
         let o2d = Vec2::new(o.x, o.y);
         let o2d_sq = o2d.length_squared();

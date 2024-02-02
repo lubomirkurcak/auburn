@@ -13,13 +13,13 @@ pub struct Poly2d {
     pub points: Vec<Vec2>,
 }
 
-pub struct Poly2dDiff<'a, T: Transform2d> {
+pub struct Poly2dDiff<'a, T: Transformation2d> {
     a: &'a Poly2d,
     b: &'a Poly2d,
     rel: &'a T,
 }
 
-impl<'a, T: Transform2d> Poly2dDiff<'a, T> {
+impl<'a, T: Transformation2d> Poly2dDiff<'a, T> {
     pub fn new(a: &'a Poly2d, b: &'a Poly2d, rel: &'a T) -> Poly2dDiff<'a, T> {
         Self { a, b, rel }
     }
@@ -72,7 +72,7 @@ impl ExtremePoint2d for Poly2d {
     }
 }
 
-impl<T: Transform2d> ExtremePoint2d for Poly2dDiff<'_, T> {
+impl<T: Transformation2d> ExtremePoint2d for Poly2dDiff<'_, T> {
     fn extreme_point(&self, direction: Vec2) -> Vec2 {
         self.a.extreme_point(direction) - self.rel.apply(self.b.extreme_point(-direction))
     }
@@ -93,8 +93,8 @@ impl DefaultCol2dImpls for Poly2d {}
 
 // Collides
 
-impl<T: Transform2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
-    fn collides_rel(&self, _t: &Point, rel: &impl Transform2d) -> bool {
+impl<T: Transformation2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transformation2d) -> bool {
         let mut point_count = 1;
         let mut points = [Vec2::ZERO; 3];
 

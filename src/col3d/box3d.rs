@@ -67,7 +67,7 @@ impl DefaultCol3dImpls for Box3d {}
 // Collides
 
 impl CollidesRel3d<Point> for Box3d {
-    fn collides_rel(&self, _t: &Point, rel: &impl Transform3d) -> bool {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transformation3d) -> bool {
         let delta = rel.apply_origin();
         -self.halfsize.x < delta.x
             && delta.x < self.halfsize.x
@@ -81,7 +81,7 @@ impl CollidesRel3d<Point> for Box3d {
 // Penetrates
 
 impl Penetrates3d<Point> for Box3d {
-    fn penetrates(&self, t: &Point, rel: &impl Transform3d) -> Option<Vec3> {
+    fn penetrates(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let delta_x = delta.x.abs() - self.halfsize.x;
@@ -106,7 +106,7 @@ impl Penetrates3d<Point> for Box3d {
 // Sdf
 
 impl Sdf3d<Point> for Box3d {
-    fn sdf(&self, t: &Point, rel: &impl Transform3d) -> f32 {
+    fn sdf(&self, t: &Point, rel: &impl Transformation3d) -> f32 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
@@ -139,7 +139,7 @@ impl Sdf3d<Point> for Box3d {
 // Sdf Vector
 
 impl Sdf3dVector<Point> for Box3d {
-    fn sdfvector(&self, t: &Point, rel: &impl Transform3d) -> Vec3 {
+    fn sdfvector(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
