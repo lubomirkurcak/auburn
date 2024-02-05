@@ -64,7 +64,7 @@ impl CollidesRel3d<Point> for Cylinder3d {
 }
 
 impl PenetratesRel3d<Point> for Cylinder3d {
-    fn penetrates(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
+    fn penetrates_rel(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let delta2d = Vec2::new(delta.x, delta.y);
@@ -73,7 +73,7 @@ impl PenetratesRel3d<Point> for Cylinder3d {
             if z2 < delta2d_sq {
                 return Some(Vec3::new(0.0, 0.0, delta.z.signum() * self.halfheight));
             } else {
-                return crate::col2d::PenetratesRel2d::penetrates(&self.to_ball(), t, &delta2d)
+                return crate::col2d::PenetratesRel2d::penetrates_rel(&self.to_ball(), t, &delta2d)
                     .map(|v| Vec3::new(v.x, v.y, 0.0));
             }
         }
@@ -82,7 +82,7 @@ impl PenetratesRel3d<Point> for Cylinder3d {
 }
 
 impl SdfRel3d<Point> for Cylinder3d {
-    fn sdf(&self, t: &Point, rel: &impl Transformation3d) -> f32 {
+    fn sdf_rel(&self, t: &Point, rel: &impl Transformation3d) -> f32 {
         let o = rel.apply_origin();
         let o2d = Vec2::new(o.x, o.y);
         let o2d_sq = o2d.length_squared();
@@ -91,13 +91,13 @@ impl SdfRel3d<Point> for Cylinder3d {
         if z_sq > o2d_sq {
             z
         } else {
-            crate::col2d::SdfRel2d::sdf(&self.to_ball(), t, &o2d)
+            crate::col2d::SdfRel2d::sdf_rel(&self.to_ball(), t, &o2d)
         }
     }
 }
 
 impl SdfRel3dVector<Point> for Cylinder3d {
-    fn sdfvector(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
+    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let o = rel.apply_origin();
         let o2d = Vec2::new(o.x, o.y);
         let o2d_sq = o2d.length_squared();
@@ -110,13 +110,13 @@ impl SdfRel3dVector<Point> for Cylinder3d {
             if z_sq > o2d_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::SdfRel2dVector::sdfvector(&self.to_ball(), t, &o2d).extend(0.0)
+                crate::col2d::SdfRel2dVector::sdfvector_rel(&self.to_ball(), t, &o2d).extend(0.0)
             }
         } else {
             if o2d_sq <= r_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::SdfRel2dVector::sdfvector(&self.to_ball(), t, &o2d)
+                crate::col2d::SdfRel2dVector::sdfvector_rel(&self.to_ball(), t, &o2d)
                     .extend(z.signum() * z)
             }
         }

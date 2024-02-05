@@ -28,7 +28,7 @@ impl CollidesRel3d<Ball> for () {
 }
 
 impl PenetratesRel3d<Ball> for () {
-    fn penetrates(&self, t: &Ball, rel: &impl Transformation3d) -> Option<Vec3> {
+    fn penetrates_rel(&self, t: &Ball, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
@@ -46,20 +46,20 @@ impl PenetratesRel3d<Ball> for () {
     }
 }
 impl PenetratesRel3d<()> for Ball {
-    fn penetrates(&self, _t: &(), rel: &impl Transformation3d) -> Option<Vec3> {
-        ().penetrates(self, rel)
+    fn penetrates_rel(&self, _t: &(), rel: &impl Transformation3d) -> Option<Vec3> {
+        ().penetrates_rel(self, rel)
     }
 }
 
 impl SdfRel3d<()> for Ball {
-    fn sdf(&self, _t: &(), rel: &impl Transformation3d) -> f32 {
+    fn sdf_rel(&self, _t: &(), rel: &impl Transformation3d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
 impl SdfRel3dVector<()> for Ball {
-    fn sdfvector(&self, _t: &(), rel: &impl Transformation3d) -> Vec3 {
+    fn sdfvector_rel(&self, _t: &(), rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

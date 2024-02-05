@@ -35,7 +35,7 @@ impl DefaultCol2dImpls for Ball {}
 // Penetrates
 
 impl PenetratesRel2d<Point> for Ball {
-    fn penetrates(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
+    fn penetrates_rel(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
@@ -54,14 +54,14 @@ impl PenetratesRel2d<Point> for Ball {
 }
 
 impl SdfRel2d<Point> for Ball {
-    fn sdf(&self, _t: &Point, rel: &impl Transformation2d) -> f32 {
+    fn sdf_rel(&self, _t: &Point, rel: &impl Transformation2d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
 impl SdfRel2dVector<Point> for Ball {
-    fn sdfvector(&self, _t: &Point, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfvector_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

@@ -86,7 +86,7 @@ impl CollidesRel2d<Point> for Box2d {
 // Penetrates
 
 impl PenetratesRel2d<Point> for Box2d {
-    fn penetrates(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
+    fn penetrates_rel(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let delta_x = delta.x.abs() - self.halfsize.x;
@@ -106,7 +106,7 @@ impl PenetratesRel2d<Point> for Box2d {
 // Sdf
 
 impl SdfRel2d<Point> for Box2d {
-    fn sdf(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
+    fn sdf_rel(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
@@ -128,7 +128,7 @@ impl SdfRel2d<Point> for Box2d {
 // Sdf Vector
 
 impl SdfRel2dVector<Point> for Box2d {
-    fn sdfvector(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
@@ -199,30 +199,30 @@ mod tests {
         let n5 = Vec2::new(-2.1, 1.1);
 
         // TODO(lubo): Actualy check if this is reasonable
-        assert!(b.penetrates(&Point, &y1).is_some());
-        assert!(Point.penetrates(&b, &y1).is_some());
+        assert!(b.penetrates_rel(&Point, &y1).is_some());
+        assert!(Point.penetrates_rel(&b, &y1).is_some());
 
         // assert_eq!(b.penetrates(&Point, &y2), Some(Vec2::new(0.5, 0.0)));
         // assert_eq!(Point.penetrates(&b, &y2), Some(Vec2::new(0.5, 0.0)));
-        assert_eq!(b.penetrates(&Point, &y2), Some(Vec2::new(-0.5, 0.0)));
-        assert_eq!(Point.penetrates(&b, &y2), Some(Vec2::new(-0.5, 0.0)));
+        assert_eq!(b.penetrates_rel(&Point, &y2), Some(Vec2::new(-0.5, 0.0)));
+        assert_eq!(Point.penetrates_rel(&b, &y2), Some(Vec2::new(-0.5, 0.0)));
 
         // assert_eq!(b.penetrates(&Point, &y3), Some(Vec2::new(0.0, -0.5)));
         // assert_eq!(Point.penetrates(&b, &y3), Some(Vec2::new(0.0, -0.5)));
-        assert_eq!(b.penetrates(&Point, &y3), Some(Vec2::new(0.0, 0.5)));
-        assert_eq!(Point.penetrates(&b, &y3), Some(Vec2::new(0.0, 0.5)));
+        assert_eq!(b.penetrates_rel(&Point, &y3), Some(Vec2::new(0.0, 0.5)));
+        assert_eq!(Point.penetrates_rel(&b, &y3), Some(Vec2::new(0.0, 0.5)));
 
-        assert_eq!(None, b.penetrates(&Point, &n1));
-        assert_eq!(None, b.penetrates(&Point, &n2));
-        assert_eq!(None, b.penetrates(&Point, &n3));
-        assert_eq!(None, b.penetrates(&Point, &n4));
-        assert_eq!(None, b.penetrates(&Point, &n5));
+        assert_eq!(None, b.penetrates_rel(&Point, &n1));
+        assert_eq!(None, b.penetrates_rel(&Point, &n2));
+        assert_eq!(None, b.penetrates_rel(&Point, &n3));
+        assert_eq!(None, b.penetrates_rel(&Point, &n4));
+        assert_eq!(None, b.penetrates_rel(&Point, &n5));
 
-        assert_eq!(None, Point.penetrates(&b, &n1));
-        assert_eq!(None, Point.penetrates(&b, &n2));
-        assert_eq!(None, Point.penetrates(&b, &n3));
-        assert_eq!(None, Point.penetrates(&b, &n4));
-        assert_eq!(None, Point.penetrates(&b, &n5));
+        assert_eq!(None, Point.penetrates_rel(&b, &n1));
+        assert_eq!(None, Point.penetrates_rel(&b, &n2));
+        assert_eq!(None, Point.penetrates_rel(&b, &n3));
+        assert_eq!(None, Point.penetrates_rel(&b, &n4));
+        assert_eq!(None, Point.penetrates_rel(&b, &n5));
     }
 
     #[test]
@@ -237,13 +237,13 @@ mod tests {
         let n4 = Vec2::new(0.0, -2.0);
         let n5 = Vec2::new(-2.1, 1.1);
 
-        assert_eq!(b.sdf(&Point, &y1), -1.0);
-        assert_eq!(b.sdf(&Point, &y2), -0.5);
-        assert_eq!(b.sdf(&Point, &n1), 1.0);
-        assert_eq!(b.sdf(&Point, &n2), 1.0);
-        assert_eq!(b.sdf(&Point, &n3), 1.0);
-        assert_eq!(b.sdf(&Point, &n4), 1.0);
-        assert_relative_eq!(b.sdf(&Point, &n5), 0.1414213);
+        assert_eq!(b.sdf_rel(&Point, &y1), -1.0);
+        assert_eq!(b.sdf_rel(&Point, &y2), -0.5);
+        assert_eq!(b.sdf_rel(&Point, &n1), 1.0);
+        assert_eq!(b.sdf_rel(&Point, &n2), 1.0);
+        assert_eq!(b.sdf_rel(&Point, &n3), 1.0);
+        assert_eq!(b.sdf_rel(&Point, &n4), 1.0);
+        assert_relative_eq!(b.sdf_rel(&Point, &n5), 0.1414213);
     }
 
     #[test]
@@ -251,7 +251,7 @@ mod tests {
         let b = Box2d::with_halfdims(0.5, 0.5);
         let delta = Vec2::new(2.0, 0.0);
         assert!(!b.collides_rel(&b, &delta));
-        assert_eq!(b.penetrates(&b, &delta), None);
+        assert_eq!(b.penetrates_rel(&b, &delta), None);
     }
 
     #[test]
@@ -260,7 +260,7 @@ mod tests {
         let delta = Vec2::new(0.0, 0.0);
         assert!(b.collides_rel(&b, &delta));
         // TODO(lubo): Actualy check if this is reasonable
-        assert!(b.penetrates(&b, &delta).is_some());
+        assert!(b.penetrates_rel(&b, &delta).is_some());
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod tests {
             let delta = Vec2::new(i as f32 / 10.0, 0.0);
             assert!(b.collides_rel(&b, &delta));
             // assert_eq!(Some(Vec2::new(1.0, 0.0) - delta), b.penetrates(&b, &delta));
-            assert_eq!(Some(delta - Vec2::new(1.0, 0.0)), b.penetrates(&b, &delta));
+            assert_eq!(Some(delta - Vec2::new(1.0, 0.0)), b.penetrates_rel(&b, &delta));
         }
     }
 }

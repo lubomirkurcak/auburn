@@ -150,7 +150,7 @@ impl Tilemap {
             if t > 0 {
                 let b = Box2d::with_halfdims(0.5, 0.5);
                 let delta = self.tile_to_world_pos(&p) - pos;
-                if let Some(error) = col.penetrates(&b, &delta) {
+                if let Some(error) = col.penetrates_rel(&b, &delta) {
                     pos += error;
                 }
             }
@@ -164,7 +164,7 @@ impl Tilemap {
             if t > 0 {
                 let b = Box2d::with_halfdims(0.5, 0.5);
                 let delta = self.tile_to_world_pos(&p) - pos;
-                if let Some(error) = col.penetrates(&b, &delta) {
+                if let Some(error) = col.penetrates_rel(&b, &delta) {
                     pos += error;
                 }
             }
@@ -196,7 +196,7 @@ impl CollidesRel2d<Point> for Tilemap {
 }
 
 impl PenetratesRel2d<Point> for Tilemap {
-    fn penetrates(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
+    fn penetrates_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let delta = rel.apply_origin();
         let tile_pos = self.world_to_tile_pos(&delta);
         let tile = self.get_tile(tile_pos);

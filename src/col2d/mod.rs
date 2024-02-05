@@ -172,12 +172,12 @@ pub trait PenetratesRel2d<T> {
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.penetrates(&b, &rel), Some(Vec2::new(-1.0, 0.0)));
+    /// assert_eq!(a.penetrates_rel(&b, &rel), Some(Vec2::new(-1.0, 0.0)));
     /// ```
     ///
     /// # See also
     /// * [Collides2d::collides].
-    fn penetrates(&self, t: &T, rel: &impl Transformation2d) -> Option<Vec2>;
+    fn penetrates_rel(&self, t: &T, rel: &impl Transformation2d) -> Option<Vec2>;
 }
 
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
@@ -198,12 +198,12 @@ pub trait SdfRel2d<T> {
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.sdf(&b, &rel), -1.0);
+    /// assert_eq!(a.sdf_rel(&b, &rel), -1.0);
     /// ```
     ///
     /// # See also
     /// * [Sdf2dVector::sdfvector].
-    fn sdf(&self, t: &T, rel: &impl Transformation2d) -> f32;
+    fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
 }
 
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
@@ -223,12 +223,12 @@ pub trait SdfRel2dVector<T> {
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.sdfvector(&b, &rel), Vec2::new(-1.0, 0.0));
+    /// assert_eq!(a.sdfvector_rel(&b, &rel), Vec2::new(-1.0, 0.0));
     /// ```
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfvector(&self, t: &T, rel: &impl Transformation2d) -> Vec2;
+    fn sdfvector_rel(&self, t: &T, rel: &impl Transformation2d) -> Vec2;
 }
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
@@ -261,8 +261,8 @@ where
     A: DefaultCol2dImpls,
     A: PenetratesRel2d<Point>,
 {
-    fn penetrates(&self, other: &A, rel: &impl Transformation2d) -> Option<Vec2> {
-        other.penetrates(&Point, rel) // .map(|v| -v)
+    fn penetrates_rel(&self, other: &A, rel: &impl Transformation2d) -> Option<Vec2> {
+        other.penetrates_rel(&Point, rel) // .map(|v| -v)
     }
 }
 
@@ -272,8 +272,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: PenetratesRel2d<Point>,
 {
-    fn penetrates(&self, t: &B, rel: &impl Transformation2d) -> Option<Vec2> {
-        self.minkowski_difference(t).penetrates(&Point, rel)
+    fn penetrates_rel(&self, t: &B, rel: &impl Transformation2d) -> Option<Vec2> {
+        self.minkowski_difference(t).penetrates_rel(&Point, rel)
     }
 }
 
@@ -283,8 +283,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: SdfRel2d<Point>,
 {
-    fn sdf(&self, t: &B, rel: &impl Transformation2d) -> f32 {
-        self.minkowski_difference(t).sdf(&Point, rel)
+    fn sdf_rel(&self, t: &B, rel: &impl Transformation2d) -> f32 {
+        self.minkowski_difference(t).sdf_rel(&Point, rel)
     }
 }
 
@@ -293,8 +293,8 @@ where
     A: DefaultCol2dImpls,
     A: SdfRel2d<Point>,
 {
-    fn sdf(&self, t: &A, rel: &impl Transformation2d) -> f32 {
-        t.sdf(&Point, rel)
+    fn sdf_rel(&self, t: &A, rel: &impl Transformation2d) -> f32 {
+        t.sdf_rel(&Point, rel)
     }
 }
 
@@ -304,8 +304,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: SdfRel2dVector<Point>,
 {
-    fn sdfvector(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
-        self.minkowski_difference(t).sdfvector(&Point, rel)
+    fn sdfvector_rel(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
+        self.minkowski_difference(t).sdfvector_rel(&Point, rel)
     }
 }
 
@@ -314,7 +314,7 @@ where
     A: DefaultCol2dImpls,
     A: SdfRel2dVector<Point>,
 {
-    fn sdfvector(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
-        t.sdfvector(&Point, rel)
+    fn sdfvector_rel(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
+        t.sdfvector_rel(&Point, rel)
     }
 }
