@@ -107,12 +107,12 @@ pub trait Collides3d<T, U: Transformation3d> {
     fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
 }
 
-impl<T, U> Collides3d<T, U> for T
+impl<A, B, T> Collides3d<B, T> for A
 where
-    T: CollidesRel3d<T>,
-    U: Transformation3d + DeltaTransform,
+    A: CollidesRel3d<B>,
+    T: Transformation3d + DeltaTransform,
 {
-    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool {
+    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
         let rel = transform.delta_transform(t_transform);
         self.collides_rel(t, &rel)
     }
