@@ -91,8 +91,8 @@ pub trait SymmetricBoundingBox2d {
 /// Trait for checking collision between `Self` and `T` given relative transform between them.
 ///
 /// # See also
-/// * [BoundingBox2d]
-/// * [Penetrates2d]
+/// * [SymmetricBoundingBox2d]
+/// * [PenetratesRel2d]
 pub trait CollidesRel2d<T> {
     /// Checks whether objects collide.
     ///
@@ -120,7 +120,7 @@ pub trait CollidesRel2d<T> {
 /// Currently, transformation types must be the same for both `Self` and `T`.
 ///
 /// # See also
-/// * [BoundingBox2d]
+/// * [SymmetricBoundingBox2d]
 /// * [Penetrates2d]
 pub trait Collides2d<T, U: Transformation2d> {
     /// Checks whether objects collide.
@@ -158,8 +158,8 @@ where
 /// Trait for computing smallest penetration vector between `Self` and `T`.
 ///
 /// # See also
-/// * [`Collides2d`]
-pub trait Penetrates2d<T> {
+/// * [Collides2d]
+pub trait PenetratesRel2d<T> {
     /// Computes the smallest penetration vector between `self` and `t`.
     ///
     /// # Arguments
@@ -183,8 +183,8 @@ pub trait Penetrates2d<T> {
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [`Sdf2dVector`]
-pub trait Sdf2d<T> {
+/// * [SdfRel2dVector]
+pub trait SdfRel2d<T> {
     /// Computes *scalar* signed-distance between `self` and `t`.
     ///
     /// # Arguments
@@ -209,8 +209,8 @@ pub trait Sdf2d<T> {
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [`Sdf2d`]
-pub trait Sdf2dVector<T> {
+/// * [SdfRel2d]
+pub trait SdfRel2dVector<T> {
     /// Computes *vector* signed-distance between `self` and `t`.
     ///
     /// # Arguments
@@ -256,63 +256,63 @@ where
     }
 }
 
-impl<A> Penetrates2d<A> for Point
+impl<A> PenetratesRel2d<A> for Point
 where
     A: DefaultCol2dImpls,
-    A: Penetrates2d<Point>,
+    A: PenetratesRel2d<Point>,
 {
     fn penetrates(&self, other: &A, rel: &impl Transformation2d) -> Option<Vec2> {
         other.penetrates(&Point, rel) // .map(|v| -v)
     }
 }
 
-impl<A, B, C> Penetrates2d<B> for A
+impl<A, B, C> PenetratesRel2d<B> for A
 where
     A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Penetrates2d<Point>,
+    C: PenetratesRel2d<Point>,
 {
     fn penetrates(&self, t: &B, rel: &impl Transformation2d) -> Option<Vec2> {
         self.minkowski_difference(t).penetrates(&Point, rel)
     }
 }
 
-impl<A, B, C> Sdf2d<B> for A
+impl<A, B, C> SdfRel2d<B> for A
 where
     A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf2d<Point>,
+    C: SdfRel2d<Point>,
 {
     fn sdf(&self, t: &B, rel: &impl Transformation2d) -> f32 {
         self.minkowski_difference(t).sdf(&Point, rel)
     }
 }
 
-impl<A> Sdf2d<A> for Point
+impl<A> SdfRel2d<A> for Point
 where
     A: DefaultCol2dImpls,
-    A: Sdf2d<Point>,
+    A: SdfRel2d<Point>,
 {
     fn sdf(&self, t: &A, rel: &impl Transformation2d) -> f32 {
         t.sdf(&Point, rel)
     }
 }
 
-impl<A, B, C> Sdf2dVector<B> for A
+impl<A, B, C> SdfRel2dVector<B> for A
 where
     A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf2dVector<Point>,
+    C: SdfRel2dVector<Point>,
 {
     fn sdfvector(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
         self.minkowski_difference(t).sdfvector(&Point, rel)
     }
 }
 
-impl<A> Sdf2dVector<A> for Point
+impl<A> SdfRel2dVector<A> for Point
 where
     A: DefaultCol2dImpls,
-    A: Sdf2dVector<Point>,
+    A: SdfRel2dVector<Point>,
 {
     fn sdfvector(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
         t.sdfvector(&Point, rel)

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use super::{
-    Ball, Box2d, CollidesRel2d, Penetrates2d, Point, SymmetricBoundingBox2d, Transformation2d, Vec2,
+    Ball, Box2d, CollidesRel2d, PenetratesRel2d, Point, SymmetricBoundingBox2d, Transformation2d, Vec2,
 };
 
 use crate::utils::publisher::{Ledger, Publisher};
@@ -195,7 +195,7 @@ impl CollidesRel2d<Point> for Tilemap {
     }
 }
 
-impl Penetrates2d<Point> for Tilemap {
+impl PenetratesRel2d<Point> for Tilemap {
     fn penetrates(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let delta = rel.apply_origin();
         let tile_pos = self.world_to_tile_pos(&delta);

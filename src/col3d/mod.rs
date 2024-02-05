@@ -56,8 +56,8 @@ pub trait ExtremePoint3d {
 /// Trait for checking collision between `Self` and `T` given relative transform between them.
 ///
 /// # See also
-/// * [BoundingBox3d]
-/// * [Penetrates3d]
+/// * [SymmetricBoundingBox3d]
+/// * [PenetratesRel3d]
 pub trait CollidesRel3d<T> {
     /// Checks whether objects collide.
     ///
@@ -82,7 +82,7 @@ pub trait CollidesRel3d<T> {
 /// Trait for checking collision between `Self` and `T`.
 ///
 /// # See also
-/// * [BoundingBox3d]
+/// * [SymmetricBoundingBox3d]
 /// * [Penetrates3d]
 pub trait Collides3d<T, U: Transformation3d> {
     /// Checks whether objects collide.
@@ -121,8 +121,8 @@ where
 /// Trait for computing smallest penetration vector between `Self` and `T`.
 ///
 /// # See also
-/// * [`Collides3d`]
-pub trait Penetrates3d<T> {
+/// * [`CollidesRel3d`]
+pub trait PenetratesRel3d<T> {
     /// Computes the smallest penetration vector between `self` and `t`.
     ///
     /// # Arguments
@@ -146,8 +146,8 @@ pub trait Penetrates3d<T> {
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [`Sdf3dVector`]
-pub trait Sdf3d<T> {
+/// * [`SdfRel3dVector`]
+pub trait SdfRel3d<T> {
     /// Computes *scalar* signed-distance between `self` and `t`.
     ///
     /// # Arguments
@@ -171,8 +171,8 @@ pub trait Sdf3d<T> {
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [`Sdf3d`]
-pub trait Sdf3dVector<T> {
+/// * [`SdfRel3d`]
+pub trait SdfRel3dVector<T> {
     /// Computes *vector* signed-distance between `self` and `t`.
     ///
     /// # Arguments
@@ -218,63 +218,63 @@ where
     }
 }
 
-impl<A> Penetrates3d<A> for Point
+impl<A> PenetratesRel3d<A> for Point
 where
     A: DefaultCol3dImpls,
-    A: Penetrates3d<Point>,
+    A: PenetratesRel3d<Point>,
 {
     fn penetrates(&self, other: &A, rel: &impl Transformation3d) -> Option<Vec3> {
         other.penetrates(&Point, rel) // .map(|v| -v)
     }
 }
 
-impl<A, B, C> Penetrates3d<B> for A
+impl<A, B, C> PenetratesRel3d<B> for A
 where
     A: DefaultCol3dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Penetrates3d<Point>,
+    C: PenetratesRel3d<Point>,
 {
     fn penetrates(&self, t: &B, rel: &impl Transformation3d) -> Option<Vec3> {
         self.minkowski_difference(t).penetrates(&Point, rel)
     }
 }
 
-impl<A, B, C> Sdf3d<B> for A
+impl<A, B, C> SdfRel3d<B> for A
 where
     A: DefaultCol3dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf3d<Point>,
+    C: SdfRel3d<Point>,
 {
     fn sdf(&self, t: &B, rel: &impl Transformation3d) -> f32 {
         self.minkowski_difference(t).sdf(&Point, rel)
     }
 }
 
-impl<A> Sdf3d<A> for Point
+impl<A> SdfRel3d<A> for Point
 where
     A: DefaultCol3dImpls,
-    A: Sdf3d<Point>,
+    A: SdfRel3d<Point>,
 {
     fn sdf(&self, t: &A, rel: &impl Transformation3d) -> f32 {
         t.sdf(&Point, rel)
     }
 }
 
-impl<A, B, C> Sdf3dVector<B> for A
+impl<A, B, C> SdfRel3dVector<B> for A
 where
     A: DefaultCol3dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: Sdf3dVector<Point>,
+    C: SdfRel3dVector<Point>,
 {
     fn sdfvector(&self, t: &B, rel: &impl Transformation3d) -> Vec3 {
         self.minkowski_difference(t).sdfvector(&Point, rel)
     }
 }
 
-impl<A> Sdf3dVector<A> for Point
+impl<A> SdfRel3dVector<A> for Point
 where
     A: DefaultCol3dImpls,
-    A: Sdf3dVector<Point>,
+    A: SdfRel3dVector<Point>,
 {
     fn sdfvector(&self, t: &A, rel: &impl Transformation3d) -> Vec3 {
         t.sdfvector(&Point, rel)

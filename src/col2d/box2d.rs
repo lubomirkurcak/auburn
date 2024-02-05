@@ -85,7 +85,7 @@ impl CollidesRel2d<Point> for Box2d {
 
 // Penetrates
 
-impl Penetrates2d<Point> for Box2d {
+impl PenetratesRel2d<Point> for Box2d {
     fn penetrates(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
@@ -105,7 +105,7 @@ impl Penetrates2d<Point> for Box2d {
 
 // Sdf
 
-impl Sdf2d<Point> for Box2d {
+impl SdfRel2d<Point> for Box2d {
     fn sdf(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
@@ -127,7 +127,7 @@ impl Sdf2d<Point> for Box2d {
 
 // Sdf Vector
 
-impl Sdf2dVector<Point> for Box2d {
+impl SdfRel2dVector<Point> for Box2d {
     fn sdfvector(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;

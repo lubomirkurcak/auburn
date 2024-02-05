@@ -1,7 +1,7 @@
 use std::ops::Mul;
 
 use super::{
-    Ball, CollidesRel3d, ExtremePoint3d, Penetrates3d, Sdf3d, Sdf3dVector, Transformation3d, Vec3,
+    Ball, CollidesRel3d, ExtremePoint3d, PenetratesRel3d, SdfRel3d, SdfRel3dVector, Transformation3d, Vec3,
 };
 
 // impl SymmetricBoundingBox3d for Ball {
@@ -27,7 +27,7 @@ impl CollidesRel3d<Ball> for () {
     }
 }
 
-impl Penetrates3d<Ball> for () {
+impl PenetratesRel3d<Ball> for () {
     fn penetrates(&self, t: &Ball, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
@@ -45,20 +45,20 @@ impl Penetrates3d<Ball> for () {
         }
     }
 }
-impl Penetrates3d<()> for Ball {
+impl PenetratesRel3d<()> for Ball {
     fn penetrates(&self, _t: &(), rel: &impl Transformation3d) -> Option<Vec3> {
         ().penetrates(self, rel)
     }
 }
 
-impl Sdf3d<()> for Ball {
+impl SdfRel3d<()> for Ball {
     fn sdf(&self, _t: &(), rel: &impl Transformation3d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
-impl Sdf3dVector<()> for Ball {
+impl SdfRel3dVector<()> for Ball {
     fn sdfvector(&self, _t: &(), rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let length = delta.length();
