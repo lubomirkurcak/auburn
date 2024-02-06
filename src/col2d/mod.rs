@@ -122,7 +122,7 @@ pub trait CollidesRel2d<T> {
 /// # See also
 /// * [SymmetricBoundingBox2d]
 /// * [Penetrates2d]
-pub trait Collides2d<T, U: Transformation2d> {
+pub trait Collides2d<B, T: Transformation2d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -141,7 +141,7 @@ pub trait Collides2d<T, U: Transformation2d> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides(&self, transform: &U, t: &T, t_transform: &U) -> bool;
+    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool;
 }
 
 impl<A, B, T> Collides2d<B, T> for A
@@ -180,6 +180,43 @@ pub trait PenetratesRel2d<T> {
     fn penetrates_rel(&self, t: &T, rel: &impl Transformation2d) -> Option<Vec2>;
 }
 
+/// Trait for computing smallest penetration vector between `Self` and `T`.
+///
+/// # See also
+/// * [Collides2d]
+pub trait Penetrates2d<B, T: Transformation2d> {
+    /// Computes the smallest penetration vector between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `t` - The object to compute penetration into
+    /// * `rel` - The *relative* transform from `self` to `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.penetrates(&a_t, &b, &b_t), Some(Vec2::new(-1.0, 0.0)));
+    /// ```
+    ///
+    /// # See also
+    /// * [Collides2d::collides].
+    fn penetrates(&self, a_t: &T, b: &B, b_t: &T) -> Option<Vec2>;
+}
+
+impl<A, B, T> Penetrates2d<B, T> for A
+where
+    A: PenetratesRel2d<B>,
+    T: Transformation2d + DeltaTransform,
+{
+    fn penetrates(&self, a_transform: &T, b: &B, b_transform: &T) -> Option<Vec2> {
+        let rel = a_transform.delta_transform(b_transform);
+        self.penetrates_rel(b, &rel)
+    }
+}
+
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
 ///
 /// # See also
@@ -206,6 +243,44 @@ pub trait SdfRel2d<T> {
     fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
 }
 
+/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+///
+/// # See also
+/// * [Sdf2dVector]
+pub trait Sdf2d<B, T: Transformation2d> {
+    /// Computes *scalar* signed-distance between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `transform` - Transform of `Self`
+    /// * `t` - The object to check collision against
+    /// * `delta` - Transform of `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.sdf(&a_t, &b, &b_t), -1.0);
+    /// ```
+    ///
+    /// # See also
+    /// * [Sdf2dVector::sdfvector].
+    fn sdf(&self, a_t: &T, b: &B, b_t: &T) -> f32;
+}
+
+impl<A, B, T> Sdf2d<B, T> for A
+where
+    A: SdfRel2d<B>,
+    T: Transformation2d + DeltaTransform,
+{
+    fn sdf(&self, a_transform: &T, b: &B, b_transform: &T) -> f32 {
+        let rel = a_transform.delta_transform(b_transform);
+        self.sdf_rel(b, &rel)
+    }
+}
+
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
 ///
 /// # See also
@@ -229,6 +304,43 @@ pub trait SdfRel2dVector<T> {
     /// # See also
     /// * [Sdf2d::sdf].
     fn sdfvector_rel(&self, t: &T, rel: &impl Transformation2d) -> Vec2;
+}
+
+/// Trait for computing the *vector* signed-distance between `Self` and `T`.
+///
+/// # See also
+/// * [Sdf2d]
+pub trait Sdf2dVector<B, T: Transformation2d> {
+    /// Computes *vector* signed-distance between `self` and `t`.
+    ///
+    /// # Arguments
+    /// * `t` - The object to compute distance to
+    /// * `rel` - The *relative* transform from `self` to `t`
+    ///
+    /// # Example
+    /// ```
+    /// # use auburn::col2d::*;
+    /// let a = Box2d::with_halfdims(1.0, 1.0);
+    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
+    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
+    /// assert_eq!(a.sdfvector(&a_t, &b, &b_t), Vec2::new(-1.0, 0.0));
+    /// ```
+    ///
+    /// # See also
+    /// * [Sdf2d::sdf].
+    fn sdfvector(&self, a_t: &T, b: &B, b_t: &T) -> Vec2;
+}
+
+impl<A, B, T> Sdf2dVector<B, T> for A
+where
+    A: SdfRel2dVector<B>,
+    T: Transformation2d + DeltaTransform,
+{
+    fn sdfvector(&self, a_transform: &T, b: &B, b_transform: &T) -> Vec2 {
+        let rel = a_transform.delta_transform(b_transform);
+        self.sdfvector_rel(b, &rel)
+    }
 }
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
