@@ -45,6 +45,7 @@ impl PenetratesRel2d<Point> for Ball {
                 let old_magn = distance_to_center;
                 let new_magn = self.radius - distance_to_center;
                 let penetration = delta * (new_magn / old_magn);
+                let penetration = -penetration;
                 Some(penetration)
             }
         } else {

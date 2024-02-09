@@ -1,7 +1,8 @@
 use std::ops::Mul;
 
 use super::{
-    Ball, CollidesRel3d, ExtremePoint3d, PenetratesRel3d, SdfRel3d, SdfRel3dVector, Transformation3d, Vec3,
+    Ball, CollidesRel3d, ExtremePoint3d, PenetratesRel3d, SdfRel3d, SdfRel3dVector,
+    Transformation3d, Vec3,
 };
 
 // impl SymmetricBoundingBox3d for Ball {
@@ -38,6 +39,7 @@ impl PenetratesRel3d<Ball> for () {
                 let old_magn = distance_to_center;
                 let new_magn = t.radius - distance_to_center;
                 let penetration = delta.mul(new_magn / old_magn);
+                let penetration = -penetration;
                 Some(penetration)
             }
         } else {
