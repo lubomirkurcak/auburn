@@ -1,4 +1,5 @@
-use crate::Vec3;
+use super::Poly3d;
+use crate::{col3d::ExtremePoint3d, Vec3};
 
 /* ========================================================================
 $File: $
@@ -477,49 +478,230 @@ inline v3 support_function(float scale_a, float scale_b,
     v3 result = delta + support_a - support_b;
     return result;
 }
+*/
 
-internal int epa_unique_edge_filter(int *edges, int count, int max_count, int a, int b)
-{
-    b32x pair_already_exists = false;
+fn epa_unique_edge_filter(
+    edges: &mut [usize],
+    mut count: usize,
+    max_count: usize,
+    a: usize,
+    b: usize,
+) -> usize {
+    let mut pair_already_exists = false;
 
-    for(int i=0; i<count; ++i)
-    {
-        int _a = edges[2*i];
-        int _b = edges[2*i + 1];
+    for i in 0..count {
+        let _a = edges[2 * i];
+        let _b = edges[2 * i + 1];
 
-        if(_a == b && _b == a)
-        {
-            edges[2*i] = edges[2*(count-1)];
-            edges[2*i + 1] = edges[2*(count-1) + 1];
-            --count;
+        if _a == b && _b == a {
+            edges[2 * i] = edges[2 * (count - 1)];
+            edges[2 * i + 1] = edges[2 * (count - 1) + 1];
+            count -= 1;
 
             pair_already_exists = true;
             break;
         }
     }
 
-    if(!pair_already_exists)
-    {
-        assert(count < max_count);
+    if !pair_already_exists {
+        assert!(count < max_count);
 
-        edges[2*count] = a;
-        edges[2*count + 1] = b;
+        edges[2 * count] = a;
+        edges[2 * count + 1] = b;
 
-        ++count;
+        count += 1;
     }
 
     return count;
 }
 
-// inline void epa_do_triangle(v3 *points, int *tris, v3 *distances, float *squares, int tri)
-// {
-//     v3 A = points[tris[3*tri]];
-//     v3 B = points[tris[3*tri + 1]];
-//     v3 C = points[tris[3*tri + 2]];
-//     v3 plane_normal = plane_normal_from_points(A, B, C);
-//     distances[tri] = distance_to_plane({}, plane_normal, A);
-//     squares[tri] = square(distances[tri]);
-// }
+fn plane_normal_from_points(a: Vec3, b: Vec3, c: Vec3) -> Vec3 {
+    (b - a).cross(c - a)
+}
+
+fn units_along_basis(a: Vec3, b: Vec3) -> f32 {
+    a.dot(b) / b.dot(b)
+}
+
+fn project_to_plane_at_origin(a: Vec3, plane: Vec3) -> Vec3 {
+    a - plane * units_along_basis(a, plane)
+}
+
+fn project_to_plane(a: Vec3, plane: Vec3, plane_origin: Vec3) -> Vec3 {
+    project_to_plane_at_origin(a - plane_origin, plane) + plane_origin
+}
+
+fn distance_to_plane(a: Vec3, plane: Vec3, plane_origin: Vec3) -> Vec3 {
+    project_to_plane(a, plane, plane_origin) - a
+}
+
+fn epa_do_triangle(
+    points: &mut [Vec3],
+    tris: &mut [usize],
+    distances: &mut [Vec3],
+    squares: &mut [f32],
+    tri: usize,
+) {
+    let a = points[tris[3 * tri]];
+    let b = points[tris[3 * tri + 1]];
+    let c = points[tris[3 * tri + 2]];
+    let plane_normal = plane_normal_from_points(a, b, c);
+    distances[tri] = distance_to_plane(Vec3::ZERO, plane_normal, a);
+    squares[tri] = distances[tri].dot(distances[tri]);
+}
+
+fn argmin(count: usize, squares: &[f32]) -> usize {
+    let mut min = squares[0];
+    let mut min_index = 0;
+    for i in 1..count {
+        if squares[i] < min {
+            min = squares[i];
+            min_index = i;
+        }
+    }
+    min_index
+}
+
+trait Epa3d {
+    fn epa(&self, simplex_points: &mut [Vec3]) -> Vec3;
+}
+
+impl<A: ExtremePoint3d> Epa3d for A {
+    fn epa(&self, simplex_points: &mut [Vec3]) -> Vec3 {
+        let mut result = Vec3::ZERO;
+
+        // @todo(lubo): If we imagine two D20's these arrays are too small. Set two D20's case are our baseline.
+        const EPA_MAX_POINTS: usize = 32;
+        const EPA_MAX_TRIS: usize = 64;
+        let mut points = [Vec3::ZERO; EPA_MAX_POINTS];
+        let mut tris = [0usize; 3 * EPA_MAX_TRIS];
+        for (i, v) in [0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2].into_iter().enumerate() {
+            tris[i] = v;
+        }
+
+        let mut distances = [Vec3::ZERO; EPA_MAX_TRIS];
+        let mut squares = [0.0f32; EPA_MAX_TRIS];
+
+        let mut point_count = 4;
+        let mut tri_count = 4;
+
+        points[0] = simplex_points[0];
+        points[1] = simplex_points[1];
+        points[2] = simplex_points[2];
+        points[3] = simplex_points[3];
+
+        // NOTE(lubo): For each triangle calculate distance and quandrance (|distance|^2)
+        for tri in 0..tri_count {
+            // EPA_DO_TRIANGLE(tri);
+            epa_do_triangle(&mut points, &mut tris, &mut distances, &mut squares, tri);
+        }
+
+        loop {
+            // NOTE(lubo): Choose closest triangle
+            let closest_tri = argmin(tri_count, &squares);
+
+            let dir: Vec3 = distances[closest_tri];
+            let a = self.extreme_point(dir);
+
+            let old_point_score = squares[closest_tri];
+            let new_point_score = a.dot(dir);
+
+            if new_point_score - old_point_score <= 0.0001 {
+                // NOTE(lubo): We don't see significant score increase. Break.
+
+                // NOTE(lubo): Negative here so that we're consistent with distance (when not colliding).
+                // The rule is that E0 + gjk_distance moves E0 so that it touches E1.
+                result = -distances[closest_tri];
+                break;
+            } else {
+                // STUDY(lubo): Hypothesis: when all points are on
+                //  minkowski surface there cannot be more than 2
+                //  triangles facing the new point.  Actually, now I think
+                //  the points would have to be extreme and not just lie
+                //  on the surface as there could be arbitrarily many point on a straight line on surface.
+                let mut facing_triangles = 0;
+
+                let mut unique_edge_count = 0;
+                const EPA_MAX_EDGES: usize = 32;
+                let mut unique_edges = [0usize; 2 * EPA_MAX_EDGES];
+
+                // NOTE(lubo): For each face, if it is in the same direction as the new point
+                let mut tri = 0;
+                while tri < tri_count {
+                    if distances[tri].dot(a) - squares[tri] > 0.0 {
+                        facing_triangles += 1;
+
+                        let ai = tris[3 * tri];
+                        let bi = tris[3 * tri + 1];
+                        let ci = tris[3 * tri + 2];
+
+                        // NOTE(lubo): Collapse to one? Naah.
+                        unique_edge_count = epa_unique_edge_filter(
+                            &mut unique_edges,
+                            unique_edge_count,
+                            EPA_MAX_EDGES,
+                            ai,
+                            bi,
+                        );
+                        unique_edge_count = epa_unique_edge_filter(
+                            &mut unique_edges,
+                            unique_edge_count,
+                            EPA_MAX_EDGES,
+                            bi,
+                            ci,
+                        );
+                        unique_edge_count = epa_unique_edge_filter(
+                            &mut unique_edges,
+                            unique_edge_count,
+                            EPA_MAX_EDGES,
+                            ci,
+                            ai,
+                        );
+
+                        tris[3 * tri] = tris[3 * (tri_count - 1)];
+                        tris[3 * tri + 1] = tris[3 * (tri_count - 1) + 1];
+                        tris[3 * tri + 2] = tris[3 * (tri_count - 1) + 2];
+
+                        distances[tri] = distances[tri_count - 1];
+                        squares[tri] = squares[tri_count - 1];
+
+                        tri_count -= 1;
+                        tri -= 1;
+                    }
+                }
+
+                if facing_triangles > 2 {
+                    println!("[gjk] EPA new point facing {} triangles", facing_triangles);
+                }
+
+                let first_new_tri = tri_count;
+
+                for edge in 0..unique_edge_count {
+                    assert!(tri_count < EPA_MAX_TRIS);
+
+                    tris[3 * tri_count] = unique_edges[2 * edge];
+                    tris[3 * tri_count + 1] = unique_edges[2 * edge + 1];
+                    tris[3 * tri_count + 2] = point_count;
+
+                    tri_count += 1;
+                }
+
+                assert!(point_count < EPA_MAX_POINTS);
+                points[point_count] = a;
+                point_count += 1;
+
+                for tri in first_new_tri..tri_count {
+                    // EPA_DO_TRIANGLE(tri);
+                    epa_do_triangle(&mut points, &mut tris, &mut distances, &mut squares, tri);
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+/*
 
 // STUDY(lubo): Just had a though... isn't EPA also convex hull solution? :O
 //              At all times all points must lie on the boundary otherwise we would get ill-defined geometry in the add point and reconstruct faces step

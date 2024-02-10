@@ -130,6 +130,43 @@ impl<T: Transformation2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
     }
 }
 
+impl<T: Transformation2d> PenetratesRel2d<Point> for Poly2dDiff<'_, T> {
+    fn penetrates_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
+        let mut point_count = 1;
+        let mut points = [Vec2::ZERO; 3];
+
+        // TODO: This sucks. We should probably ditch Poly2dDiff?
+        let delta = rel.apply_origin();
+        // let delta = -delta;
+        let a = self.extreme_point(delta);
+
+        if a.dot(delta) < 0.0 {
+            return None;
+        }
+        // return true;
+
+        points[0] = a;
+        let mut delta = -a;
+
+        for _ in 0..16 {
+            let p = self.extreme_point(delta);
+            if p.dot(delta) <= 0.0 {
+                return None;
+            }
+
+            points[point_count] = p;
+            point_count += 1;
+
+            match gjk2d::do_simplex(&mut points, &mut point_count) {
+                Some(new_direction) => delta = new_direction,
+                None => todo!(),
+            }
+        }
+
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

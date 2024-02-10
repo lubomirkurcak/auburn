@@ -110,3 +110,9 @@ impl CollidesRel3d<Point> for Poly3dDiff<'_> {
         false
     }
 }
+
+impl PenetratesRel3d<Point> for Poly3dDiff<'_> {
+    fn penetrates_rel(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
+        todo!()
+    }
+}
