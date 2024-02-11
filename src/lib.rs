@@ -5,6 +5,16 @@ pub mod col2d;
 pub mod col3d;
 pub mod utils;
 
+pub trait Square {
+    fn square(self) -> Self;
+}
+
+impl Square for f32 {
+    fn square(self) -> Self {
+        self * self
+    }
+}
+
 pub trait Lerp {
     fn lerp(self, other: Self, t: f32) -> Self;
 }

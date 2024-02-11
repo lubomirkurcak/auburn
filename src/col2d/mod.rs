@@ -24,6 +24,7 @@ pub use crate::Vec2;
 
 mod ball2d;
 mod box2d;
+mod ellipse2d;
 mod point2d;
 mod poly2d;
 mod rounded_box2d;
@@ -33,6 +34,7 @@ mod transformation2d;
 pub use crate::col::*;
 pub use ball2d::*;
 pub use box2d::*;
+// pub use ellipse2d::*;
 pub use point2d::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;

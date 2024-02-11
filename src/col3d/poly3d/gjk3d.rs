@@ -598,7 +598,13 @@ impl<A: ExtremePoint3d> Epa3d for A {
 
         loop {
             // NOTE(lubo): Choose closest triangle
-            let closest_tri = argmin(tri_count, &squares);
+            // let closest_tri = argmin(tri_count, &squares);
+            let closest_tri = squares[0..tri_count]
+                .iter()
+                .enumerate()
+                .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+                .unwrap()
+                .0;
 
             let dir: Vec3 = distances[closest_tri];
             let a = self.extreme_point(dir);
