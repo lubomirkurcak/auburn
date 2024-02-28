@@ -32,10 +32,10 @@ mod tilemap;
 mod transformation2d;
 
 pub use crate::col::*;
-pub use ball2d::*;
+// pub use ball2d::*;
 pub use box2d::*;
 // pub use ellipse2d::*;
-pub use point2d::*;
+// pub use point2d::*;
 pub use poly2d::*;
 pub use rounded_box2d::*;
 pub use tilemap::*;

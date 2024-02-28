@@ -33,3 +33,17 @@ pub trait Transformation3d {
     /// Invert transformation.
     fn unapply(&self, point: Vec3) -> Vec3;
 }
+
+impl Transformation3d for IdentityTransform {
+    fn apply_origin(&self) -> Vec3 {
+        Vec3::ZERO
+    }
+
+    fn apply(&self, point: Vec3) -> Vec3 {
+        point
+    }
+
+    fn unapply(&self, point: Vec3) -> Vec3 {
+        point
+    }
+}

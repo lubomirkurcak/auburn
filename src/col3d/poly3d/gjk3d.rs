@@ -56,7 +56,7 @@ fn do_simplex_2(points: &mut [Vec3], _point_count: &mut usize) -> Option<Vec3> {
 
     // let contains_origin = is_zero(dir);
     // return (contains_origin, dir);
-    return Some(dir);
+    Some(dir)
 }
 
 fn do_simplex_3(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
@@ -77,48 +77,42 @@ fn do_simplex_3(points: &mut [Vec3], point_count: &mut usize) -> Option<Vec3> {
             points[0] = c;
             points[1] = a;
             *point_count = 2;
+        } else if same_direction(ab, ao) {
+            // [A,B] ABxAOxAB
+            dir = cross_aba(ab, ao);
+            points[0] = b;
+            points[1] = a;
+            *point_count = 2;
         } else {
-            if same_direction(ab, ao) {
-                // [A,B] ABxAOxAB
-                dir = cross_aba(ab, ao);
-                points[0] = b;
-                points[1] = a;
-                *point_count = 2;
-            } else {
-                // [A] AO
-                dir = ao;
-                points[0] = a;
-                *point_count = 1;
-                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
-                unreachable!("IS THIS EVEN REACHABLE?");
-            }
+            // [A] AO
+            dir = ao;
+            points[0] = a;
+            *point_count = 1;
+            // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
+            unreachable!("IS THIS EVEN REACHABLE?");
         }
+    } else if same_direction(ab.cross(abc), ao) {
+        if same_direction(ab, ao) {
+            // [A,B] ABxAOxAB
+            dir = cross_aba(ab, ao);
+            points[0] = b;
+            points[1] = a;
+            *point_count = 2;
+        } else {
+            // [A] AO
+            dir = ao;
+            points[0] = a;
+            *point_count = 1;
+            // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
+            unreachable!("IS THIS EVEN REACHABLE?");
+        }
+    } else if same_direction(abc, ao) {
+        //[A,B,C] ABC
+        dir = abc;
     } else {
-        if same_direction(ab.cross(abc), ao) {
-            if same_direction(ab, ao) {
-                // [A,B] ABxAOxAB
-                dir = cross_aba(ab, ao);
-                points[0] = b;
-                points[1] = a;
-                *point_count = 2;
-            } else {
-                // [A] AO
-                dir = ao;
-                points[0] = a;
-                *point_count = 1;
-                // @todo(lubo): Added on 2024-01-28. Remove this branch if it's never hit.
-                unreachable!("IS THIS EVEN REACHABLE?");
-            }
-        } else {
-            if same_direction(abc, ao) {
-                //[A,B,C] ABC
-                dir = abc;
-            } else {
-                //[A,C,B] -ABC
-                dir = -abc;
-                points.swap(0, 1)
-            }
-        }
+        //[A,C,B] -ABC
+        dir = -abc;
+        points.swap(0, 1)
     }
 
     // let contains_origin = is_zero(dir);
@@ -553,22 +547,28 @@ fn epa_do_triangle(
 fn argmin(count: usize, squares: &[f32]) -> usize {
     let mut min = squares[0];
     let mut min_index = 0;
-    for i in 1..count {
-        if squares[i] < min {
-            min = squares[i];
+    squares.iter().enumerate().skip(1).for_each(|(i, &s)| {
+        if s < min {
+            min = s;
             min_index = i;
         }
-    }
+    });
+    // for i in 1..count {
+    //     if squares[i] < min {
+    //         min = squares[i];
+    //         min_index = i;
+    //     }
+    // }
     min_index
 }
 
-trait Epa3d {
+pub trait Epa3d {
     fn epa(&self, simplex_points: &mut [Vec3]) -> Vec3;
 }
 
 impl<A: ExtremePoint3d> Epa3d for A {
     fn epa(&self, simplex_points: &mut [Vec3]) -> Vec3 {
-        let mut result = Vec3::ZERO;
+        let result;
 
         // @todo(lubo): If we imagine two D20's these arrays are too small. Set two D20's case are our baseline.
         const EPA_MAX_POINTS: usize = 32;
@@ -703,7 +703,7 @@ impl<A: ExtremePoint3d> Epa3d for A {
             }
         }
 
-        return result;
+        result
     }
 }
 

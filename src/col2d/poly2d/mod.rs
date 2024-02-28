@@ -130,6 +130,8 @@ impl<T: Transformation2d> CollidesRel2d<Point> for Poly2dDiff<'_, T> {
     }
 }
 
+// Penetrates
+
 impl<T: Transformation2d> PenetratesRel2d<Point> for Poly2dDiff<'_, T> {
     fn penetrates_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let mut point_count = 1;
