@@ -72,3 +72,23 @@ impl Composable for Transform3d {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::assert_approx_eq;
+    use crate::utils::approx::Approx;
+
+    use super::*;
+
+    #[test]
+    fn test_inverse() {
+        let t = Transform3d {
+            pos: Vec3::new(1.0, 2.0, 3.0),
+            rot: Quat::from_rotation_x(0.5),
+            scale: Vec3::splat(1.0),
+        };
+        let t_inv = t.inverse();
+        let p = Vec3::new(1.0, 2.0, 3.0);
+        assert_approx_eq!(t.apply(p), t_inv.unapply(p));
+    }
+}
