@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use super::{
-    Ball, Box2d, CollidesRel2d, PenetratesRel2d, Point, SymmetricBoundingBox2d, Transformation2d, Vec2,
+    Ball, Box2d, CollidesRel2d, PenetratesRel2d, Point, SymmetricBoundingBox2d, Transformation2d,
+    Vec2,
 };
 
 use crate::utils::publisher::{Ledger, Publisher};
