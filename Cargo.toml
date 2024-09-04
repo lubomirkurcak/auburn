@@ -1,6 +1,6 @@
 [package]
 name = "auburn"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Fast and simple physics library."
@@ -17,13 +17,14 @@ categories = [
 [features]
 #default = []
 bevy = ["dep:bevy"]
+gjk = []
 # approx = ["dep:approx"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.13.2", optional = true }
-glam = "0.25.0"                                # matching bevy 0.12.1
+bevy = { version = "0.14.1", optional = true }
+glam = "0.27.0"                                # matching bevy 0.12.1
 lk_math = "0.4.0"
 #lk_math = { path = "c:/repos/lk_math", default-features = true }
 round-to = "0.1.0"
