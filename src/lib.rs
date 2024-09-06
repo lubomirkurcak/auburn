@@ -1,3 +1,5 @@
+#![no_std]
+
 pub use glam::{Quat, Vec2, Vec3};
 
 mod col;
