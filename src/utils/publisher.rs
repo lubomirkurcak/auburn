@@ -1,4 +1,5 @@
-use std::{collections::HashSet, hash::Hash};
+use core::hash::Hash;
+use std::collections::HashSet;
 
 pub trait Publisher<E> {
     fn notify(&mut self, event: E);

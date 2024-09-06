@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use core::ops::Mul;
 
 use super::{
     Ball, CollidesRel3d, ExtremePoint3d, PenetratesRel3d, SdfRel3d, SdfRel3dVector,

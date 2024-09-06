@@ -4,7 +4,6 @@
 //! * [Ball] - ball
 //! * [Box2d] - 2D box
 //! * [RoundedBox2d] - 2D rounded box
-//! * [Poly2d] - 2D convex polygon
 //! * [Tilemap] - 2D tilemap
 //!
 //! # Collision and Resolution:
@@ -26,17 +25,12 @@ mod ball2d;
 mod box2d;
 mod ellipse2d;
 mod point2d;
-mod poly2d;
 mod rounded_box2d;
 mod tilemap;
 mod transformation2d;
 
 pub use crate::col::*;
-// pub use ball2d::*;
 pub use box2d::*;
-// pub use ellipse2d::*;
-// pub use point2d::*;
-pub use poly2d::*;
 pub use rounded_box2d::*;
 pub use tilemap::*;
 pub use transformation2d::*;

@@ -4,7 +4,6 @@
 //! * [Ball] - ball
 //! * [Box3d] - 3D box
 //! * [Cylinder3d] - 3D cylinder
-//! * [Poly3d] - 3D convex polyhedron
 //!
 //! # Collision and Resolution
 //! * [Collides3d::collides]
@@ -25,8 +24,6 @@ mod ball3d;
 mod box3d;
 mod cylinder3d;
 mod point3d;
-#[cfg(feature = "gjk")]
-mod poly3d;
 mod transformation3d;
 
 pub use crate::col::*;
@@ -34,8 +31,6 @@ pub use ball3d::*;
 pub use box3d::*;
 pub use cylinder3d::*;
 pub use point3d::*;
-#[cfg(feature = "gjk")]
-pub use poly3d::*;
 pub use transformation3d::*;
 
 #[doc(alias = "Support")]
