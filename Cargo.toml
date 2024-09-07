@@ -15,10 +15,12 @@ categories = [
 ]
 
 [features]
-#default = []
+default = ["tilemap"]
+std = []
+serde = ["dep:serde", "dep:serde_json", "dep:serde_with"]
 bevy = ["dep:bevy"]
 gjk = []
-# approx = ["dep:approx"]
+tilemap = ["std", "serde"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,9 +30,9 @@ glam = "0.27.0"                                # matching bevy 0.12.1
 lk_math = "0.4.0"
 #lk_math = { path = "c:/repos/lk_math", default-features = true }
 round-to = "0.1.0"
-serde = "1.0.195"
-serde_json = "1.0.111"
-serde_with = "3.4.0"
+serde = { version = "1.0.195", optional = true }
+serde_json = { version = "1.0.111", optional = true }
+serde_with = { version = "3.4.0", optional = true }
 
 [dev-dependencies]
 approx = "0.5.1"
