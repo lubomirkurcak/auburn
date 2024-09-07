@@ -1,3 +1,4 @@
+pub mod approx;
+#[cfg(feature = "std")]
 pub mod publisher;
 pub mod rect2;
-pub mod approx;

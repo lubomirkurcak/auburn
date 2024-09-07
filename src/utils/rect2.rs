@@ -18,6 +18,7 @@ impl Rect2i32 {
         }
     }
 
+    #[cfg(feature = "std")]
     pub fn iterate_with_direction_f32(
         &self,
         dir_x: f32,
@@ -54,6 +55,7 @@ impl Rect2i32 {
         y_range.flat_map(move |y| x_range.clone().map(move |x| Vector::from_xy(x, y)))
     }
 
+    #[cfg(feature = "std")]
     pub fn iterate_boxed(&self, flip_x: bool, flip_y: bool) -> Box<dyn Iterator<Item = V2i32>> {
         if flip_y {
             if flip_x {

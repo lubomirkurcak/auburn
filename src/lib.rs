@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)] // Use no_std when std feature is not enabled
+
 pub use glam::{Quat, Vec2, Vec3};
 
 mod col;

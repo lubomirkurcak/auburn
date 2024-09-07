@@ -4,7 +4,7 @@
 //! * [Ball] - ball
 //! * [Box2d] - 2D box
 //! * [RoundedBox2d] - 2D rounded box
-//! * [Tilemap] - 2D tilemap
+//! * [Tilemap] - 2D tilemap (requires feature `"tilemap"`)
 //!
 //! # Collision and Resolution:
 //! * [Collides2d::collides]
@@ -26,12 +26,14 @@ mod box2d;
 mod ellipse2d;
 mod point2d;
 mod rounded_box2d;
+#[cfg(feature = "tilemap")]
 mod tilemap;
 mod transformation2d;
 
 pub use crate::col::*;
 pub use box2d::*;
 pub use rounded_box2d::*;
+#[cfg(feature = "tilemap")]
 pub use tilemap::*;
 pub use transformation2d::*;
 
