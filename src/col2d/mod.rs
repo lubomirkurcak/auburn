@@ -4,6 +4,7 @@
 //! * [Ball] - ball
 //! * [Box2d] - 2D box
 //! * [RoundedBox2d] - 2D rounded box
+//! * [Tilemap] - 2D tilemap
 //!
 //! # Collision and Resolution:
 //! * [Collides2d::collides]
@@ -25,11 +26,13 @@ mod box2d;
 mod ellipse2d;
 mod point2d;
 mod rounded_box2d;
+mod tilemap;
 mod transformation2d;
 
 pub use crate::col::*;
 pub use box2d::*;
 pub use rounded_box2d::*;
+pub use tilemap::*;
 pub use transformation2d::*;
 
 /// Trait for computing extreme points of a shape along a direction.
