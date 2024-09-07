@@ -270,10 +270,10 @@ mod tests {
         let t_t_inv_t = t.compose(&t_inv);
         let t_inv_t = t_inv.compose(&t);
 
-        // println!("t: {:?}", t);
-        // println!("t_inv: {:?}", t_inv);
-        // println!("t_t_inv_t: {:?}", t_t_inv_t);
-        // println!("t_inv_t: {:?}", t_inv_t);
+        println!("t: {:?}", t);
+        println!("t_inv: {:?}", t_inv);
+        println!("t_t_inv_t: {:?}", t_t_inv_t);
+        println!("t_inv_t: {:?}", t_inv_t);
 
         let p = Vec3::new(4.0, 5.0, 6.0);
         let t_p = t.apply(p);
