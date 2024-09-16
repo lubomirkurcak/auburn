@@ -139,7 +139,7 @@ impl SdfRel3d<Point> for Box3d {
 // Sdf Vector
 
 impl SdfRel3dVector<Point> for Box3d {
-    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
+    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;

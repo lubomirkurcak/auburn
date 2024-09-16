@@ -9,7 +9,7 @@
 //! * [Collides3d::collides]
 //! * [Penetrates3d::penetrates]
 //! * [Sdf3d::sdf]
-//! * [Sdf3dVector::sdfvector].
+//! * [Sdf3dVector::sdfv].
 //!
 //! # Transformations
 //! * [Translate3d] - translation
@@ -20,17 +20,13 @@
 
 pub use crate::{Quat, Vec2, Vec3};
 
-mod ball3d;
-mod box3d;
-mod cylinder3d;
-mod point3d;
+mod detection;
+mod shape;
 mod transformation3d;
 
 pub use crate::col::*;
-pub use ball3d::*;
-pub use box3d::*;
-pub use cylinder3d::*;
-pub use point3d::*;
+pub use detection::*;
+pub use shape::*;
 pub use transformation3d::*;
 
 #[doc(alias = "Support")]
@@ -50,186 +46,6 @@ pub trait ExtremePoint3d {
     /// );
     /// ```
     fn extreme_point(&self, direction: Vec3) -> Vec3;
-}
-
-/// Trait for checking collision between `Self` and `T` given relative transform between them.
-///
-/// # See also
-/// * [SymmetricBoundingBox3d]
-/// * [PenetratesRel3d]
-pub trait CollidesRel3d<T> {
-    /// Checks whether objects collide.
-    ///
-    /// # Arguments
-    /// * `t` - The object to check collision against
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// assert!(a.collides_rel(&b, &rel))
-    /// ```
-    ///
-    /// # See also
-    /// * [Penetrates3d::penetrates].
-    fn collides_rel(&self, t: &T, rel: &impl Transformation3d) -> bool;
-}
-
-/// Trait for checking collision between `Self` and `T`.
-///
-/// # See also
-/// * [SymmetricBoundingBox3d]
-/// * [Penetrates3d]
-pub trait Collides3d<B, T: Transformation3d> {
-    /// Checks whether objects collide.
-    ///
-    /// # Arguments
-    /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let a_t = Translate3d::from(Vec3::new(0.0, 0.0, 0.0));
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b_t = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert!(a.collides(&a_t, &b, &b_t))
-    /// ```
-    ///
-    /// # See also
-    /// * [Penetrates3d::penetrates].
-    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool;
-}
-
-impl<A, B, T> Collides3d<B, T> for A
-where
-    A: CollidesRel3d<B>,
-    T: Transformation3d + DeltaTransform,
-{
-    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
-        let rel = transform.delta_transform(t_transform);
-        self.collides_rel(t, &rel)
-    }
-}
-
-/// Trait for computing smallest penetration vector between `Self` and `T`.
-///
-/// # See also
-/// * [`CollidesRel3d`]
-pub trait PenetratesRel3d<B> {
-    /// Computes the smallest penetration vector between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute penetration into
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert_eq!(a.penetrates_rel(&b, &rel), Some(Vec3::new(-1.0, 0.0, 0.0)));
-    /// ```
-    ///
-    /// # See also
-    /// * [Collides3d::collides].
-    fn penetrates_rel(&self, t: &B, rel: &impl Transformation3d) -> Option<Vec3>;
-}
-
-/// Trait for computing smallest penetration vector between `Self` and `T`.
-///
-/// # See also
-/// * [`Collides3d`]
-pub trait Penetrates3d<B, T: Transformation3d> {
-    /// Computes the smallest penetration vector between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute penetration into
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let a_t = Translate3d::from(Vec3::new(0.0, 0.0, 0.0));
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b_t = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert_eq!(
-    ///     a.penetrates(&a_t, &b, &b_t),
-    ///     Some(Vec3::new(-1.0, 0.0, 0.0))
-    /// );
-    /// ```
-    ///
-    /// # See also
-    /// * [Collides3d::collides].
-    fn penetrates(&self, transform: &T, other: &B, other_transform: &T) -> Option<Vec3>;
-}
-
-impl<A, B, T> Penetrates3d<B, T> for A
-where
-    A: PenetratesRel3d<B>,
-    T: Transformation3d + DeltaTransform,
-{
-    fn penetrates(&self, transform: &T, t: &B, t_transform: &T) -> Option<Vec3> {
-        let rel = transform.delta_transform(t_transform);
-        self.penetrates_rel(t, &rel)
-    }
-}
-
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
-///
-/// # See also
-/// * [`SdfRel3dVector`]
-pub trait SdfRel3d<T> {
-    /// Computes *scalar* signed-distance between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert_eq!(a.sdf_rel(&b, &rel), -1.0);
-    /// ```
-    ///
-    /// # See also
-    /// * [Sdf3dVector::sdfvector].
-    fn sdf_rel(&self, t: &T, rel: &impl Transformation3d) -> f32;
-}
-
-/// Trait for computing the *vector* signed-distance between `Self` and `T`.
-///
-/// # See also
-/// * [`SdfRel3d`]
-pub trait SdfRel3dVector<T> {
-    /// Computes *vector* signed-distance between `self` and `t`.
-    ///
-    /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
-    ///
-    /// # Example
-    /// ```
-    /// # use auburn::col3d::*;
-    /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
-    /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert_eq!(a.sdfvector_rel(&b, &rel), Vec3::new(-1.0, 0.0, 0.0));
-    /// ```
-    ///
-    /// # See also
-    /// * [Sdf3d::sdf].
-    fn sdfvector_rel(&self, t: &T, rel: &impl Transformation3d) -> Vec3;
 }
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
@@ -305,8 +121,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: SdfRel3dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &B, rel: &impl Transformation3d) -> Vec3 {
-        self.minkowski_difference(t).sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &B, rel: &impl Transformation3d) -> Vec3 {
+        self.minkowski_difference(t).sdfv_rel(&Point, rel)
     }
 }
 
@@ -315,7 +131,7 @@ where
     A: DefaultCol3dImpls,
     A: SdfRel3dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &A, rel: &impl Transformation3d) -> Vec3 {
-        t.sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &A, rel: &impl Transformation3d) -> Vec3 {
+        t.sdfv_rel(&Point, rel)
     }
 }

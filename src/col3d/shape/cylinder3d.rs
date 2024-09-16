@@ -97,7 +97,7 @@ impl SdfRel3d<Point> for Cylinder3d {
 }
 
 impl SdfRel3dVector<Point> for Cylinder3d {
-    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
+    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let o = rel.apply_origin();
         let o2d = Vec2::new(o.x, o.y);
         let o2d_sq = o2d.length_squared();
@@ -110,13 +110,13 @@ impl SdfRel3dVector<Point> for Cylinder3d {
             if z_sq > o2d_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::SdfRel2dVector::sdfvector_rel(&self.to_ball(), t, &o2d).extend(0.0)
+                crate::col2d::SdfRel2dVector::sdfv_rel(&self.to_ball(), t, &o2d).extend(0.0)
             }
         } else {
             if o2d_sq <= r_sq {
                 Vec3::new(0.0, 0.0, o.z.signum() * z)
             } else {
-                crate::col2d::SdfRel2dVector::sdfvector_rel(&self.to_ball(), t, &o2d)
+                crate::col2d::SdfRel2dVector::sdfv_rel(&self.to_ball(), t, &o2d)
                     .extend(z.signum() * z)
             }
         }

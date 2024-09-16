@@ -1,9 +1,6 @@
-use core::ops::Mul;
+use super::*;
 
-use super::{
-    Ball, CollidesRel3d, ExtremePoint3d, PenetratesRel3d, SdfRel3d, SdfRel3dVector,
-    Transformation3d, Vec3,
-};
+use core::ops::Mul;
 
 // impl SymmetricBoundingBox3d for Ball {
 //     fn symmetric_bounding_box(&self) -> Box3d {
@@ -17,28 +14,29 @@ impl ExtremePoint3d for Ball {
     }
 }
 
-impl CollidesRel3d<()> for Ball {
-    fn collides_rel(&self, _t: &(), rel: &impl Transformation3d) -> bool {
+// Collides
+
+impl CollidesRel3d<Point> for Ball {
+    fn collides_rel(&self, _t: &Point, rel: &impl Transformation3d) -> bool {
         rel.apply_origin().length_squared() < self.radius * self.radius
     }
 }
-impl CollidesRel3d<Ball> for () {
-    fn collides_rel(&self, t: &Ball, delta: &impl Transformation3d) -> bool {
-        t.collides_rel(&(), delta)
-    }
-}
 
-impl PenetratesRel3d<Ball> for () {
-    fn penetrates_rel(&self, t: &Ball, rel: &impl Transformation3d) -> Option<Vec3> {
+impl DefaultCol3dImpls for Ball {}
+
+// Penetrates
+
+impl PenetratesRel3d<Point> for Ball {
+    fn penetrates_rel(&self, t: &Point, rel: &impl Transformation3d) -> Option<Vec3> {
         if self.collides_rel(t, rel) {
             let delta = rel.apply_origin();
             let distance_to_center = delta.length();
             if distance_to_center < f32::EPSILON {
-                Some(Vec3::new(t.radius, 0.0, 0.0))
+                Some(Vec3::new(self.radius, 0.0, 0.0))
             } else {
                 let old_magn = distance_to_center;
-                let new_magn = t.radius - distance_to_center;
-                let penetration = delta.mul(new_magn / old_magn);
+                let new_magn = self.radius - distance_to_center;
+                let penetration = delta * (new_magn / old_magn);
                 let penetration = -penetration;
                 Some(penetration)
             }
@@ -47,21 +45,16 @@ impl PenetratesRel3d<Ball> for () {
         }
     }
 }
-impl PenetratesRel3d<()> for Ball {
-    fn penetrates_rel(&self, _t: &(), rel: &impl Transformation3d) -> Option<Vec3> {
-        ().penetrates_rel(self, rel)
-    }
-}
 
-impl SdfRel3d<()> for Ball {
-    fn sdf_rel(&self, _t: &(), rel: &impl Transformation3d) -> f32 {
+impl SdfRel3d<Point> for Ball {
+    fn sdf_rel(&self, _t: &Point, rel: &impl Transformation3d) -> f32 {
         let delta = rel.apply_origin();
         delta.length() - self.radius
     }
 }
 
-impl SdfRel3dVector<()> for Ball {
-    fn sdfvector_rel(&self, _t: &(), rel: &impl Transformation3d) -> Vec3 {
+impl SdfRel3dVector<Point> for Ball {
+    fn sdfv_rel(&self, _t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {

@@ -128,7 +128,7 @@ impl SdfRel2d<Point> for Box2d {
 // Sdf Vector
 
 impl SdfRel2dVector<Point> for Box2d {
-    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;
