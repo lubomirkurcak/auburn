@@ -21,6 +21,6 @@ pub trait SdfRel3d<T> {
     /// ```
     ///
     /// # See also
-    /// * [Sdf3dVector::sdfvector].
+    /// * [Sdf3dVector::sdfv].
     fn sdf_rel(&self, t: &T, rel: &impl Transformation3d) -> f32;
 }

@@ -17,10 +17,10 @@ pub trait SdfRel3dVector<T> {
     /// let a = Box3d::with_halfdims(1.0, 1.0, 1.0);
     /// let b = Box3d::with_halfdims(1.0, 1.0, 1.0);
     /// let rel = Translate3d::from(Vec3::new(1.0, 0.0, 0.0));
-    /// assert_eq!(a.sdfvector_rel(&b, &rel), Vec3::new(-1.0, 0.0, 0.0));
+    /// assert_eq!(a.sdfv_rel(&b, &rel), Vec3::new(-1.0, 0.0, 0.0));
     /// ```
     ///
     /// # See also
     /// * [Sdf3d::sdf].
-    fn sdfvector_rel(&self, t: &T, rel: &impl Transformation3d) -> Vec3;
+    fn sdfv_rel(&self, t: &T, rel: &impl Transformation3d) -> Vec3;
 }

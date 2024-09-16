@@ -20,7 +20,7 @@ impl ExtremePoint2d for Point {
 // }
 //
 // impl Sdf2dVector<Point> for Point {
-//     fn sdfvector(&self, _t: &Point, rel: &impl Transform2d) -> Vec2 {
+//     fn sdfv(&self, _t: &Point, rel: &impl Transform2d) -> Vec2 {
 //         rel.apply_origin()
 //     }
 // }

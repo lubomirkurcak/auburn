@@ -10,7 +10,7 @@
 //! * [Collides2d::collides]
 //! * [Penetrates2d::penetrates]
 //! * [Sdf2d::sdf]
-//! * [Sdf2dVector::sdfvector].
+//! * [Sdf2dVector::sdfv].
 //!
 //! # Transformations:
 //! * [Translate2d] - translation
@@ -155,8 +155,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: SdfRel2dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
-        self.minkowski_difference(t).sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
+        self.minkowski_difference(t).sdfv_rel(&Point, rel)
     }
 }
 
@@ -165,7 +165,7 @@ where
     A: DefaultCol2dImpls,
     A: SdfRel2dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
-        t.sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
+        t.sdfv_rel(&Point, rel)
     }
 }

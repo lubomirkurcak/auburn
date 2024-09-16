@@ -209,8 +209,8 @@ impl SdfRel2d<Point> for RoundedBox2d {
 }
 
 impl SdfRel2dVector<Point> for RoundedBox2d {
-    fn sdfvector_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
-        // let d = Sdf2dVector::sdfvector(&self.box_part(), t, rel);
+    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
+        // let d = Sdf2dVector::sdfv(&self.box_part(), t, rel);
         // let l = d.length();
         // if l > 0.0 {
         //     d * (l - self.radius) / l

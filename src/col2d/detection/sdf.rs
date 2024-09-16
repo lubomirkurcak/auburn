@@ -22,7 +22,7 @@ pub trait SdfRel2d<T> {
     /// ```
     ///
     /// # See also
-    /// * [Sdf2dVector::sdfvector].
+    /// * [Sdf2dVector::sdfv].
     fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
 }
 
@@ -49,7 +49,7 @@ pub trait Sdf2d<B, T: Transformation2d> {
     /// ```
     ///
     /// # See also
-    /// * [Sdf2dVector::sdfvector].
+    /// * [Sdf2dVector::sdfv].
     fn sdf(&self, a_t: &T, b: &B, b_t: &T) -> f32;
 }
 

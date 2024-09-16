@@ -9,7 +9,7 @@
 //! * [Collides3d::collides]
 //! * [Penetrates3d::penetrates]
 //! * [Sdf3d::sdf]
-//! * [Sdf3dVector::sdfvector].
+//! * [Sdf3dVector::sdfv].
 //!
 //! # Transformations
 //! * [Translate3d] - translation
@@ -121,8 +121,8 @@ where
     A: MinkowskiDifference<B, Output = C>,
     C: SdfRel3dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &B, rel: &impl Transformation3d) -> Vec3 {
-        self.minkowski_difference(t).sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &B, rel: &impl Transformation3d) -> Vec3 {
+        self.minkowski_difference(t).sdfv_rel(&Point, rel)
     }
 }
 
@@ -131,7 +131,7 @@ where
     A: DefaultCol3dImpls,
     A: SdfRel3dVector<Point>,
 {
-    fn sdfvector_rel(&self, t: &A, rel: &impl Transformation3d) -> Vec3 {
-        t.sdfvector_rel(&Point, rel)
+    fn sdfv_rel(&self, t: &A, rel: &impl Transformation3d) -> Vec3 {
+        t.sdfv_rel(&Point, rel)
     }
 }
