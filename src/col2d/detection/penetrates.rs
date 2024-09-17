@@ -61,3 +61,38 @@ where
         self.penetrates_rel(b, &rel)
     }
 }
+
+/// Test
+pub trait Penetrates2dV2<B, T: Transformation2d> {
+    fn penetrates_v2(self, t: &B, t_transform: &T) -> Option<Vec2>;
+}
+
+impl<A, B, T> Penetrates2dV2<B, T> for (&A, &T)
+where
+    A: PenetratesRel2d<B>,
+    T: Transformation2d + DeltaTransform,
+{
+    fn penetrates_v2(self, t: &B, t_transform: &T) -> Option<Vec2> {
+        let (a, a_t) = self;
+        let rel = a_t.delta_transform(t_transform);
+        a.penetrates_rel(t, &rel)
+    }
+}
+
+/// Test
+pub trait Penetrates2dV3<B, T: Transformation2d> {
+    fn penetrates_v3(self, b: (&B, &T)) -> Option<Vec2>;
+}
+
+impl<A, B, T> Penetrates2dV3<B, T> for (&A, &T)
+where
+    A: PenetratesRel2d<B>,
+    T: Transformation2d + DeltaTransform,
+{
+    fn penetrates_v3(self, b: (&B, &T)) -> Option<Vec2> {
+        let (a, a_t) = self;
+        let (b, b_t) = b;
+        let rel = a_t.delta_transform(b_t);
+        a.penetrates_rel(b, &rel)
+    }
+}
