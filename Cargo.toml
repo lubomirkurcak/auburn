@@ -51,6 +51,3 @@ name = "basic2d"
 
 [[example]]
 name = "basic3d"
-
-[[example]]
-name = "penetrates2d"
