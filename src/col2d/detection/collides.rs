@@ -26,6 +26,8 @@ pub trait CollidesRel2d<T> {
     fn collides_rel(&self, t: &T, rel: &impl Transformation2d) -> bool;
 }
 
+//
+
 /// Trait for checking collision between `Self` and `T`.
 ///
 /// # Limitations
@@ -34,7 +36,12 @@ pub trait CollidesRel2d<T> {
 /// # See also
 /// * [SymmetricBoundingBox2d]
 /// * [Penetrates2d]
-pub trait Collides2d<B, T: Transformation2d> {
+pub trait Collides2d<'a, A: 'a, B: 'a, T, BB>
+where
+    T: Transformation2d + 'a,
+    BB: Into<Collider2d<'a, B, T>>,
+    A: CollidesRel2d<B>,
+{
     /// Checks whether objects collide.
     ///
     /// # Arguments
@@ -44,60 +51,35 @@ pub trait Collides2d<B, T: Transformation2d> {
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert!(a.collides(&a_t, &b, &b_t))
+    /// let a = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(0.0, 0.0),
+    /// };
+    /// let b = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(1.0, 0.0),
+    /// };
+    /// assert!(a.collides(b))
     /// ```
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool;
+    fn collides(self, b: BB) -> bool;
 }
 
-impl<A, B, T> Collides2d<B, T> for A
+impl<'a, A: 'a, B: 'a, T, AA, BB> Collides2d<'a, A, B, T, BB> for AA
 where
+    AA: Into<Collider2d<'a, A, T>>,
+    BB: Into<Collider2d<'a, B, T>>,
     A: CollidesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
+    T: Transformation2d + DeltaTransform + 'a,
+    collider2d::Collider2d<'a, A, T>: From<AA>,
+    collider2d::Collider2d<'a, B, T>: From<BB>,
 {
-    fn collides(&self, transform: &T, t: &B, t_transform: &T) -> bool {
-        let rel = transform.delta_transform(t_transform);
-        self.collides_rel(t, &rel)
-    }
-}
-
-/// Test
-pub trait Collides2dV2<B, T: Transformation2d> {
-    fn collides_v2(self, t: &B, t_transform: &T) -> bool;
-}
-
-impl<A, B, T> Collides2dV2<B, T> for (&A, &T)
-where
-    A: CollidesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
-{
-    fn collides_v2(self, t: &B, t_transform: &T) -> bool {
-        let (a, a_t) = self;
-        let rel = a_t.delta_transform(t_transform);
-        a.collides_rel(t, &rel)
-    }
-}
-
-/// Test
-pub trait Collides2dV3<B, T: Transformation2d> {
-    fn collides_v3(self, b: (&B, &T)) -> bool;
-}
-
-impl<A, B, T> Collides2dV3<B, T> for (&A, &T)
-where
-    A: CollidesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
-{
-    fn collides_v3(self, b: (&B, &T)) -> bool {
-        let (a, a_t) = self;
-        let (b, b_t) = b;
-        let rel = a_t.delta_transform(b_t);
-        a.collides_rel(b, &rel)
+    fn collides(self, bb: BB) -> bool {
+        let a: Collider2d<'a, A, T> = self.into();
+        let b: Collider2d<'a, B, T> = bb.into();
+        let rel = a.transform.delta_transform(b.transform);
+        a.shape.collides_rel(b.shape, &rel)
     }
 }

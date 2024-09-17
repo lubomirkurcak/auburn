@@ -21,16 +21,18 @@
 
 pub use crate::Vec2;
 
+mod collider2d;
+mod default_impls;
 mod detection;
 mod shape;
 mod transformation2d;
-mod default_impls;
 
 pub use crate::col::*;
+pub use collider2d::*;
+pub use default_impls::*;
 pub use detection::*;
 pub use shape::*;
 pub use transformation2d::*;
-pub use default_impls::*;
 
 /// Trait for computing bounding box of a shape.
 ///
