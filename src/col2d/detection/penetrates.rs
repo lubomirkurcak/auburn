@@ -29,7 +29,12 @@ pub trait PenetratesRel2d<T> {
 ///
 /// # See also
 /// * [Collides2d]
-pub trait Penetrates2d<B, T: Transformation2d> {
+pub trait Penetrates2d<'a, A: 'a, B: 'a, T, BB>
+where
+    T: Transformation2d + 'a,
+    BB: Into<Collider2d<'a, B, T>>,
+    A: PenetratesRel2d<B>,
+{
     /// Computes the smallest penetration vector between `self` and `t`.
     ///
     /// # Arguments
@@ -39,60 +44,35 @@ pub trait Penetrates2d<B, T: Transformation2d> {
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.penetrates(&a_t, &b, &b_t), Some(Vec2::new(-1.0, 0.0)));
+    /// let a = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(0.0, 0.0),
+    /// };
+    /// let b = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(1.0, 0.0),
+    /// };
+    /// assert_eq!(a.penetrates(b), Some(Vec2::new(-1.0, 0.0)));
     /// ```
     ///
     /// # See also
     /// * [Collides2d::collides].
-    fn penetrates(&self, a_t: &T, b: &B, b_t: &T) -> Option<Vec2>;
+    fn penetrates(self, b: BB) -> Option<Vec2>;
 }
 
-impl<A, B, T> Penetrates2d<B, T> for A
+impl<'a, A: 'a, B: 'a, T, AA, BB> Penetrates2d<'a, A, B, T, BB> for AA
 where
+    AA: Into<Collider2d<'a, A, T>>,
+    BB: Into<Collider2d<'a, B, T>>,
     A: PenetratesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
+    T: Transformation2d + DeltaTransform + 'a,
+    collider2d::Collider2d<'a, A, T>: From<AA>,
+    collider2d::Collider2d<'a, B, T>: From<BB>,
 {
-    fn penetrates(&self, a_transform: &T, b: &B, b_transform: &T) -> Option<Vec2> {
-        let rel = a_transform.delta_transform(b_transform);
-        self.penetrates_rel(b, &rel)
-    }
-}
-
-/// Test
-pub trait Penetrates2dV2<B, T: Transformation2d> {
-    fn penetrates_v2(self, t: &B, t_transform: &T) -> Option<Vec2>;
-}
-
-impl<A, B, T> Penetrates2dV2<B, T> for (&A, &T)
-where
-    A: PenetratesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
-{
-    fn penetrates_v2(self, t: &B, t_transform: &T) -> Option<Vec2> {
-        let (a, a_t) = self;
-        let rel = a_t.delta_transform(t_transform);
-        a.penetrates_rel(t, &rel)
-    }
-}
-
-/// Test
-pub trait Penetrates2dV3<B, T: Transformation2d> {
-    fn penetrates_v3(self, b: (&B, &T)) -> Option<Vec2>;
-}
-
-impl<A, B, T> Penetrates2dV3<B, T> for (&A, &T)
-where
-    A: PenetratesRel2d<B>,
-    T: Transformation2d + DeltaTransform,
-{
-    fn penetrates_v3(self, b: (&B, &T)) -> Option<Vec2> {
-        let (a, a_t) = self;
-        let (b, b_t) = b;
-        let rel = a_t.delta_transform(b_t);
-        a.penetrates_rel(b, &rel)
+    fn penetrates(self, bb: BB) -> Option<Vec2> {
+        let a: Collider2d<'a, A, T> = self.into();
+        let b: Collider2d<'a, B, T> = bb.into();
+        let rel = a.transform.delta_transform(b.transform);
+        a.shape.penetrates_rel(b.shape, &rel)
     }
 }

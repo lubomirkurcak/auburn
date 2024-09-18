@@ -3,7 +3,7 @@ use super::*;
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [SdfRel2dVector]
+/// * [SdfvRel2d]
 pub trait SdfRel2d<T> {
     /// Computes *scalar* signed-distance between `self` and `t`.
     ///
@@ -22,15 +22,20 @@ pub trait SdfRel2d<T> {
     /// ```
     ///
     /// # See also
-    /// * [Sdf2dVector::sdfv].
+    /// * [Sdfv2d::sdfv].
     fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
 }
 
 /// Trait for computing the *scalar* signed-distance between `Self` and `T`.
 ///
 /// # See also
-/// * [Sdf2dVector]
-pub trait Sdf2d<B, T: Transformation2d> {
+/// * [Sdfv2d]
+pub trait Sdf2d<'a, A: 'a, B: 'a, T, BB>
+where
+    T: Transformation2d + 'a,
+    BB: Into<Collider2d<'a, B, T>>,
+    A: SdfRel2d<B>,
+{
     /// Computes *scalar* signed-distance between `self` and `t`.
     ///
     /// # Arguments
@@ -41,25 +46,35 @@ pub trait Sdf2d<B, T: Transformation2d> {
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let a_t = Translate2d::from(Vec2::new(0.0, 0.0));
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
-    /// let b_t = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.sdf(&a_t, &b, &b_t), -1.0);
+    /// let a = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(0.0, 0.0),
+    /// };
+    /// let b = Collider2d {
+    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     transform: &Vec2::new(1.0, 0.0),
+    /// };
+    /// assert_eq!(a.sdf(b), -1.0);
     /// ```
     ///
     /// # See also
-    /// * [Sdf2dVector::sdfv].
-    fn sdf(&self, a_t: &T, b: &B, b_t: &T) -> f32;
+    /// * [Sdfv2d::sdfv].
+    fn sdf(self, b: BB) -> f32;
 }
 
-impl<A, B, T> Sdf2d<B, T> for A
+impl<'a, A: 'a, B: 'a, T, AA, BB> Sdf2d<'a, A, B, T, BB> for AA
 where
+    AA: Into<Collider2d<'a, A, T>>,
+    BB: Into<Collider2d<'a, B, T>>,
     A: SdfRel2d<B>,
-    T: Transformation2d + DeltaTransform,
+    T: Transformation2d + DeltaTransform + 'a,
+    collider2d::Collider2d<'a, A, T>: From<AA>,
+    collider2d::Collider2d<'a, B, T>: From<BB>,
 {
-    fn sdf(&self, a_transform: &T, b: &B, b_transform: &T) -> f32 {
-        let rel = a_transform.delta_transform(b_transform);
-        self.sdf_rel(b, &rel)
+    fn sdf(self, bb: BB) -> f32 {
+        let a: Collider2d<'a, A, T> = self.into();
+        let b: Collider2d<'a, B, T> = bb.into();
+        let rel = a.transform.delta_transform(b.transform);
+        a.shape.sdf_rel(b.shape, &rel)
     }
 }

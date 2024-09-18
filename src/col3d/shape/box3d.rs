@@ -136,9 +136,9 @@ impl SdfRel3d<Point> for Box3d {
     }
 }
 
-// Sdf Vector
+// Sdfv
 
-impl SdfRel3dVector<Point> for Box3d {
+impl SdfvRel3d<Point> for Box3d {
     fn sdfv_rel(&self, t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
@@ -228,13 +228,25 @@ mod tests {
 
         // assert_eq!(b.penetrates(&Point, &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
         // assert_eq!(Point.penetrates(&b, &y2), Some(Vec3::new(0.5, 0.0, 0.0)));
-        assert_eq!(b.penetrates_rel(&Point, &y2), Some(Vec3::new(-0.5, 0.0, 0.0)));
-        assert_eq!(Point.penetrates_rel(&b, &y2), Some(Vec3::new(-0.5, 0.0, 0.0)));
+        assert_eq!(
+            b.penetrates_rel(&Point, &y2),
+            Some(Vec3::new(-0.5, 0.0, 0.0))
+        );
+        assert_eq!(
+            Point.penetrates_rel(&b, &y2),
+            Some(Vec3::new(-0.5, 0.0, 0.0))
+        );
 
         // assert_eq!(b.penetrates(&Point, &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
         // assert_eq!(Point.penetrates(&b, &y3), Some(Vec3::new(0.0, -0.5, 0.0)));
-        assert_eq!(b.penetrates_rel(&Point, &y3), Some(Vec3::new(0.0, 0.5, 0.0)));
-        assert_eq!(Point.penetrates_rel(&b, &y3), Some(Vec3::new(0.0, 0.5, 0.0)));
+        assert_eq!(
+            b.penetrates_rel(&Point, &y3),
+            Some(Vec3::new(0.0, 0.5, 0.0))
+        );
+        assert_eq!(
+            Point.penetrates_rel(&b, &y3),
+            Some(Vec3::new(0.0, 0.5, 0.0))
+        );
 
         assert_eq!(None, b.penetrates_rel(&Point, &n1));
         assert_eq!(None, b.penetrates_rel(&Point, &n2));

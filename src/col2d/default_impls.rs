@@ -67,21 +67,21 @@ where
     }
 }
 
-impl<A, B, C> SdfRel2dVector<B> for A
+impl<A, B, C> SdfvRel2d<B> for A
 where
     A: DefaultCol2dImpls,
     A: MinkowskiDifference<B, Output = C>,
-    C: SdfRel2dVector<Point>,
+    C: SdfvRel2d<Point>,
 {
     fn sdfv_rel(&self, t: &B, rel: &impl Transformation2d) -> Vec2 {
         self.minkowski_difference(t).sdfv_rel(&Point, rel)
     }
 }
 
-impl<A> SdfRel2dVector<A> for Point
+impl<A> SdfvRel2d<A> for Point
 where
     A: DefaultCol2dImpls,
-    A: SdfRel2dVector<Point>,
+    A: SdfvRel2d<Point>,
 {
     fn sdfv_rel(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
         t.sdfv_rel(&Point, rel)

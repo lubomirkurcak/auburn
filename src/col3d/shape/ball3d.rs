@@ -53,7 +53,7 @@ impl SdfRel3d<Point> for Ball {
     }
 }
 
-impl SdfRel3dVector<Point> for Ball {
+impl SdfvRel3d<Point> for Ball {
     fn sdfv_rel(&self, _t: &Point, rel: &impl Transformation3d) -> Vec3 {
         let delta = rel.apply_origin();
         let length = delta.length();

@@ -61,7 +61,7 @@ impl SdfRel2d<Point> for Ball {
     }
 }
 
-impl SdfRel2dVector<Point> for Ball {
+impl SdfvRel2d<Point> for Ball {
     fn sdfv_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let length = delta.length();

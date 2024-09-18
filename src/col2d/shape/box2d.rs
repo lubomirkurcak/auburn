@@ -125,9 +125,9 @@ impl SdfRel2d<Point> for Box2d {
     }
 }
 
-// Sdf Vector
+// Sdfv
 
-impl SdfRel2dVector<Point> for Box2d {
+impl SdfvRel2d<Point> for Box2d {
     fn sdfv_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
@@ -270,7 +270,10 @@ mod tests {
             let delta = Vec2::new(i as f32 / 10.0, 0.0);
             assert!(b.collides_rel(&b, &delta));
             // assert_eq!(Some(Vec2::new(1.0, 0.0) - delta), b.penetrates(&b, &delta));
-            assert_eq!(Some(delta - Vec2::new(1.0, 0.0)), b.penetrates_rel(&b, &delta));
+            assert_eq!(
+                Some(delta - Vec2::new(1.0, 0.0)),
+                b.penetrates_rel(&b, &delta)
+            );
         }
     }
 }

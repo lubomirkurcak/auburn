@@ -54,3 +54,9 @@ name = "basic3d"
 
 [[example]]
 name = "penetrates2d"
+
+[[example]]
+name = "sdf2d"
+
+[[example]]
+name = "sdfv2d"

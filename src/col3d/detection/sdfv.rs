@@ -4,7 +4,7 @@ use super::*;
 ///
 /// # See also
 /// * [`SdfRel3d`]
-pub trait SdfRel3dVector<T> {
+pub trait SdfvRel3d<T> {
     /// Computes *vector* signed-distance between `self` and `t`.
     ///
     /// # Arguments
