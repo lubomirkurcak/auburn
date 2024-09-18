@@ -64,12 +64,10 @@ where
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Sdf2d<'a, A, B, T, BB> for AA
 where
-    AA: Into<Collider2d<'a, A, T>>,
-    BB: Into<Collider2d<'a, B, T>>,
     A: SdfRel2d<B>,
     T: Transformation2d + DeltaTransform + 'a,
-    collider2d::Collider2d<'a, A, T>: From<AA>,
-    collider2d::Collider2d<'a, B, T>: From<BB>,
+    Collider2d<'a, A, T>: From<AA>,
+    Collider2d<'a, B, T>: From<BB>,
 {
     fn sdf(self, bb: BB) -> f32 {
         let a: Collider2d<'a, A, T> = self.into();

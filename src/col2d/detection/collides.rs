@@ -69,12 +69,10 @@ where
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Collides2d<'a, A, B, T, BB> for AA
 where
-    AA: Into<Collider2d<'a, A, T>>,
-    BB: Into<Collider2d<'a, B, T>>,
     A: CollidesRel2d<B>,
     T: Transformation2d + DeltaTransform + 'a,
-    collider2d::Collider2d<'a, A, T>: From<AA>,
-    collider2d::Collider2d<'a, B, T>: From<BB>,
+    Collider2d<'a, A, T>: From<AA>,
+    Collider2d<'a, B, T>: From<BB>,
 {
     fn collides(self, bb: BB) -> bool {
         let a: Collider2d<'a, A, T> = self.into();
