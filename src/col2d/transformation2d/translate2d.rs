@@ -23,6 +23,14 @@ impl Transformation2d for Vec2 {
     fn unapply(&self, point: Vec2) -> Vec2 {
         point - *self
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
 }
 
 impl Invertible for Vec2 {
@@ -54,6 +62,14 @@ impl Transformation2d for Translate2d {
 
     fn unapply(&self, point: Vec2) -> Vec2 {
         point - self.pos
+    }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
     }
 }
 

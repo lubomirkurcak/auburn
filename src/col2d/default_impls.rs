@@ -4,6 +4,19 @@ use super::*;
 
 pub trait DefaultCol2dImpls {}
 
+impl<A, T: Transformation2d> ExtremePoint2d<T> for A
+where
+    A: DefaultCol2dImpls,
+    A: ExtremePointLocalSpace2d,
+{
+    fn extreme_point(&self, t: &T, direction: Vec2) -> Vec2 {
+        let local_direction = t.unapply_normal(direction);
+        let local_extreme_point = self.extreme_point_local_space(local_direction);
+        let extreme_point = t.apply(local_extreme_point);
+        extreme_point
+    }
+}
+
 impl<A> CollidesRel2d<A> for Point
 where
     A: DefaultCol2dImpls,
@@ -14,6 +27,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> CollidesRel2d<B> for A
 where
     A: DefaultCol2dImpls,
@@ -35,6 +49,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> PenetratesRel2d<B> for A
 where
     A: DefaultCol2dImpls,
@@ -46,6 +61,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> SdfRel2d<B> for A
 where
     A: DefaultCol2dImpls,
@@ -67,6 +83,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> SdfvRel2d<B> for A
 where
     A: DefaultCol2dImpls,

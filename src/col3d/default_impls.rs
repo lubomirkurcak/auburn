@@ -14,6 +14,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> CollidesRel3d<B> for A
 where
     A: DefaultCol3dImpls,
@@ -35,6 +36,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> PenetratesRel3d<B> for A
 where
     A: DefaultCol3dImpls,
@@ -46,6 +48,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> SdfRel3d<B> for A
 where
     A: DefaultCol3dImpls,
@@ -67,6 +70,7 @@ where
     }
 }
 
+#[cfg(minkowski)]
 impl<A, B, C> SdfvRel3d<B> for A
 where
     A: DefaultCol3dImpls,

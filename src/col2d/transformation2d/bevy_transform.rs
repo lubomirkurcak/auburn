@@ -26,4 +26,12 @@ impl Transformation2d for bevy::prelude::Transform {
     fn unapply(&self, point: Vec2) -> Vec2 {
         Into::<Transform2d>::into(*self).unapply(point)
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        Into::<Transform2d>::into(*self).apply_normal(normal)
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        Into::<Transform2d>::into(*self).unapply_normal(normal)
+    }
 }

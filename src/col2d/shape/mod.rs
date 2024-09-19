@@ -2,6 +2,7 @@ use super::*;
 
 mod ball2d;
 mod box2d;
+#[cfg(disabled)]
 mod ellipse2d;
 mod point2d;
 mod rounded_box2d;

@@ -23,6 +23,14 @@ impl Transformation2d for Transform2d {
     fn unapply(&self, point: Vec2) -> Vec2 {
         self.rot.inverse() * (point - self.pos) / self.scale
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        self.rot * normal
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        self.rot.inverse() * normal
+    }
 }
 
 impl Invertible for Transform2d {

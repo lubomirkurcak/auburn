@@ -15,14 +15,14 @@ categories = [
 ]
 
 [features]
-default = ["tilemap"]
+default = ["2d", "std"]
+2d = []
+3d = []
 std = []
 serde = ["dep:serde", "dep:serde_json", "dep:serde_with"]
 bevy = ["dep:bevy"]
 gjk = []
 tilemap = ["std", "serde", "dep:lk_math"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 bevy = { version = "0.14.1", optional = true }
@@ -48,15 +48,20 @@ opt-level = 3
 
 [[example]]
 name = "basic2d"
+required-features = ["2d"]
 
 [[example]]
 name = "basic3d"
+required-features = ["3d"]
 
 [[example]]
 name = "penetrates2d"
+required-features = ["2d"]
 
 [[example]]
 name = "sdf2d"
+required-features = ["2d"]
 
 [[example]]
 name = "sdfv2d"
+required-features = ["2d"]

@@ -3,7 +3,9 @@
 pub use glam::{Quat, Vec2, Vec3};
 
 mod col;
+#[cfg(feature = "2d")]
 pub mod col2d;
+#[cfg(feature = "3d")]
 pub mod col3d;
 pub mod utils;
 

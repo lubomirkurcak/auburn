@@ -24,6 +24,14 @@ impl Transformation2d for AxisTransform2d {
     fn unapply(&self, point: Vec2) -> Vec2 {
         (point - self.pos) / self.scale
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
 }
 
 impl Invertible for AxisTransform2d {

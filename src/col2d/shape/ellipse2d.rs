@@ -51,6 +51,7 @@ impl ExtremePoint2d for Ellipse2d {
     }
 }
 
+#[cfg(minkoski)]
 impl MinkowskiNegationIsIdentity for Ellipse2d {}
 
 // @note(lubo): Ellipse + Ellipse != Ellipse

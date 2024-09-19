@@ -30,25 +30,19 @@ impl SymmetricBoundingBox2d for Box2d {
     }
 }
 
-impl ExtremePoint2d for Box2d {
-    fn extreme_point(&self, direction: Vec2) -> Vec2 {
+impl ExtremePointLocalSpace2d for Box2d {
+    fn extreme_point_local_space(&self, direction: Vec2) -> Vec2 {
         Vec2::new(
-            if direction.x > 0.0 {
-                self.halfsize.x
-            } else {
-                -self.halfsize.x
-            },
-            if direction.y > 0.0 {
-                self.halfsize.y
-            } else {
-                -self.halfsize.y
-            },
+            direction.x.signum() * self.halfsize.x,
+            direction.y.signum() * self.halfsize.y,
         )
     }
 }
 
+#[cfg(minkoski)]
 impl MinkowskiNegationIsIdentity for Box2d {}
 
+#[cfg(minkoski)]
 impl MinkowskiSum<Box2d> for Box2d {
     type Output = Self;
 
@@ -59,6 +53,7 @@ impl MinkowskiSum<Box2d> for Box2d {
     }
 }
 
+#[cfg(minkoski)]
 impl MinkowskiSum<Ball> for Box2d {
     type Output = RoundedBox2d;
     fn minkowski_sum(&self, t: &Ball) -> Self::Output {
@@ -74,12 +69,34 @@ impl DefaultCol2dImpls for Box2d {}
 // Collides
 
 impl CollidesRel2d<Point> for Box2d {
-    fn collides_rel(&self, _t: &Point, rel: &impl Transformation2d) -> bool {
-        let delta = rel.apply_origin();
-        -self.halfsize.x < delta.x
-            && delta.x < self.halfsize.x
-            && -self.halfsize.y < delta.y
-            && delta.y < self.halfsize.y
+    fn collides_rel(&self, _: &Point, rel: &impl Transformation2d) -> bool {
+        let p = rel.apply_origin();
+        -self.halfsize.x < p.x
+            && p.x < self.halfsize.x
+            && -self.halfsize.y < p.y
+            && p.y < self.halfsize.y
+    }
+}
+
+impl CollidesRel2d<Box2d> for Box2d {
+    fn collides_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> bool {
+        let b_center = rel.apply_origin();
+        let towards_self = -b_center;
+        let p = b.extreme_point(rel, towards_self);
+
+        if b_center.x.is_sign_positive() {
+            if b_center.y.is_sign_positive() {
+                p.x < self.halfsize.x && p.y < self.halfsize.y
+            } else {
+                p.x < self.halfsize.x && p.y >= -self.halfsize.y
+            }
+        } else {
+            if b_center.y.is_sign_positive() {
+                p.x >= -self.halfsize.x && p.y < self.halfsize.y
+            } else {
+                p.x >= -self.halfsize.x && p.y >= -self.halfsize.y
+            }
+        }
     }
 }
 
@@ -88,14 +105,70 @@ impl CollidesRel2d<Point> for Box2d {
 impl PenetratesRel2d<Point> for Box2d {
     fn penetrates_rel(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         if self.collides_rel(t, rel) {
-            let delta = rel.apply_origin();
-            let delta_x = delta.x.abs() - self.halfsize.x;
-            let delta_y = delta.y.abs() - self.halfsize.y;
+            let p = rel.apply_origin();
+            let px = p.x.abs() - self.halfsize.x;
+            let py = p.y.abs() - self.halfsize.y;
 
-            if delta_x > delta_y {
-                Some(Vec2::new(delta_x * delta.x.signum(), 0.0))
+            if px > py {
+                Some(Vec2::new(px * p.x.signum(), 0.0))
             } else {
-                Some(Vec2::new(0.0, delta_y * delta.y.signum()))
+                Some(Vec2::new(0.0, py * p.y.signum()))
+            }
+        } else {
+            None
+        }
+    }
+}
+
+impl PenetratesRel2d<Box2d> for Box2d {
+    fn penetrates_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> Option<Vec2> {
+        if self.collides_rel(b, rel) {
+            let b_center = rel.apply_origin();
+            let towards_self = -b_center;
+            let p = b.extreme_point(rel, towards_self);
+
+            if b_center.x.is_sign_positive() {
+                if b_center.y.is_sign_positive() {
+                    let px = p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px > py {
+                        Some(Vec2::new(px, 0.0))
+                    } else {
+                        Some(Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = p.x - self.halfsize.x;
+                    dbg!(px);
+                    let py = -p.y - self.halfsize.y;
+                    dbg!(py);
+
+                    if px > py {
+                        Some(Vec2::new(px, 0.0))
+                    } else {
+                        Some(Vec2::new(0.0, -py))
+                    }
+                }
+            } else {
+                if b_center.y.is_sign_positive() {
+                    let px = -p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px > py {
+                        Some(Vec2::new(-px, 0.0))
+                    } else {
+                        Some(Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = -p.x - self.halfsize.x;
+                    let py = -p.y - self.halfsize.y;
+
+                    if px > py {
+                        Some(Vec2::new(-px, 0.0))
+                    } else {
+                        Some(Vec2::new(0.0, -py))
+                    }
+                }
             }
         } else {
             None
@@ -125,6 +198,38 @@ impl SdfRel2d<Point> for Box2d {
     }
 }
 
+impl SdfRel2d<Box2d> for Box2d {
+    fn sdf_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> f32 {
+        let b_center = rel.apply_origin();
+        let towards_self = -b_center;
+        let p = b.extreme_point(rel, towards_self);
+        let px = p.x.abs() - self.halfsize.x;
+        let py = p.y.abs() - self.halfsize.y;
+
+        dbg!(b_center);
+        dbg!(towards_self);
+        dbg!(p);
+        dbg!(px);
+        dbg!(py);
+
+        if self.collides_rel(b, rel) {
+            eprintln!("collides");
+            px.min(py)
+        } else {
+            if px.is_sign_negative() {
+                eprintln!("px is negative");
+                py
+            } else if py.is_sign_negative() {
+                eprintln!("py is negative");
+                px
+            } else {
+                eprintln!("neither is negative");
+                Vec2::new(px, py).length()
+            }
+        }
+    }
+}
+
 // Sdfv
 
 impl SdfvRel2d<Point> for Box2d {
@@ -143,6 +248,124 @@ impl SdfvRel2d<Point> for Box2d {
             let delta_x = delta_x.max(0.0);
             let delta_y = delta_y.max(0.0);
             Vec2::new(delta_x * delta.x.signum(), delta_y * delta.y.signum())
+        }
+    }
+}
+
+impl SdfvRel2d<Box2d> for Box2d {
+    fn sdfv_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> Vec2 {
+        if self.collides_rel(b, rel) {
+            let b_center = rel.apply_origin();
+            let towards_self = -b_center;
+            let p = b.extreme_point(rel, towards_self);
+
+            if b_center.x.is_sign_positive() {
+                if b_center.y.is_sign_positive() {
+                    let px = p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px > py {
+                        (Vec2::new(px, 0.0))
+                    } else {
+                        (Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = p.x - self.halfsize.x;
+                    let py = -p.y - self.halfsize.y;
+
+                    if px > py {
+                        (Vec2::new(px, 0.0))
+                    } else {
+                        (Vec2::new(0.0, -py))
+                    }
+                }
+            } else {
+                if b_center.y.is_sign_positive() {
+                    let px = -p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px > py {
+                        (Vec2::new(-px, 0.0))
+                    } else {
+                        (Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = -p.x - self.halfsize.x;
+                    let py = -p.y - self.halfsize.y;
+
+                    if px > py {
+                        (Vec2::new(-px, 0.0))
+                    } else {
+                        (Vec2::new(0.0, -py))
+                    }
+                }
+            }
+        } else {
+            let b_center = rel.apply_origin();
+            let towards_self = -b_center;
+            let p = b.extreme_point(rel, towards_self);
+
+            if b_center.x.is_sign_positive() {
+                if b_center.y.is_sign_positive() {
+                    let px = p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px.is_sign_positive() {
+                        if py.is_sign_positive() {
+                            (Vec2::new(px, py))
+                        } else {
+                            (Vec2::new(px, 0.0))
+                        }
+                    } else {
+                        // py *must* be positive
+                        (Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = p.x - self.halfsize.x;
+                    let py = -p.y - self.halfsize.y;
+
+                    if px.is_sign_positive() {
+                        if py.is_sign_positive() {
+                            (Vec2::new(px, -py))
+                        } else {
+                            (Vec2::new(px, 0.0))
+                        }
+                    } else {
+                        // py *must* be positive
+                        (Vec2::new(0.0, -py))
+                    }
+                }
+            } else {
+                if b_center.y.is_sign_positive() {
+                    let px = -p.x - self.halfsize.x;
+                    let py = p.y - self.halfsize.y;
+
+                    if px.is_sign_positive() {
+                        if py.is_sign_positive() {
+                            (Vec2::new(-px, py))
+                        } else {
+                            (Vec2::new(-px, 0.0))
+                        }
+                    } else {
+                        // py *must* be positive
+                        (Vec2::new(0.0, py))
+                    }
+                } else {
+                    let px = -p.x - self.halfsize.x;
+                    let py = -p.y - self.halfsize.y;
+
+                    if px.is_sign_positive() {
+                        if py.is_sign_positive() {
+                            (Vec2::new(-px, -py))
+                        } else {
+                            (Vec2::new(-px, 0.0))
+                        }
+                    } else {
+                        // py *must* be positive
+                        (Vec2::new(0.0, -py))
+                    }
+                }
+            }
         }
     }
 }
@@ -268,6 +491,20 @@ mod tests {
         let b = Box2d::with_halfdims(0.5, 0.5);
         for i in 1..=9 {
             let delta = Vec2::new(i as f32 / 10.0, 0.0);
+            assert!(b.collides_rel(&b, &delta));
+            // assert_eq!(Some(Vec2::new(1.0, 0.0) - delta), b.penetrates(&b, &delta));
+            assert_eq!(
+                Some(delta - Vec2::new(1.0, 0.0)),
+                b.penetrates_rel(&b, &delta)
+            );
+        }
+    }
+
+    #[test]
+    fn box_v_box_collision_br() {
+        let b = Box2d::with_halfdims(0.5, 0.5);
+        for i in 1..=9 {
+            let delta = Vec2::new(i as f32 / 10.0, -0.0);
             assert!(b.collides_rel(&b, &delta));
             // assert_eq!(Some(Vec2::new(1.0, 0.0) - delta), b.penetrates(&b, &delta));
             assert_eq!(

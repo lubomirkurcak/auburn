@@ -5,7 +5,8 @@ use super::*;
 /// # See also
 /// * [SdfvRel2d]
 pub trait SdfRel2d<T> {
-    /// Computes *scalar* signed-distance between `self` and `t`.
+    /// Computes *scalar* signed-distance between `self` and `t` (in `self`-centric space, which
+    /// does not matter since `sdf` is rotation-symmetric scalar value).
     ///
     /// # Arguments
     /// * `transform` - Transform of `Self`

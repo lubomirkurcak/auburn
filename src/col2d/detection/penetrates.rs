@@ -5,7 +5,7 @@ use super::*;
 /// # See also
 /// * [Collides2d]
 pub trait PenetratesRel2d<T> {
-    /// Computes the smallest penetration vector between `self` and `t`.
+    /// Computes the smallest penetration vector between `self` and `t` in `self`-centric space.
     ///
     /// # Arguments
     /// * `t` - The object to compute penetration into

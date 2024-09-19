@@ -19,6 +19,14 @@ impl Transformation2d for Isotropic2d {
     fn unapply(&self, point: Vec2) -> Vec2 {
         todo!()
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        todo!()
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        todo!()
+    }
 }
 
 impl Invertible for Isotropic2d {

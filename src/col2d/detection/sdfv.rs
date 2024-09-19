@@ -5,7 +5,7 @@ use super::*;
 /// # See also
 /// * [SdfRel2d]
 pub trait SdfvRel2d<T> {
-    /// Computes *vector* signed-distance between `self` and `t`.
+    /// Computes *vector* signed-distance between `self` and `t` in `self`-centric space.
     ///
     /// # Arguments
     /// * `t` - The object to compute distance to

@@ -6,7 +6,7 @@ use super::*;
 /// * [SymmetricBoundingBox2d]
 /// * [PenetratesRel2d]
 pub trait CollidesRel2d<T> {
-    /// Checks whether objects collide.
+    /// Checks whether objects collide in `self`-centric space.
     ///
     /// # Arguments
     /// * `t` - The object to check collision against
@@ -73,6 +73,8 @@ where
     T: Transformation2d + DeltaTransform + 'a,
     Collider2d<'a, A, T>: From<AA>,
     Collider2d<'a, B, T>: From<BB>,
+    AA: Copy,
+    BB: Copy,
 {
     fn collides(self, bb: BB) -> bool {
         let a: Collider2d<'a, A, T> = self.into();

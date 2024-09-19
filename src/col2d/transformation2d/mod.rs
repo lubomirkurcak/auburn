@@ -27,6 +27,12 @@ pub trait Transformation2d {
 
     /// Invert transformation.
     fn unapply(&self, point: Vec2) -> Vec2;
+
+    /// Transform a normal.
+    fn apply_normal(&self, normal: Vec2) -> Vec2;
+
+    /// Invert transformation of a normal.
+    fn unapply_normal(&self, normal: Vec2) -> Vec2;
 }
 
 impl Transformation2d for IdentityTransform {
@@ -40,6 +46,14 @@ impl Transformation2d for IdentityTransform {
 
     fn unapply(&self, point: Vec2) -> Vec2 {
         point
+    }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        normal
     }
 }
 
