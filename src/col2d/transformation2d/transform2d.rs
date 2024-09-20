@@ -17,7 +17,6 @@ impl Transformation2d for Transform2d {
     }
 
     fn apply(&self, point: Vec2) -> Vec2 {
-        dbg!(self.rot * (self.scale * point) + self.pos);
         self.rot * (self.scale * point) + self.pos
     }
 
@@ -30,8 +29,6 @@ impl Transformation2d for Transform2d {
     }
 
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
-        dbg!(normal);
-        dbg!(self.rot.inverse() * normal);
         self.rot.inverse() * normal
     }
 }

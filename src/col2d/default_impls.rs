@@ -4,19 +4,15 @@ use super::*;
 
 pub trait DefaultCol2dImpls {}
 
-impl<A, T: Transformation2d> ExtremePoint2d<T> for A
+impl<A, T: Transformation2d> ExtremePointT2d<T> for A
 where
     A: DefaultCol2dImpls,
-    A: ExtremePointLocalSpace2d,
+    A: ExtremePoint2d,
 {
-    fn extreme_point(&self, t: &T, direction: Vec2) -> Vec2 {
-        dbg!(direction);
+    fn extreme_point_t(&self, t: &T, direction: Vec2) -> Vec2 {
         let local_direction = t.unapply_normal(direction);
-        dbg!(local_direction);
-        let local_extreme_point = self.extreme_point_local_space(local_direction);
-        dbg!(local_extreme_point);
+        let local_extreme_point = self.extreme_point(local_direction);
         let extreme_point = t.apply(local_extreme_point);
-        dbg!(extreme_point);
         extreme_point
     }
 }

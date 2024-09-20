@@ -30,13 +30,12 @@ impl<'a, S, T: Transformation2d> From<(&'a S, &'a T)> for Collider2d<'a, S, T> {
     }
 }
 
-impl<A, T> ExtremePointLocalSpace2d for Collider2d<'_, A, T>
+impl<A, T> ExtremePoint2d for Collider2d<'_, A, T>
 where
-    A: ExtremePoint2d<T>,
+    A: ExtremePointT2d<T>,
     T: Transformation2d,
 {
-    fn extreme_point_local_space(&self, direction: Vec2) -> Vec2 {
-        dbg!(direction);
-        self.shape.extreme_point(&self.transform, direction)
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
+        self.shape.extreme_point_t(&self.transform, direction)
     }
 }

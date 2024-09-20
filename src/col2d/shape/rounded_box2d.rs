@@ -24,11 +24,11 @@ impl SymmetricBoundingBox2d for RoundedBox2d {
     }
 }
 
-impl ExtremePointLocalSpace2d for RoundedBox2d {
-    fn extreme_point_local_space(&self, direction: Vec2) -> Vec2 {
+impl ExtremePoint2d for RoundedBox2d {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         let a = Ball::new(self.radius);
         let b = Box2d::new(self.halfsize);
-        a.extreme_point_local_space(direction) + b.extreme_point_local_space(direction)
+        a.extreme_point(direction) + b.extreme_point(direction)
     }
 }
 

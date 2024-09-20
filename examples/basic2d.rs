@@ -38,5 +38,6 @@ fn main() {
         println!("No collision detected.");
     }
 
-    // dbg!(a.extreme_point(Vec2::new(1.0, 0.0)));
+    dbg!(a.extreme_point(Vec2::new(1.0, 0.0)));
+    dbg!(b.extreme_point(Vec2::new(1.0, 0.0)));
 }

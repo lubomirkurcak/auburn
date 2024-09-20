@@ -30,8 +30,8 @@ impl SymmetricBoundingBox2d for Box2d {
     }
 }
 
-impl ExtremePointLocalSpace2d for Box2d {
-    fn extreme_point_local_space(&self, direction: Vec2) -> Vec2 {
+impl ExtremePoint2d for Box2d {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         Vec2::new(
             direction.x.signum() * self.halfsize.x,
             direction.y.signum() * self.halfsize.y,
@@ -82,7 +82,7 @@ impl CollidesRel2d<Box2d> for Box2d {
     fn collides_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> bool {
         let b_center = rel.apply_origin();
         let towards_self = -b_center;
-        let p = b.extreme_point(rel, towards_self);
+        let p = b.extreme_point_t(rel, towards_self);
 
         if b_center.x.is_sign_positive() {
             if b_center.y.is_sign_positive() {
@@ -125,7 +125,7 @@ impl PenetratesRel2d<Box2d> for Box2d {
         if self.collides_rel(b, rel) {
             let b_center = rel.apply_origin();
             let towards_self = -b_center;
-            let p = b.extreme_point(rel, towards_self);
+            let p = b.extreme_point_t(rel, towards_self);
 
             if b_center.x.is_sign_positive() {
                 if b_center.y.is_sign_positive() {
@@ -139,9 +139,7 @@ impl PenetratesRel2d<Box2d> for Box2d {
                     }
                 } else {
                     let px = p.x - self.halfsize.x;
-                    dbg!(px);
                     let py = -p.y - self.halfsize.y;
-                    dbg!(py);
 
                     if px > py {
                         Some(Vec2::new(px, 0.0))
@@ -202,28 +200,18 @@ impl SdfRel2d<Box2d> for Box2d {
     fn sdf_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> f32 {
         let b_center = rel.apply_origin();
         let towards_self = -b_center;
-        let p = b.extreme_point(rel, towards_self);
+        let p = b.extreme_point_t(rel, towards_self);
         let px = p.x.abs() - self.halfsize.x;
         let py = p.y.abs() - self.halfsize.y;
 
-        dbg!(b_center);
-        dbg!(towards_self);
-        dbg!(p);
-        dbg!(px);
-        dbg!(py);
-
         if self.collides_rel(b, rel) {
-            eprintln!("collides");
             px.min(py)
         } else {
             if px.is_sign_negative() {
-                eprintln!("px is negative");
                 py
             } else if py.is_sign_negative() {
-                eprintln!("py is negative");
                 px
             } else {
-                eprintln!("neither is negative");
                 Vec2::new(px, py).length()
             }
         }
@@ -257,7 +245,7 @@ impl SdfvRel2d<Box2d> for Box2d {
         if self.collides_rel(b, rel) {
             let b_center = rel.apply_origin();
             let towards_self = -b_center;
-            let p = b.extreme_point(rel, towards_self);
+            let p = b.extreme_point_t(rel, towards_self);
 
             if b_center.x.is_sign_positive() {
                 if b_center.y.is_sign_positive() {
@@ -303,7 +291,7 @@ impl SdfvRel2d<Box2d> for Box2d {
         } else {
             let b_center = rel.apply_origin();
             let towards_self = -b_center;
-            let p = b.extreme_point(rel, towards_self);
+            let p = b.extreme_point_t(rel, towards_self);
 
             if b_center.x.is_sign_positive() {
                 if b_center.y.is_sign_positive() {
@@ -384,19 +372,19 @@ mod tests {
         let b = Box2d::with_halfdims(2.0, 1.0);
         assert_eq!(
             Vec2::new(2.0, 1.0),
-            b.extreme_point_local_space(Vec2::new(1.0, 1.0))
+            b.extreme_point(Vec2::new(1.0, 1.0))
         );
         assert_eq!(
             Vec2::new(2.0, -1.0),
-            b.extreme_point_local_space(Vec2::new(1.0, -1.0))
+            b.extreme_point(Vec2::new(1.0, -1.0))
         );
         assert_eq!(
             Vec2::new(-2.0, 1.0),
-            b.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+            b.extreme_point(Vec2::new(-1.0, 1.0))
         );
         assert_eq!(
             Vec2::new(-2.0, -1.0),
-            b.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+            b.extreme_point(Vec2::new(-1.0, -1.0))
         );
     }
 
@@ -411,19 +399,19 @@ mod tests {
 
         assert_eq!(
             Vec2::new(2.5, 1.5),
-            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+            c.extreme_point(Vec2::new(1.0, 1.0))
         );
         assert_eq!(
             Vec2::new(2.5, -0.5),
-            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+            c.extreme_point(Vec2::new(1.0, -1.0))
         );
         assert_eq!(
             Vec2::new(-1.5, 1.5),
-            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+            c.extreme_point(Vec2::new(-1.0, 1.0))
         );
         assert_eq!(
             Vec2::new(-1.5, -0.5),
-            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+            c.extreme_point(Vec2::new(-1.0, -1.0))
         );
     }
 
@@ -442,19 +430,19 @@ mod tests {
 
         assert_approx_eq!(
             Vec2::new(1.0, 2.0),
-            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+            c.extreme_point(Vec2::new(1.0, 1.0))
         );
         assert_approx_eq!(
             Vec2::new(1.0, -2.0),
-            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+            c.extreme_point(Vec2::new(1.0, -1.0))
         );
         assert_approx_eq!(
             Vec2::new(-1.0, 2.0),
-            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+            c.extreme_point(Vec2::new(-1.0, 1.0))
         );
         assert_approx_eq!(
             Vec2::new(-1.0, -2.0),
-            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+            c.extreme_point(Vec2::new(-1.0, -1.0))
         );
     }
 
@@ -474,19 +462,19 @@ mod tests {
 
         assert_approx_eq!(
             Vec2::new(1.5, 2.5),
-            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+            c.extreme_point(Vec2::new(1.0, 1.0))
         );
         assert_approx_eq!(
             Vec2::new(1.5, -1.5),
-            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+            c.extreme_point(Vec2::new(1.0, -1.0))
         );
         assert_approx_eq!(
             Vec2::new(-0.5, 2.5),
-            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+            c.extreme_point(Vec2::new(-1.0, 1.0))
         );
         assert_approx_eq!(
             Vec2::new(-0.5, -1.5),
-            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+            c.extreme_point(Vec2::new(-1.0, -1.0))
         );
     }
 

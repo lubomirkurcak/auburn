@@ -17,10 +17,8 @@ impl SymmetricBoundingBox2d for Ball {
     }
 }
 
-impl ExtremePointLocalSpace2d for Ball {
-    fn extreme_point_local_space(&self, direction: Vec2) -> Vec2 {
-        dbg!(direction);
-        dbg!(self.radius * direction.normalize_or_zero());
+impl ExtremePoint2d for Ball {
+    fn extreme_point(&self, direction: Vec2) -> Vec2 {
         self.radius * direction.normalize_or_zero()
     }
 }
