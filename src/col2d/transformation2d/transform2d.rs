@@ -3,8 +3,8 @@ use super::*;
 #[derive(Default, Debug, Clone, PartialEq)]
 /// Apply translation, rotation, and scale in this order:
 /// 1. Scale
-/// 2. Rotate
-/// 3. Translate
+/// 1. Rotate
+/// 1. Translate
 pub struct Transform2d {
     pub pos: Vec2,
     pub rot: Rotor2d,
@@ -17,6 +17,7 @@ impl Transformation2d for Transform2d {
     }
 
     fn apply(&self, point: Vec2) -> Vec2 {
+        dbg!(self.rot * (self.scale * point) + self.pos);
         self.rot * (self.scale * point) + self.pos
     }
 
@@ -29,6 +30,8 @@ impl Transformation2d for Transform2d {
     }
 
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        dbg!(normal);
+        dbg!(self.rot.inverse() * normal);
         self.rot.inverse() * normal
     }
 }

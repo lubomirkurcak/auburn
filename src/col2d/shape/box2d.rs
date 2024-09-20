@@ -265,18 +265,18 @@ impl SdfvRel2d<Box2d> for Box2d {
                     let py = p.y - self.halfsize.y;
 
                     if px > py {
-                        (Vec2::new(px, 0.0))
+                        Vec2::new(px, 0.0)
                     } else {
-                        (Vec2::new(0.0, py))
+                        Vec2::new(0.0, py)
                     }
                 } else {
                     let px = p.x - self.halfsize.x;
                     let py = -p.y - self.halfsize.y;
 
                     if px > py {
-                        (Vec2::new(px, 0.0))
+                        Vec2::new(px, 0.0)
                     } else {
-                        (Vec2::new(0.0, -py))
+                        Vec2::new(0.0, -py)
                     }
                 }
             } else {
@@ -285,18 +285,18 @@ impl SdfvRel2d<Box2d> for Box2d {
                     let py = p.y - self.halfsize.y;
 
                     if px > py {
-                        (Vec2::new(-px, 0.0))
+                        Vec2::new(-px, 0.0)
                     } else {
-                        (Vec2::new(0.0, py))
+                        Vec2::new(0.0, py)
                     }
                 } else {
                     let px = -p.x - self.halfsize.x;
                     let py = -p.y - self.halfsize.y;
 
                     if px > py {
-                        (Vec2::new(-px, 0.0))
+                        Vec2::new(-px, 0.0)
                     } else {
-                        (Vec2::new(0.0, -py))
+                        Vec2::new(0.0, -py)
                     }
                 }
             }
@@ -312,13 +312,13 @@ impl SdfvRel2d<Box2d> for Box2d {
 
                     if px.is_sign_positive() {
                         if py.is_sign_positive() {
-                            (Vec2::new(px, py))
+                            Vec2::new(px, py)
                         } else {
-                            (Vec2::new(px, 0.0))
+                            Vec2::new(px, 0.0)
                         }
                     } else {
                         // py *must* be positive
-                        (Vec2::new(0.0, py))
+                        Vec2::new(0.0, py)
                     }
                 } else {
                     let px = p.x - self.halfsize.x;
@@ -326,13 +326,13 @@ impl SdfvRel2d<Box2d> for Box2d {
 
                     if px.is_sign_positive() {
                         if py.is_sign_positive() {
-                            (Vec2::new(px, -py))
+                            Vec2::new(px, -py)
                         } else {
-                            (Vec2::new(px, 0.0))
+                            Vec2::new(px, 0.0)
                         }
                     } else {
                         // py *must* be positive
-                        (Vec2::new(0.0, -py))
+                        Vec2::new(0.0, -py)
                     }
                 }
             } else {
@@ -342,13 +342,13 @@ impl SdfvRel2d<Box2d> for Box2d {
 
                     if px.is_sign_positive() {
                         if py.is_sign_positive() {
-                            (Vec2::new(-px, py))
+                            Vec2::new(-px, py)
                         } else {
-                            (Vec2::new(-px, 0.0))
+                            Vec2::new(-px, 0.0)
                         }
                     } else {
                         // py *must* be positive
-                        (Vec2::new(0.0, py))
+                        Vec2::new(0.0, py)
                     }
                 } else {
                     let px = -p.x - self.halfsize.x;
@@ -356,13 +356,13 @@ impl SdfvRel2d<Box2d> for Box2d {
 
                     if px.is_sign_positive() {
                         if py.is_sign_positive() {
-                            (Vec2::new(-px, -py))
+                            Vec2::new(-px, -py)
                         } else {
-                            (Vec2::new(-px, 0.0))
+                            Vec2::new(-px, 0.0)
                         }
                     } else {
                         // py *must* be positive
-                        (Vec2::new(0.0, -py))
+                        Vec2::new(0.0, -py)
                     }
                 }
             }
@@ -372,9 +372,123 @@ impl SdfvRel2d<Box2d> for Box2d {
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::approx::Approx;
     use approx::assert_relative_eq;
 
+    use crate::assert_approx_eq;
+
     use super::*;
+
+    #[test]
+    fn local_extreme_points() {
+        let b = Box2d::with_halfdims(2.0, 1.0);
+        assert_eq!(
+            Vec2::new(2.0, 1.0),
+            b.extreme_point_local_space(Vec2::new(1.0, 1.0))
+        );
+        assert_eq!(
+            Vec2::new(2.0, -1.0),
+            b.extreme_point_local_space(Vec2::new(1.0, -1.0))
+        );
+        assert_eq!(
+            Vec2::new(-2.0, 1.0),
+            b.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+        );
+        assert_eq!(
+            Vec2::new(-2.0, -1.0),
+            b.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+        );
+    }
+
+    #[test]
+    fn extreme_points_translate2d() {
+        let b = Box2d::with_halfdims(2.0, 1.0);
+        let t = Vec2::new(0.5, 0.5);
+        let c = Collider2d {
+            shape: &b,
+            transform: &t,
+        };
+
+        assert_eq!(
+            Vec2::new(2.5, 1.5),
+            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+        );
+        assert_eq!(
+            Vec2::new(2.5, -0.5),
+            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+        );
+        assert_eq!(
+            Vec2::new(-1.5, 1.5),
+            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+        );
+        assert_eq!(
+            Vec2::new(-1.5, -0.5),
+            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+        );
+    }
+
+    #[test]
+    fn extreme_points_transform2d_rotate() {
+        let b = Box2d::with_halfdims(2.0, 1.0);
+        let t = Transform2d {
+            pos: Vec2::ZERO,
+            rot: Rotor2d::from_angle(std::f32::consts::FRAC_PI_2),
+            scale: Vec2::ONE,
+        };
+        let c = Collider2d {
+            shape: &b,
+            transform: &t,
+        };
+
+        assert_approx_eq!(
+            Vec2::new(1.0, 2.0),
+            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(1.0, -2.0),
+            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(-1.0, 2.0),
+            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(-1.0, -2.0),
+            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+        );
+    }
+
+    #[ignore]
+    #[test]
+    fn extreme_points_transform2d_rotate_translate() {
+        let b = Box2d::with_halfdims(2.0, 1.0);
+        let t = Transform2d {
+            pos: Vec2::new(0.5, 0.5),
+            rot: Rotor2d::from_angle(std::f32::consts::FRAC_PI_2),
+            scale: Vec2::ONE,
+        };
+        let c = Collider2d {
+            shape: &b,
+            transform: &t,
+        };
+
+        assert_approx_eq!(
+            Vec2::new(1.5, 2.5),
+            c.extreme_point_local_space(Vec2::new(1.0, 1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(1.5, -1.5),
+            c.extreme_point_local_space(Vec2::new(1.0, -1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(-0.5, 2.5),
+            c.extreme_point_local_space(Vec2::new(-1.0, 1.0))
+        );
+        assert_approx_eq!(
+            Vec2::new(-0.5, -1.5),
+            c.extreme_point_local_space(Vec2::new(-1.0, -1.0))
+        );
+    }
 
     #[test]
     fn point_v_box_collides() {

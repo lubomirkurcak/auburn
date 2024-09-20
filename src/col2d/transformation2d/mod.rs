@@ -78,8 +78,9 @@ impl Rotor2d {
 
     /// Create a new rotor from an angle.
     pub fn from_angle(angle: f32) -> Self {
+        let (sin, cos) = angle.sin_cos();
         Self {
-            a: Vec2::new(angle.cos(), angle.sin()),
+            a: Vec2::new(cos, sin),
         }
     }
 
@@ -127,5 +128,89 @@ impl Mul<Vec2> for Rotor2d {
             x: self.a.x * rhs.x - self.a.y * rhs.y,
             y: self.a.x * rhs.y + self.a.y * rhs.x,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::assert_approx_eq;
+    use crate::utils::approx::Approx;
+
+    use super::*;
+
+    #[test]
+    fn test_rotor2d_x_0deg() {
+        let rotor = Rotor2d::from_angle(0.0);
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, Vec2::X);
+    }
+
+    #[test]
+    fn test_rotor2d_x_90deg() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::FRAC_PI_2);
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, Vec2::Y);
+    }
+
+    #[test]
+    fn test_rotor2d_x_180deg() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::PI);
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, -Vec2::X);
+    }
+
+    #[test]
+    fn test_rotor2d_x_270deg() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::PI + std::f32::consts::FRAC_PI_2);
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, -Vec2::Y);
+    }
+
+    #[test]
+    fn test_rotor2d_x_0deg_inverse() {
+        let rotor = Rotor2d::from_angle(0.0);
+        let rotor = rotor.inverse();
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, Vec2::X);
+    }
+
+    #[test]
+    fn test_rotor2d_x_90deg_inverse() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::FRAC_PI_2);
+        let rotor = rotor.inverse();
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, -Vec2::Y);
+    }
+
+    #[test]
+    fn test_rotor2d_x_180deg_inverse() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::PI);
+        let rotor = rotor.inverse();
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, -Vec2::X);
+    }
+
+    #[test]
+    fn test_rotor2d_x_270deg_inverse() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::PI + std::f32::consts::FRAC_PI_2);
+        let rotor = rotor.inverse();
+        let point = Vec2::X;
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, Vec2::Y);
+    }
+
+    #[test]
+    fn test_rotor2d_x1_y1_90deg() {
+        let rotor = Rotor2d::from_angle(std::f32::consts::FRAC_PI_2);
+        let point = Vec2::new(1.0, 1.0);
+        let rotated = rotor * point;
+        assert_approx_eq!(rotated, Vec2::new(-1.0, 1.0));
     }
 }

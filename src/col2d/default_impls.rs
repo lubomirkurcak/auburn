@@ -10,9 +10,13 @@ where
     A: ExtremePointLocalSpace2d,
 {
     fn extreme_point(&self, t: &T, direction: Vec2) -> Vec2 {
+        dbg!(direction);
         let local_direction = t.unapply_normal(direction);
+        dbg!(local_direction);
         let local_extreme_point = self.extreme_point_local_space(local_direction);
+        dbg!(local_extreme_point);
         let extreme_point = t.apply(local_extreme_point);
+        dbg!(extreme_point);
         extreme_point
     }
 }
