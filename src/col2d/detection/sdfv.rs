@@ -71,6 +71,8 @@ where
         let a: Collider2d<'a, A, T> = self.into();
         let b: Collider2d<'a, B, T> = bb.into();
         let rel = a.transform.delta_transform(b.transform);
-        a.shape.sdfv_rel(b.shape, &rel)
+        let sdfv_local = a.shape.sdfv_rel(b.shape, &rel);
+        let sdfv = a.transform.apply_normal(sdfv_local);
+        sdfv
     }
 }

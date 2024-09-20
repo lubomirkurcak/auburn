@@ -420,7 +420,7 @@ mod tests {
         let b = Box2d::with_halfdims(2.0, 1.0);
         let t = Transform2d {
             pos: Vec2::ZERO,
-            rot: Rotor2d::from_angle(std::f32::consts::FRAC_PI_2),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_2),
             scale: Vec2::ONE,
         };
         let c = Collider2d {
@@ -452,7 +452,7 @@ mod tests {
         let b = Box2d::with_halfdims(2.0, 1.0);
         let t = Transform2d {
             pos: Vec2::new(0.5, 0.5),
-            rot: Rotor2d::from_angle(std::f32::consts::FRAC_PI_2),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_2),
             scale: Vec2::ONE,
         };
         let c = Collider2d {

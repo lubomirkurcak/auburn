@@ -35,3 +35,16 @@ impl Transformation2d for bevy::prelude::Transform {
         Into::<Transform2d>::into(*self).unapply_normal(normal)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::col2d::*;
+    use glam::Vec3;
+
+    #[test]
+    fn test_bevy_transform() {
+        let transform = bevy::prelude::Transform::from_translation(Vec3::new(1.0, 2.0, 0.0));
+        let transform2d: Transform2d = transform.into();
+        assert_eq!(transform2d.pos, Vec2::new(1.0, 2.0));
+    }
+}
