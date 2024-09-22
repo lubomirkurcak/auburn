@@ -22,7 +22,7 @@ pub trait SdfvRel2d<T> {
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfv_rel(&self, t: &T, rel: &impl Transformation2d) -> Vec2;
+    fn sdfv_rel(&self, t: &T, rel: &impl Transformation2d) -> (bool, Vec2);
 }
 
 /// Trait for computing the *vector* signed-distance between `Self` and `T`.
@@ -57,7 +57,7 @@ where
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfv(self, b: BB) -> Vec2;
+    fn sdfv(self, b: BB) -> (bool, Vec2);
 }
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Sdfv2d<'a, A, B, T, BB> for AA
@@ -67,12 +67,12 @@ where
     Collider2d<'a, A, T>: From<AA>,
     Collider2d<'a, B, T>: From<BB>,
 {
-    fn sdfv(self, bb: BB) -> Vec2 {
+    fn sdfv(self, bb: BB) -> (bool, Vec2) {
         let a: Collider2d<'a, A, T> = self.into();
         let b: Collider2d<'a, B, T> = bb.into();
         let rel = a.transform.delta_transform(b.transform);
-        let sdfv_local = a.shape.sdfv_rel(b.shape, &rel);
+        let (collides, sdfv_local) = a.shape.sdfv_rel(b.shape, &rel);
         let sdfv = a.transform.apply_normal(sdfv_local);
-        sdfv
+        (collides, sdfv)
     }
 }

@@ -100,7 +100,7 @@ where
     A: DefaultCol2dImpls,
     A: SdfvRel2d<Point>,
 {
-    fn sdfv_rel(&self, t: &A, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfv_rel(&self, t: &A, rel: &impl Transformation2d) -> (bool, Vec2) {
         t.sdfv_rel(&Point, rel)
     }
 }

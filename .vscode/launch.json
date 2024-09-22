@@ -1,0 +1,212 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'auburn'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "auburn",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'basic2d'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=basic2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "basic2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'basic2d'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=basic2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "basic2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'basic3d'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=basic3d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "basic3d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'basic3d'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=basic3d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "basic3d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'penetrates2d'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=penetrates2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "penetrates2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'penetrates2d'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=penetrates2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "penetrates2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'sdf2d'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=sdf2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "sdf2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'sdf2d'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=sdf2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "sdf2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'sdfv2d'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=sdfv2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "sdfv2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'sdfv2d'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=sdfv2d",
+                    "--package=auburn"
+                ],
+                "filter": {
+                    "name": "sdfv2d",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

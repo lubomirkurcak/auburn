@@ -1,17 +1,17 @@
 use super::*;
 
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+/// Trait for computing the *scalar* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [SdfvRel2d]
-pub trait SdfRel2d<T> {
-    /// Computes *scalar* signed-distance between `self` and `t` (in `self`-centric space, which
+pub trait SdfRel2d<B> {
+    /// Computes *scalar* signed-distance between `self` and `b` (in `self`-centric space, which
     /// does not matter since `sdf` is rotation-symmetric scalar value).
     ///
     /// # Arguments
     /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
+    /// * `b` - The object to check collision against
+    /// * `rel` - Relative transform of `b` in relation to `self`
     ///
     /// # Example
     /// ```
@@ -24,10 +24,10 @@ pub trait SdfRel2d<T> {
     ///
     /// # See also
     /// * [Sdfv2d::sdfv].
-    fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
+    fn sdf_rel(&self, t: &B, rel: &impl Transformation2d) -> f32;
 }
 
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+/// Trait for computing the *scalar* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [Sdfv2d]
@@ -37,12 +37,10 @@ where
     BB: Into<Collider2d<'a, B, T>>,
     A: SdfRel2d<B>,
 {
-    /// Computes *scalar* signed-distance between `self` and `t`.
+    /// Computes *scalar* signed-distance between `self` and `b`.
     ///
     /// # Arguments
-    /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
+    /// * `b` - The collider to check collision against
     ///
     /// # Example
     /// ```

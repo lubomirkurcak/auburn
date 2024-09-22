@@ -103,28 +103,30 @@ impl SdfRel2d<Ball> for Ball {
 // Sdfv
 
 impl SdfvRel2d<Point> for Ball {
-    fn sdfv_rel(&self, _: &Point, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfv_rel(&self, _: &Point, rel: &impl Transformation2d) -> (bool, Vec2) {
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {
+            let collides = length < self.radius;
             let new_length = length - self.radius;
-            delta * (new_length / length)
+            (collides, delta * (new_length / length))
         } else {
-            self.radius * Vec2::X
+            (true, self.radius * Vec2::X)
         }
     }
 }
 
 impl SdfvRel2d<Ball> for Ball {
-    fn sdfv_rel(&self, b: &Ball, rel: &impl Transformation2d) -> Vec2 {
+    fn sdfv_rel(&self, b: &Ball, rel: &impl Transformation2d) -> (bool, Vec2) {
         let radius = self.radius + b.radius;
         let delta = rel.apply_origin();
         let length = delta.length();
         if length > 0.0 {
+            let collides = length < radius;
             let new_length = length - radius;
-            delta * (new_length / length)
+            (collides, delta * (new_length / length))
         } else {
-            radius * Vec2::X
+            (true, radius * Vec2::X)
         }
     }
 }
