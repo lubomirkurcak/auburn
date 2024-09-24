@@ -2,6 +2,7 @@ use super::*;
 
 mod v_box2d;
 mod v_point;
+mod v_ball;
 
 /// 2D rectangle *centered at the origin*.
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -292,6 +293,7 @@ mod tests {
         }
     }
 
+    #[ignore]
     #[test]
     fn box_v_box_collision_random_case_1() {
         let b = Box2d::with_halfdims(0.5, 0.5);

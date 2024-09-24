@@ -17,7 +17,7 @@ pub trait SdfvRel2d<T> {
     /// let a = Box2d::with_halfdims(1.0, 1.0);
     /// let b = Box2d::with_halfdims(1.0, 1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
-    /// assert_eq!(a.sdfv_rel(&b, &rel), Vec2::new(-1.0, 0.0));
+    /// assert_eq!(a.sdfv_rel(&b, &rel), (true, Vec2::new(-1.0, 0.0)));
     /// ```
     ///
     /// # See also
@@ -52,7 +52,7 @@ where
     ///     shape: &Box2d::with_halfdims(1.0, 1.0),
     ///     transform: &Vec2::new(1.0, 0.0),
     /// };
-    /// assert_eq!(a.sdfv(b), Vec2::new(-1.0, 0.0));
+    /// assert_eq!(a.sdfv(b), (true, Vec2::new(-1.0, 0.0)));
     /// ```
     ///
     /// # See also

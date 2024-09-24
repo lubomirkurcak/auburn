@@ -15,7 +15,7 @@ categories = [
 ]
 
 [features]
-default = ["2d"]
+default = ["2d", "gjk", "std"]
 2d = []
 3d = []
 std = []
