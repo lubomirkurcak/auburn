@@ -52,9 +52,10 @@ impl From<Box2d> for Poly2d {
         let max = halfsize;
         Self {
             points: vec![
-                Vec2::new(min.x, min.y),
+                // Going in a cross to maybe help with symmetry when calculating extreme points.
+                min,
+                max,
                 Vec2::new(min.x, max.y),
-                Vec2::new(max.x, max.y),
                 Vec2::new(max.x, min.y),
             ],
         }

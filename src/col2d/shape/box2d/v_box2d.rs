@@ -3,7 +3,7 @@ use super::*;
 impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
     SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Box2d> for Box2d
 {
-    fn sdfv_common_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> (bool, Option<Vec2>) {
+    fn sdfv_common_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> (bool, Vec2) {
         let b_center = rel.apply_origin();
         let towards_self = -b_center;
         let p = b.extreme_point_t(rel, towards_self);
@@ -25,7 +25,7 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
         }
 
         if collides {
-            let mut penetration = None;
+            let mut penetration = Vec2::NAN;
 
             if COMPUTE_PENETRATION {
                 if b_center.x.is_sign_positive() {
@@ -34,18 +34,18 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
                         let py = p.y - self.halfsize.y;
 
                         if px > py {
-                            penetration = Some(Vec2::new(px, 0.0));
+                            penetration = Vec2::new(px, 0.0);
                         } else {
-                            penetration = Some(Vec2::new(0.0, py));
+                            penetration = Vec2::new(0.0, py);
                         }
                     } else {
                         let px = p.x - self.halfsize.x;
                         let py = -p.y - self.halfsize.y;
 
                         if px > py {
-                            penetration = Some(Vec2::new(px, 0.0));
+                            penetration = Vec2::new(px, 0.0);
                         } else {
-                            penetration = Some(Vec2::new(0.0, -py));
+                            penetration = Vec2::new(0.0, -py);
                         }
                     }
                 } else {
@@ -54,18 +54,18 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
                         let py = p.y - self.halfsize.y;
 
                         if px > py {
-                            penetration = Some(Vec2::new(-px, 0.0));
+                            penetration = Vec2::new(-px, 0.0);
                         } else {
-                            penetration = Some(Vec2::new(0.0, py));
+                            penetration = Vec2::new(0.0, py);
                         }
                     } else {
                         let px = -p.x - self.halfsize.x;
                         let py = -p.y - self.halfsize.y;
 
                         if px > py {
-                            penetration = Some(Vec2::new(-px, 0.0));
+                            penetration = Vec2::new(-px, 0.0);
                         } else {
-                            penetration = Some(Vec2::new(0.0, -py));
+                            penetration = Vec2::new(0.0, -py);
                         }
                     }
                 }
@@ -73,7 +73,7 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
 
             (true, penetration)
         } else {
-            let mut distance = None;
+            let mut distance = Vec2::NAN;
 
             if COMPUTE_DISTANCE {
                 if b_center.x.is_sign_positive() {
@@ -83,13 +83,13 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
 
                         if px.is_sign_positive() {
                             if py.is_sign_positive() {
-                                distance = Some(Vec2::new(px, py));
+                                distance = Vec2::new(px, py);
                             } else {
-                                distance = Some(Vec2::new(px, 0.0));
+                                distance = Vec2::new(px, 0.0);
                             }
                         } else {
                             // py *must* be positive
-                            distance = Some(Vec2::new(0.0, py));
+                            distance = Vec2::new(0.0, py);
                         }
                     } else {
                         let px = p.x - self.halfsize.x;
@@ -97,13 +97,13 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
 
                         if px.is_sign_positive() {
                             if py.is_sign_positive() {
-                                distance = Some(Vec2::new(px, -py));
+                                distance = Vec2::new(px, -py);
                             } else {
-                                distance = Some(Vec2::new(px, 0.0));
+                                distance = Vec2::new(px, 0.0);
                             }
                         } else {
                             // py *must* be positive
-                            distance = Some(Vec2::new(0.0, -py));
+                            distance = Vec2::new(0.0, -py);
                         }
                     }
                 } else {
@@ -113,13 +113,13 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
 
                         if px.is_sign_positive() {
                             if py.is_sign_positive() {
-                                distance = Some(Vec2::new(-px, py));
+                                distance = Vec2::new(-px, py);
                             } else {
-                                distance = Some(Vec2::new(-px, 0.0));
+                                distance = Vec2::new(-px, 0.0);
                             }
                         } else {
                             // py *must* be positive
-                            distance = Some(Vec2::new(0.0, py));
+                            distance = Vec2::new(0.0, py);
                         }
                     } else {
                         let px = -p.x - self.halfsize.x;
@@ -127,13 +127,13 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
 
                         if px.is_sign_positive() {
                             if py.is_sign_positive() {
-                                distance = Some(Vec2::new(-px, -py));
+                                distance = Vec2::new(-px, -py);
                             } else {
-                                distance = Some(Vec2::new(-px, 0.0));
+                                distance = Vec2::new(-px, 0.0);
                             }
                         } else {
                             // py *must* be positive
-                            distance = Some(Vec2::new(0.0, -py));
+                            distance = Vec2::new(0.0, -py);
                         }
                     }
                 }

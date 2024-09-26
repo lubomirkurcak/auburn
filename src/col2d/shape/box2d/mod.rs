@@ -1,8 +1,8 @@
 use super::*;
 
+mod v_ball;
 mod v_box2d;
 mod v_point;
-mod v_ball;
 
 /// 2D rectangle *centered at the origin*.
 #[derive(Default, Clone, Copy, PartialEq, Debug)]
@@ -74,7 +74,7 @@ impl MinkowskiSum<Ball> for Box2d {
 mod tests {
     use crate::utils::approx::Approx;
     use approx::assert_relative_eq;
-    use glam::{Quat, Vec3};
+    use glam::Quat;
 
     use crate::assert_approx_eq;
 
