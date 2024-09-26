@@ -7,6 +7,7 @@ pub mod penetrates;
 pub mod sdf;
 pub mod sdfv;
 pub mod sdfv_common;
+mod sdfv_minkowski;
 
 pub use collides::*;
 pub use distance_to::*;
