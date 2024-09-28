@@ -1,7 +1,7 @@
 use super::*;
 
 pub trait SdfvMinkowski2d<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool> {
-    fn sdfv_common_rel(&self) -> (bool, Vec2);
+    fn sdfv(&self) -> (bool, Vec2);
 }
 
 /*

@@ -87,6 +87,11 @@ fn distance_to_x() {
         let b_shape: Poly2d = Box2d::with_halfdims(1.0, 1.0).into();
         let a_pos = Translate2d::from(Vec2::ZERO);
         let b_pos = Translate2d::from(offset);
+
+        let a: Collider2d<'_, _, Translate2d> = (&a_shape, &a_pos).into();
+        let b: Collider2d<'_, _, Translate2d> = (&b_shape, &b_pos).into();
+        assert_eq!(expect, a.distance_to(b));
+
         let a = (&a_shape, &a_pos);
         let b = (&b_shape, &b_pos);
         assert_eq!(expect, a.distance_to(b));
