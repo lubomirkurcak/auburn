@@ -269,7 +269,6 @@ fn poly_from_box_v_poly_from_box_collision_random_case_1() {
     assert!(sdfv.length() < 0.1);
 }
 
-#[ignore]
 #[test_log::test]
 fn box_v_box_collision_random_case_1() {
     let b = Box2d::with_halfdims(0.5, 0.5);
@@ -299,7 +298,6 @@ fn box_v_box_collision_random_case_1() {
     assert!(sdfv.length() < 0.1);
 }
 
-#[ignore]
 #[test_log::test]
 fn box_v_box_collision_random_case_2() {
     let b = Box2d::with_halfdims(0.5, 0.5);
@@ -325,6 +323,151 @@ fn box_v_box_collision_random_case_2() {
     let (collides, sdfv) = col1.sdfv(col2);
     assert!(sdf < 0.0);
     assert!(collides);
+}
+
+#[test_log::test]
+fn box_v_box_collision_random_case_3() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d {
+        pos: Vec2::new(0.0, 0.0),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.27712706, 0.96083343)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let t2 = Transform2d {
+        pos: Vec2::new(1.6249996, 0.80555564),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.25829336, 0.9660661)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let sdf = col1.sdf(col2);
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(sdf > 0.0);
+    assert!(!collides);
+}
+
+struct F32Iterator {
+    min: f32,
+    max: f32,
+    steps: usize,
+    current: usize,
+}
+
+impl F32Iterator {
+    fn new(min: f32, max: f32, steps: usize) -> Self {
+        Self {
+            min,
+            max,
+            steps,
+            current: 0,
+        }
+    }
+
+    fn lerp(&self, t: f32) -> f32 {
+        self.min + t * (self.max - self.min)
+    }
+}
+
+impl Iterator for F32Iterator {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current < self.steps {
+            let t = self.current as f32 / self.steps as f32;
+            self.current += 1;
+            Some(self.lerp(t))
+        } else {
+            None
+        }
+    }
+}
+
+#[test_log::test]
+fn box_v_box_collision_diamond_with_offset() {
+    let mut errors = 0;
+    for offset in F32Iterator::new(0.0, core::f32::consts::SQRT_2, 100) {
+        let b = Box2d::with_halfdims(0.5, 0.5);
+        let t1 = Transform2d {
+            pos: Vec2::new(0.0, 0.0),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_4),
+            scale: Vec2::new(1.0, 1.0),
+        };
+        let padding = 0.0125;
+        let t2 = Transform2d {
+            pos: Vec2::new(
+                offset + padding,
+                core::f32::consts::SQRT_2 - offset + padding,
+            ),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_4),
+            scale: Vec2::new(1.0, 1.0),
+        };
+        let col1 = Collider2d {
+            shape: &b,
+            transform: &t1,
+        };
+        let col2 = Collider2d {
+            shape: &b,
+            transform: &t2,
+        };
+        // let sdf = col1.sdf(col2);
+        let (collides, sdfv) = col1.sdfv(col2);
+        assert!(!collides);
+        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-5) {
+            auburn::error!("expected offset: {padding:?}, got sdfv: {sdfv:?}");
+            errors += 1;
+        }
+        // assert_approx_eq!(sdfv, Vec2::new(padding, padding));
+    }
+    assert_eq!(errors, 0);
+}
+
+#[test_log::test]
+fn box_v_box_collision_diamond_with_offset_mod1() {
+    let mut errors = 0;
+    for offset in F32Iterator::new(0.0, core::f32::consts::SQRT_2, 100) {
+        let b = Box2d::with_halfdims(0.5, 0.5);
+        let t1 = Transform2d {
+            pos: Vec2::new(0.0, 0.0),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_4 + 0.002),
+            scale: Vec2::new(1.0, 1.0),
+        };
+        let padding = 0.0125;
+        let t2 = Transform2d {
+            pos: Vec2::new(
+                offset + padding,
+                core::f32::consts::SQRT_2 - offset + padding,
+            ),
+            rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_4),
+            scale: Vec2::new(1.0, 1.0),
+        };
+        let col1 = Collider2d {
+            shape: &b,
+            transform: &t1,
+        };
+        let col2 = Collider2d {
+            shape: &b,
+            transform: &t2,
+        };
+        // let sdf = col1.sdf(col2);
+        let (collides, sdfv) = col1.sdfv(col2);
+        assert!(!collides);
+        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-5) {
+            auburn::error!(
+                "expected offset: {:?}, got: {:?}",
+                Vec2::new(padding, padding),
+                sdfv
+            );
+            errors += 1;
+        }
+        // assert_approx_eq!(sdfv, Vec2::new(padding, padding));
+    }
+    assert_eq!(errors, 0);
 }
 
 #[test_log::test]

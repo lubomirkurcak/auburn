@@ -218,29 +218,30 @@ impl Simplex2d {
             1 => -self.0.points[0],
             2 => {
                 trace!("2 points case");
+                warn!("this implementation could be wrong");
                 let a = self.0.points[0];
                 let b = self.0.points[1];
                 let ab = b - a;
                 let ao = -a;
                 let t = ao.dot(ab) / ab.dot(ab);
 
-                trace!("a: {}", a);
-                trace!("b: {}", b);
-                trace!("ab: {}", ab);
-                trace!("ao: {}", ao);
-                trace!("t: {}", t);
+                info!("a: {}", a);
+                info!("b: {}", b);
+                info!("ab: {}", ab);
+                info!("ao: {}", ao);
+                info!("t: {}", t);
 
                 if t <= 0.0 {
-                    trace!("t <= 0.0");
-                    trace!("ao: {}", ao);
+                    info!("t <= 0.0");
+                    info!("ao: {}", ao);
                     ao
                 } else if t >= 1.0 {
-                    trace!("t >= 1.0");
-                    trace!("b: {}", b);
+                    info!("t >= 1.0");
+                    info!("b: {}", b);
                     -b
                 } else {
-                    trace!("0.0 < t < 1.0");
-                    trace!("ab * t: {}", ab * t);
+                    info!("0.0 < t < 1.0");
+                    info!("ab * t: {}", ab * t);
                     ao - ab * t
                 }
             }
