@@ -11,6 +11,30 @@ pub trait Approx {
     fn approx_eq_tolerance(&self, other: &Self, tolerance: f32) -> bool;
 }
 
+impl Approx for f32 {
+    fn approx_eq_tolerance(&self, other: &Self, tolerance: f32) -> bool {
+        let error = self - other;
+        if error.is_nan() {
+            return false;
+        }
+        if error.is_infinite() {
+            // @note(lubo): we can be more lenient here when the need arises
+            return self == other;
+        }
+
+        if *self == 0.0 || *other == 0.0 {
+            return error.abs() < tolerance;
+        }
+
+        let relative_error = error / self;
+        if relative_error.abs() > tolerance {
+            return false;
+        }
+
+        true
+    }
+}
+
 impl Approx for Vec2 {
     fn approx_eq_tolerance(&self, other: &Self, tolerance: f32) -> bool {
         let magn_sq = self.length_squared().max(other.length_squared());

@@ -1,5 +1,36 @@
+use local_minkowski_diff::LocalMinkowskiDiff2d;
+
 use super::*;
 
+impl SdfvCommonRel2d<false, false, Box2d> for Box2d {
+    fn sdfv_common_rel(&self, other: &Box2d, rel: &impl Transformation2d) -> (bool, Vec2) {
+        let diff = LocalMinkowskiDiff2d::raw(self, other, rel);
+        SdfvMinkowski2d::<false, false>::sdfv_minkowski(&diff)
+    }
+}
+
+impl SdfvCommonRel2d<false, true, Box2d> for Box2d {
+    fn sdfv_common_rel(&self, other: &Box2d, rel: &impl Transformation2d) -> (bool, Vec2) {
+        let diff = LocalMinkowskiDiff2d::raw(self, other, rel);
+        SdfvMinkowski2d::<false, true>::sdfv_minkowski(&diff)
+    }
+}
+
+impl SdfvCommonRel2d<true, false, Box2d> for Box2d {
+    fn sdfv_common_rel(&self, other: &Box2d, rel: &impl Transformation2d) -> (bool, Vec2) {
+        let diff = LocalMinkowskiDiff2d::raw(self, other, rel);
+        SdfvMinkowski2d::<true, false>::sdfv_minkowski(&diff)
+    }
+}
+
+impl SdfvCommonRel2d<true, true, Box2d> for Box2d {
+    fn sdfv_common_rel(&self, other: &Box2d, rel: &impl Transformation2d) -> (bool, Vec2) {
+        let diff = LocalMinkowskiDiff2d::raw(self, other, rel);
+        SdfvMinkowski2d::<true, true>::sdfv_minkowski(&diff)
+    }
+}
+
+/*
 impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
     SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Box2d> for Box2d
 {
@@ -143,7 +174,9 @@ impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
         }
     }
 }
+*/
 
+// TODO: This is probably incorrect
 impl SdfRel2d<Box2d> for Box2d {
     fn sdf_rel(&self, b: &Box2d, rel: &impl Transformation2d) -> f32 {
         let b_center = rel.apply_origin();

@@ -1,7 +1,11 @@
 use super::*;
 
+/// # Important
+/// Calcuates positions in A's local space.
 pub trait SdfvMinkowski2d<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool> {
-    fn sdfv(&self) -> (bool, Vec2);
+    /// # Important
+    /// Calcuates positions in A's local space.
+    fn sdfv_minkowski(&self) -> (bool, Vec2);
 }
 
 /*

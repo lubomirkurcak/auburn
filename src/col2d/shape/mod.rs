@@ -4,6 +4,7 @@ mod ball2d;
 mod box2d;
 #[cfg(disabled)]
 mod ellipse2d;
+mod local_minkowski_diff;
 mod minkowski_diff;
 mod point2d;
 #[cfg(all(feature = "poly", feature = "std"))]

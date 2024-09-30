@@ -1,3 +1,5 @@
+use crate::{debug, trace};
+
 use super::*;
 
 // TODO(lubo): These could be simplified with specialization. (RFC 1210)
@@ -10,9 +12,13 @@ where
     A: ExtremePoint2d,
 {
     fn extreme_point_t(&self, t: &T, direction: Vec2) -> Vec2 {
+        debug!("DefaultCol2dImpls::extreme_point_t");
         let local_direction = t.unapply_normal(direction);
+        trace!("local_direction: {:?}", local_direction);
         let local_extreme_point = self.extreme_point(local_direction);
+        trace!("local_extreme_point: {:?}", local_extreme_point);
         let extreme_point = t.apply(local_extreme_point);
+        trace!("extreme_point: {:?}", extreme_point);
         extreme_point
     }
 }

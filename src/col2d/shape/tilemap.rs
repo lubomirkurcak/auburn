@@ -228,7 +228,7 @@ mod tests {
     use super::*;
     use lk_math::vector::V2;
 
-    #[test]
+    #[test_log::test]
     fn serialize_v2() {
         let v = V2::from_xy(3, 2);
         let serialized = serde_json::to_string(&v).unwrap();
@@ -237,7 +237,7 @@ mod tests {
         assert_eq!(v, deserialized);
     }
 
-    #[test]
+    #[test_log::test]
     fn serialize_chunk() {
         let chunk = Chunk::default();
         let serialized = serde_json::to_string(&chunk).unwrap();
@@ -248,7 +248,7 @@ mod tests {
         assert_eq!(chunk.array2d.data, deserialized.array2d.data);
     }
 
-    #[test]
+    #[test_log::test]
     fn serialize_tilemap() {
         let mut tilemap = Tilemap::default();
         tilemap.set_tile(lk_math::vector::V2::from_xy(3, 2), 1);

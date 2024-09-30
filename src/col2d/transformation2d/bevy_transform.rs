@@ -41,7 +41,7 @@ mod tests {
     use crate::col2d::*;
     use glam::Vec3;
 
-    #[test]
+    #[test_log::test]
     fn test_bevy_transform() {
         let transform = bevy::prelude::Transform::from_translation(Vec3::new(1.0, 2.0, 0.0));
         let transform2d: Transform2d = transform.into();

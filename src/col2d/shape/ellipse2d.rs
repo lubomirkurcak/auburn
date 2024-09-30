@@ -83,7 +83,7 @@ mod tests {
         radii: Vec2::new(2.0, 0.5),
     };
 
-    #[test]
+    #[test_log::test]
     fn test_ellipse_extreme_point() {
         assert_eq!(E1.extreme_point(Vec2::X), Vec2::new(2.0, 0.0));
         assert_eq!(E1.extreme_point(Vec2::Y), Vec2::new(0.0, 0.5));
@@ -91,7 +91,7 @@ mod tests {
         assert_eq!(E1.extreme_point(-Vec2::Y), Vec2::new(0.0, -0.5));
     }
 
-    #[test]
+    #[test_log::test]
     fn test_extreme_point_compose() {
         assert_eq!(E1.extreme_point_by_composing(Vec2::X), Vec2::new(2.0, 0.0));
         assert_eq!(E1.extreme_point_by_composing(Vec2::Y), Vec2::new(0.0, 0.5));
@@ -105,7 +105,7 @@ mod tests {
         );
     }
 
-    #[test]
+    #[test_log::test]
     fn test_extreme_point_expanded() {
         assert_eq!(E1.extreme_point_expanded(Vec2::X), Vec2::new(2.0, 0.0));
         assert_eq!(E1.extreme_point_expanded(Vec2::Y), Vec2::new(0.0, 0.5));

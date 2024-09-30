@@ -108,139 +108,139 @@ mod tests {
     const T2_T1_Z: Vec3 = Vec3::new(7.0, 11.0, 21.0);
     const T2_T1_ONE: Vec3 = Vec3::new(13.0, 17.0, 21.0);
 
-    #[test]
+    #[test_log::test]
     fn t1_origin() {
         assert_eq!(T1.apply_origin(), T1_O);
     }
-    #[test]
+    #[test_log::test]
     fn t1_x() {
         assert_eq!(T1.apply(X), T1_X);
     }
-    #[test]
+    #[test_log::test]
     fn t1_y() {
         assert_eq!(T1.apply(Y), T1_Y);
     }
-    #[test]
+    #[test_log::test]
     fn t1_z() {
         assert_eq!(T1.apply(Z), T1_Z);
     }
-    #[test]
+    #[test_log::test]
     fn t1_one() {
         assert_eq!(T1.apply(ONE), T1_ONE);
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_origin() {
         assert_eq!(T2.apply_origin(), T2_O);
     }
-    #[test]
+    #[test_log::test]
     fn t2_x() {
         assert_eq!(T2.apply(X), T2_X);
     }
-    #[test]
+    #[test_log::test]
     fn t2_y() {
         assert_eq!(T2.apply(Y), T2_Y);
     }
-    #[test]
+    #[test_log::test]
     fn t2_z() {
         assert_eq!(T2.apply(Z), T3_Z);
     }
-    #[test]
+    #[test_log::test]
     fn t2_one() {
         assert_eq!(T2.apply(ONE), T2_ONE);
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_t1_apply_o() {
         assert_eq!(T2.apply(T1.apply_origin()), T2_T1_O);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_compose_apply_o() {
         assert_eq!(T2.compose(&T1).apply_origin(), T2_T1_O);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_expected_apply_o() {
         assert_eq!(T2_T1.apply_origin(), T2_T1_O);
     }
-    #[test]
+    #[test_log::test]
     fn test_compose_matches_o() {
         assert_eq!(T2.compose(&T1).apply_origin(), T2.apply(T1.apply_origin()));
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_t1_apply_x() {
         assert_eq!(T2.apply(T1.apply(X)), T2_T1_X);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_compose_apply_x() {
         assert_eq!(T2.compose(&T1).apply(X), T2_T1_X);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_expected_apply_x() {
         assert_eq!(T2_T1.apply(X), T2_T1_X);
     }
-    #[test]
+    #[test_log::test]
     fn test_compose_matches_x() {
         assert_eq!(T2.compose(&T1).apply(X), T2.apply(T1.apply(X)));
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_t1_apply_y() {
         assert_eq!(T2.apply(T1.apply(Y)), T2_T1_Y);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_compose_apply_y() {
         assert_eq!(T2.compose(&T1).apply(Y), T2_T1_Y);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_expected_apply_y() {
         assert_eq!(T2_T1.apply(Y), T2_T1_Y);
     }
-    #[test]
+    #[test_log::test]
     fn test_compose_matches_y() {
         assert_eq!(T2.compose(&T1).apply(Y), T2.apply(T1.apply(Y)));
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_t1_apply_one() {
         assert_eq!(T2.apply(T1.apply(ONE)), T2_T1_ONE);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_compose_apply_one() {
         assert_eq!(T2.compose(&T1).apply(ONE), T2_T1_ONE);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_expected_apply_one() {
         assert_eq!(T2_T1.apply(ONE), T2_T1_ONE);
     }
-    #[test]
+    #[test_log::test]
     fn test_compose_matches_one() {
         assert_eq!(T2.compose(&T1).apply(ONE), T2.apply(T1.apply(ONE)));
     }
 
-    #[test]
+    #[test_log::test]
     fn test_compose() {
         assert_eq!(T2.compose(&T1), T2_T1);
     }
 
-    #[test]
+    #[test_log::test]
     fn t2_t1_apply_z() {
         assert_eq!(T2.apply(T1.apply(Z)), T2_T1_Z);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_compose_apply_z() {
         assert_eq!(T2.compose(&T1).apply(Z), T2_T1_Z);
     }
-    #[test]
+    #[test_log::test]
     fn t2_t1_expected_apply_z() {
         assert_eq!(T2_T1.apply(Z), T2_T1_Z);
     }
-    #[test]
+    #[test_log::test]
     fn test_compose_matches_z() {
         assert_eq!(T2.compose(&T1).apply(Z), T2.apply(T1.apply(Z)));
     }
 
-    #[test]
+    #[test_log::test]
     fn test_compose_match() {
         let t = Isotropic3d {
             pos: Vec3::new(1.0, 2.0, 3.0),
@@ -259,7 +259,7 @@ mod tests {
         assert_approx_eq!(t.compose(&u).apply(X), t.apply(u.apply(X)));
     }
 
-    #[test]
+    #[test_log::test]
     fn test_inverse_match() {
         let t = Isotropic3d {
             pos: Vec3::new(1.0, 2.0, 3.0),
@@ -282,7 +282,7 @@ mod tests {
         assert_approx_eq!(p, t_inv_t_p);
     }
 
-    #[test]
+    #[test_log::test]
     fn test_rot() {
         let T3: Isotropic3d = Isotropic3d {
             pos: Vec3::new(1.0, 2.0, 3.0),
@@ -336,7 +336,7 @@ mod tests_bevy {
     use bevy::math::Vec3;
     use bevy::prelude::Transform;
 
-    #[test]
+    #[test_log::test]
     fn test_from_transform() {
         let transform = Transform {
             translation: Vec3::new(1.0, 2.0, 3.0),

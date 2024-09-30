@@ -1,5 +1,7 @@
 mod v_poly2d;
 
+use crate::trace;
+
 use super::*;
 
 // mod gjk2d;
@@ -75,7 +77,9 @@ impl SymmetricBoundingBox2d for Poly2d {
 
 impl ExtremePoint2d for Poly2d {
     fn extreme_point(&self, direction: Vec2) -> Vec2 {
-        self.points
+        trace!("Poly2d::extreme_point");
+        let result = self
+            .points
             .iter()
             .cloned()
             .fold((f32::MIN, Vec2::ZERO), |(best_score, best_p), p| {
@@ -86,7 +90,10 @@ impl ExtremePoint2d for Poly2d {
                     (best_score, best_p)
                 }
             })
-            .1
+            .1;
+        trace!("direction: {:?}", direction);
+        trace!("result: {:?}", result);
+        result
     }
 }
 
@@ -114,7 +121,7 @@ mod tests {
         a
     }
 
-    #[test]
+    #[test_log::test]
     fn triangle_extreme_points() {
         // C
         // |\
@@ -139,7 +146,7 @@ mod tests {
         assert_eq!(b, triangle.extreme_point(Vec2::new(1.0, -1.0)));
     }
 
-    #[test]
+    #[test_log::test]
     fn unit_box_extreme_points() {
         let a = Vec2::ZERO;
         let b = Vec2::X;
@@ -155,7 +162,7 @@ mod tests {
 
     // TODO: Re-enable these tests
     /*
-    #[test]
+    #[test_log::test]
     fn box_box_gjk() {
         let a = unit_box();
         let rel = Translate2d::from(Vec2::new(0.5, 0.0));
@@ -163,7 +170,7 @@ mod tests {
         assert!(poly_diff.collides_rel(&Point, &IdentityTransform));
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk2() {
         let a = unit_box();
         let rel = Translate2d::from(Vec2::new(2.0, 2.0));
@@ -184,42 +191,42 @@ mod tests {
         }
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_far_right() {
         box_box_gjk_sweep(Vec2::new(1.1, -1.1), Vec2::new(1.1, 1.1), 10, false);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_near_right() {
         box_box_gjk_sweep(Vec2::new(0.9, -0.9), Vec2::new(0.9, 0.9), 10, true);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_far_up() {
         box_box_gjk_sweep(Vec2::new(-1.1, 1.1), Vec2::new(1.1, 1.1), 10, false);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_near_up() {
         box_box_gjk_sweep(Vec2::new(-0.9, 0.9), Vec2::new(0.9, 0.9), 10, true);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_far_left() {
         box_box_gjk_sweep(Vec2::new(-1.1, -1.1), Vec2::new(-1.1, 1.1), 10, false);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_near_left() {
         box_box_gjk_sweep(Vec2::new(-0.9, -0.9), Vec2::new(-0.9, 0.9), 10, true);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_far_down() {
         box_box_gjk_sweep(Vec2::new(-1.1, -1.1), Vec2::new(1.1, -1.1), 10, false);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_box_gjk_sweep_near_down() {
         box_box_gjk_sweep(Vec2::new(-0.9, -0.9), Vec2::new(0.9, -0.9), 10, true);
     }

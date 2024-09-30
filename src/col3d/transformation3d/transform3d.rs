@@ -80,7 +80,7 @@ mod tests {
 
     use super::*;
 
-    #[test]
+    #[test_log::test]
     fn test_inverse() {
         let t = Transform3d {
             pos: Vec3::new(1.0, 2.0, 3.0),
