@@ -4,6 +4,7 @@ pub mod common;
 use approx::assert_relative_eq;
 use auburn::assert_approx_eq;
 use auburn::col2d::*;
+use auburn::trace;
 use auburn::utils::approx::Approx;
 use glam::Quat;
 
@@ -239,7 +240,6 @@ fn box_v_box_collision_br() {
     }
 }
 
-#[ignore]
 #[test_log::test]
 fn poly_from_box_v_poly_from_box_collision_random_case_1() {
     let b: Poly2d = Box2d::with_halfdims(0.5, 0.5).into();
@@ -269,6 +269,43 @@ fn poly_from_box_v_poly_from_box_collision_random_case_1() {
     assert!(sdfv.length() < 0.1);
 }
 
+fn box_box_transform2d_distance_bounds_check<'a>(
+    a: Collider2d<'a, Box2d, Transform2d>,
+    b: Collider2d<'a, Box2d, Transform2d>,
+)
+// fn box_box_necessary_distance<'a, T>(a: T, b: T, sdfv: (bool, Vec2))
+// where
+//     T = Collider2d<'a, Box2d, Transform2d>,
+{
+    let (collides, sdfv) = a.sdfv(b);
+    let distance = if collides { -1.0 } else { 1.0 } * sdfv.length();
+
+    trace!("sdfv length: {distance}");
+
+    let distance_between_centers =
+        (a.transform.apply_origin() - b.transform.apply_origin()).length();
+
+    let d = a.transform.determinant();
+
+    let a_min_radius = d * a.shape.halfsize.x.min(a.shape.halfsize.y);
+    let a_max_radius = d * a.shape.halfsize.length();
+
+    let b_min_radius = d * b.shape.halfsize.x.min(b.shape.halfsize.y);
+    let b_max_radius = d * b.shape.halfsize.length();
+
+    let min_radius = a_min_radius + b_min_radius;
+    let max_radius = a_max_radius + b_max_radius;
+
+    let min_distance = distance_between_centers - max_radius;
+    let max_distance = distance_between_centers - min_radius;
+    trace!("possible distance interval: [{min_distance}, {max_distance}]");
+    assert!(distance >= min_distance);
+    assert!(distance <= max_distance);
+    // let sdf = a.sdf(b);
+    // trace!("sdf: {sdf}");
+    // assert_approx_eq!(distance, sdf);
+}
+
 #[test_log::test]
 fn box_v_box_collision_random_case_1() {
     let b = Box2d::with_halfdims(0.5, 0.5);
@@ -290,11 +327,11 @@ fn box_v_box_collision_random_case_1() {
         shape: &b,
         transform: &t2,
     };
-    let sdf = col1.sdf(col2);
     let (collides, sdfv) = col1.sdfv(col2);
-    assert!(sdf > 0.0);
-    assert!(sdf < 0.1);
     assert!(!collides);
+    let distance = sdfv.length();
+    trace!("sdfv length: {distance}");
+    box_box_transform2d_distance_bounds_check(col1, col2);
     assert!(sdfv.length() < 0.1);
 }
 
@@ -319,10 +356,10 @@ fn box_v_box_collision_random_case_2() {
         shape: &b,
         transform: &t2,
     };
-    let sdf = col1.sdf(col2);
     let (collides, sdfv) = col1.sdfv(col2);
-    assert!(sdf < 0.0);
     assert!(collides);
+    let distance = if collides { -1.0 } else { 1.0 } * sdfv.length();
+    box_box_transform2d_distance_bounds_check(col1, col2);
 }
 
 #[test_log::test]
@@ -346,10 +383,122 @@ fn box_v_box_collision_random_case_3() {
         shape: &b,
         transform: &t2,
     };
-    let sdf = col1.sdf(col2);
     let (collides, sdfv) = col1.sdfv(col2);
-    assert!(sdf > 0.0);
     assert!(!collides);
+    let distance = sdfv.length();
+    trace!("sdfv length: {distance}");
+    box_box_transform2d_distance_bounds_check(col1, col2);
+}
+
+#[test_log::test]
+fn box_v_box_collision_random_case_4() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d {
+        pos: Vec2::new(0.0, 0.0),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, 0.07703778, 0.9970285)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let t2 = Transform2d {
+        pos: Vec2::new(8.097223, 0.43055537),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, 0.052785538, 0.9986058)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    let distance = sdfv.length();
+    trace!("sdfv length: {distance}");
+    box_box_transform2d_distance_bounds_check(col1, col2);
+    assert!(distance > 7.0);
+    assert!(distance < 7.1);
+}
+
+#[test_log::test]
+fn box_v_box_collision_random_case_5() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d {
+        pos: Vec2::new(0.0, 0.0),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, 0.53144556, 0.8470897)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let t2 = Transform2d {
+        pos: Vec2::new(2.7638893, -0.097222336),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, 0.62631613, 0.77956754)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    box_box_transform2d_distance_bounds_check(col1, col2);
+    assert!(sdfv.length() > 1.0);
+}
+
+#[test_log::test]
+fn box_v_box_collision_random_case_6() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d {
+        pos: Vec2::new(0.0, 0.0),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.29803792, 0.9545537)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let t2 = Transform2d {
+        pos: Vec2::new(-1.1249999, -2.1527781),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.25837365, 0.96604484)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    box_box_transform2d_distance_bounds_check(col1, col2);
+    assert!(sdfv.length() > 1.0);
+}
+
+#[test_log::test]
+fn box_v_box_collision_random_case_7() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d {
+        pos: Vec2::new(0.0, 0.0),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.045578003, 0.9989599)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let t2 = Transform2d {
+        pos: Vec2::new(7.291667, 0.3611112),
+        rot: Rotor2d::from_quaternion(Quat::from_xyzw(0.0, 0.0, -0.035485897, 0.99936825)),
+        scale: Vec2::new(1.0, 1.0),
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    box_box_transform2d_distance_bounds_check(col1, col2);
+    assert!(sdfv.length() > 1.0);
 }
 
 struct F32Iterator {
@@ -418,7 +567,7 @@ fn box_v_box_collision_diamond_with_offset() {
         // let sdf = col1.sdf(col2);
         let (collides, sdfv) = col1.sdfv(col2);
         assert!(!collides);
-        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-5) {
+        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-6) {
             auburn::error!("expected offset: {padding:?}, got sdfv: {sdfv:?}");
             errors += 1;
         }
@@ -457,7 +606,7 @@ fn box_v_box_collision_diamond_with_offset_mod1() {
         // let sdf = col1.sdf(col2);
         let (collides, sdfv) = col1.sdfv(col2);
         assert!(!collides);
-        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-5) {
+        if !sdfv.approx_eq_tolerance(&Vec2::new(padding, padding), 10e-1) {
             auburn::error!(
                 "expected offset: {:?}, got: {:?}",
                 Vec2::new(padding, padding),

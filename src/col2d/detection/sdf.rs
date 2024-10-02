@@ -16,8 +16,8 @@ pub trait SdfRel2d<B> {
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let a = Ball::with_radius(1.0);
+    /// let b = Ball::with_radius(1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
     /// assert_eq!(a.sdf_rel(&b, &rel), -1.0);
     /// ```
@@ -46,11 +46,11 @@ where
     /// ```
     /// # use auburn::col2d::*;
     /// let a = Collider2d {
-    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     shape: &Ball::with_radius(1.0),
     ///     transform: &Vec2::new(0.0, 0.0),
     /// };
     /// let b = Collider2d {
-    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     shape: &Ball::with_radius(1.0),
     ///     transform: &Vec2::new(1.0, 0.0),
     /// };
     /// assert_eq!(a.sdf(b), -1.0);

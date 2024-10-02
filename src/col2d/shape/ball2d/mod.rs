@@ -4,16 +4,7 @@ mod v_ball2d;
 mod v_point;
 // mod v_box2d;
 
-#[cfg(minkoski)]
-impl MinkowskiSum<Box2d> for Ball {
-    type Output = RoundedBox2d;
-    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
-        Self::Output {
-            halfsize: t.halfsize,
-            radius: self.radius,
-        }
-    }
-}
+impl DefaultMinkowski<Box2d> for Ball {}
 
 impl DefaultCol2dImpls for Ball {}
 

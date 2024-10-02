@@ -3,8 +3,8 @@ use super::*;
 impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
     SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Ball> for Box2d
 {
-    fn sdfv_common_rel(&self, b: &Ball, rel: &impl Transformation2d) -> (bool, Vec2) {
-        todo!()
+    fn sdfv_common_rel(&self, t: &Ball, rel: &impl Transformation2d) -> (bool, Vec2) {
+        todo!("reuse rounded box vs point")
     }
 }
 

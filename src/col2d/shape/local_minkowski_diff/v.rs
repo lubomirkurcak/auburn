@@ -57,7 +57,6 @@ where
             direction = new_direction;
         }
 
-        // warn_simplex_not_converged!(self);
         warn_simplex_not_converged!(iteration_limit);
 
         (false, Vec2::NAN)
@@ -108,7 +107,6 @@ where
             direction = new_direction;
         }
 
-        // warn_simplex_not_converged!(diff);
         warn_simplex_not_converged!(iteration_limit);
 
         (false, simplex.distance_to_origin())
@@ -128,12 +126,9 @@ where
         let mut direction = self.initial_direction();
         trace!("initial direction: {}", direction);
         let mut simplex = Simplex2d::new();
-        let mut last_a = self.extreme_point(direction);
-        trace!("M1 point: {}", last_a);
-        direction = simplex.add_point(last_a).1;
 
         for _i in 0..iteration_limit {
-            let human_counter = _i + 2;
+            let human_counter = _i + 1;
             trace!("-- iteration {_i}");
             trace!("direction: {}", direction);
             let a = self.extreme_point(direction);
@@ -146,17 +141,14 @@ where
                 trace!("Collision no longer possible");
                 return (false, Vec2::NAN);
             }
-            last_a = a;
 
             let (collides, new_direction) = simplex.add_point(a);
             trace!("new direction: {}", new_direction);
-            // very close to zero. This is a sign that the origin lies on the boundary of the
-            // incomplete simplex.
-            // We mainly have two options:
-            //   - Consider this a collision
             let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
             let new_direction = if new_direction_too_small {
-                direction.perp().normalize()
+                let perp = direction.perp();
+                warn!("new direction too small: {new_direction:?} OVERRIDING with {perp:?}");
+                perp
             } else {
                 new_direction
             };
@@ -174,10 +166,21 @@ where
             direction = new_direction;
         }
 
-        // warn_simplex_not_converged!(diff);
         warn_simplex_not_converged!(iteration_limit);
 
         (false, Vec2::NAN)
+    }
+}
+
+#[cfg(disabled)]
+impl<A, B, T> LocalMinkowskiDiff2d<'_, A, B, T>
+where
+    A: ExtremePoint2d,
+    B: ExtremePoint2d,
+    T: Transformation2d,
+{
+    fn add_new_point(&mut self, simplex: &mut Simplex2d, direction: Vec2) -> Vec2 {
+        let a = self.extreme_point(direction);
     }
 }
 
@@ -198,6 +201,8 @@ where
         trace!("M1 point: {}", last_a);
         direction = simplex.add_point(last_a).1;
 
+        let mut collision_possible = true;
+
         for _i in 0..iteration_limit {
             let human_counter = _i + 2;
             trace!("-- iteration {_i}");
@@ -210,16 +215,27 @@ where
 
             if fitness <= 0.0 {
                 trace!("Collision no longer possible");
+                collision_possible = false;
                 let last_fitness = last_a.dot(direction);
-                trace!("last fitness: {}", last_fitness);
-                if fitness <= last_fitness {
+
+                if !is_a_sufficiently_better_than_b(
+                    fitness,
+                    last_fitness,
+                    DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED,
+                ) {
+                    trace!("fitness: {fitness} is *NOT* sufficiently better than last_fitness: {last_fitness} (break)");
                     trace!("No intersection");
                     return (false, simplex.distance_to_origin());
                 }
+                trace!("fitness: {fitness} *is* sufficiently better than last_fitness: {last_fitness} (continue)");
             }
             last_a = a;
 
             let (collides, new_direction) = simplex.add_point(a);
+            if collides && !collision_possible {
+                error!("Simplex collided after collision was no longer possible");
+                panic!("Simplex collided after collision was no longer possible");
+            }
             trace!("new direction: {}", new_direction);
             // very close to zero. This is a sign that the origin lies on the boundary of the
             // incomplete simplex.
@@ -249,5 +265,15 @@ where
         warn_simplex_not_converged!(iteration_limit);
 
         (false, simplex.distance_to_origin())
+    }
+}
+
+const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
+
+fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
+    if b > 0.0 {
+        return a > b * (1.0 + t);
+    } else {
+        return a > b * (1.0 - t);
     }
 }

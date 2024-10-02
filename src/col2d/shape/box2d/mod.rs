@@ -1,9 +1,6 @@
-use crate::trace;
-
 use super::*;
 
 mod v_ball;
-mod v_box2d;
 mod v_point;
 
 /// 2D rectangle *centered at the origin*.
@@ -30,8 +27,6 @@ impl Box2d {
     }
 }
 
-//
-
 impl SymmetricBoundingBox2d for Box2d {
     fn symmetric_bounding_box(&self) -> Box2d {
         *self
@@ -40,15 +35,6 @@ impl SymmetricBoundingBox2d for Box2d {
 
 impl ExtremePoint2d for Box2d {
     fn extreme_point(&self, direction: Vec2) -> Vec2 {
-        trace!("Box2d::extreme_point");
-        trace!("direction: {:?}", direction);
-        trace!(
-            "result: {:?}",
-            Vec2::new(
-                direction.x.signum() * self.halfsize.x,
-                direction.y.signum() * self.halfsize.y,
-            )
-        );
         Vec2::new(
             direction.x.signum() * self.halfsize.x,
             direction.y.signum() * self.halfsize.y,
@@ -56,27 +42,6 @@ impl ExtremePoint2d for Box2d {
     }
 }
 
-#[cfg(minkoski)]
-impl MinkowskiNegationIsIdentity for Box2d {}
-
-#[cfg(minkoski)]
-impl MinkowskiSum<Box2d> for Box2d {
-    type Output = Self;
-
-    fn minkowski_sum(&self, t: &Box2d) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize + t.halfsize,
-        }
-    }
-}
-
-#[cfg(minkoski)]
-impl MinkowskiSum<Ball> for Box2d {
-    type Output = RoundedBox2d;
-    fn minkowski_sum(&self, t: &Ball) -> Self::Output {
-        Self::Output {
-            halfsize: self.halfsize,
-            radius: t.radius,
-        }
-    }
-}
+impl DefaultMinkowski<Box2d> for Box2d {}
+impl DefaultMinkowski<Poly2d> for Box2d {}
+// impl DefaultMinkowski<Ball> for Box2d {}

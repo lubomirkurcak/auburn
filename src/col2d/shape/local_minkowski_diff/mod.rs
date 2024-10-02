@@ -165,6 +165,8 @@ impl Simplex2d {
                 }
             }
             3 => {
+                warn!("this is definitely wrong");
+
                 let a = self.0.points[0];
                 let b = self.0.points[1];
                 let c = self.0.points[2];
@@ -190,10 +192,21 @@ impl Simplex2d {
                 trace!("points before: {:?}", self.0.points);
 
                 if same_direction(ab_perp, ao) {
-                    trace!("same direction ab_perp ao");
-                    self.0.points = vec![a, b];
-                    trace!("points after: {:?}", self.0.points);
-                    (false, ab_perp)
+                    if same_direction(ab, ao) {
+                        trace!("same direction ab ao");
+                        self.0.points = vec![a, b];
+                        trace!("points after: {:?}", self.0.points);
+                        (false, ab_perp)
+                    } else {
+                        trace!("opposite direction ab ao");
+                        self.0.points = vec![a, c];
+                        trace!("points after: {:?}", self.0.points);
+                        (false, ac_perp)
+                    }
+                    // trace!("same direction ab_perp ao");
+                    // self.0.points = vec![a, b];
+                    // trace!("points after: {:?}", self.0.points);
+                    // (false, ab_perp)
                 } else if same_direction(ac_perp, ao) {
                     trace!("same direction ac_perp ao");
                     self.0.points = vec![a, c];

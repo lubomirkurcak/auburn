@@ -24,17 +24,25 @@ pub trait Transformation2d {
     /// Transform the origin.
     fn apply_origin(&self) -> Vec2;
 
-    /// Transform a point.
+    /// Transform point.
     fn apply(&self, point: Vec2) -> Vec2;
 
-    /// Invert transformation.
+    /// Inverse transform point.
     fn unapply(&self, point: Vec2) -> Vec2;
 
-    /// Transform a normal.
+    /// Transform direction.
     fn apply_normal(&self, normal: Vec2) -> Vec2;
 
-    /// Invert transformation of a normal.
+    /// Inverse transform direction.
     fn unapply_normal(&self, normal: Vec2) -> Vec2;
+
+    /// Compute the determinant of the transformation.
+    fn determinant(&self) -> f32 {
+        // Default implementation assumes linearity.
+        let x = self.apply_normal(Vec2::X);
+        let y = self.apply_normal(Vec2::Y);
+        x.x * y.y - x.y * y.x
+    }
 }
 
 impl Transformation2d for IdentityTransform {
