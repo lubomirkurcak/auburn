@@ -205,17 +205,6 @@ impl PenetratesRel2d<RoundedBox2d> for RoundedBox2d {
     }
 }
 
-impl SdfRel2d<Point> for RoundedBox2d {
-    fn sdf_rel(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
-        SdfRel2d::sdf_rel(&self.box_part(), t, rel) - self.radius
-    }
-}
-
-impl SdfvRel2d<Point> for RoundedBox2d {
-    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

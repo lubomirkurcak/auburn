@@ -9,7 +9,6 @@ mod minkowski_diff;
 mod point2d;
 #[cfg(all(feature = "poly", feature = "std"))]
 mod poly2d;
-#[cfg(disabled)]
 mod rounded_box2d;
 #[cfg(feature = "tilemap")]
 mod tilemap;

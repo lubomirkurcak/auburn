@@ -1,16 +1,6 @@
 use super::*;
 use crate::col2d::detection::SdfvMinkowski2d;
 
-#[cfg(disabled)]
-macro_rules! warn_simplex_not_converged {
-    ($diff:expr) => {
-        warn!(
-            "Simplex algorithm did not converge in {} iterations",
-            $diff.iteration_limit()
-        );
-    };
-}
-
 macro_rules! warn_simplex_not_converged {
     ($limit:ident) => {
         warn!(
@@ -94,7 +84,7 @@ where
             let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
 
             let new_direction = if new_direction_too_small {
-                direction.perp().normalize()
+                direction.perp()
             } else {
                 new_direction
             };
@@ -241,9 +231,10 @@ where
             // incomplete simplex.
             // We mainly have two options:
             //   - Consider this a collision
+            //   - Start a new iteration with a new direction
             let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
             let new_direction = if new_direction_too_small {
-                direction.perp().normalize()
+                direction.perp()
             } else {
                 new_direction
             };
