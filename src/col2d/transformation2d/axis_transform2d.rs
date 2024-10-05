@@ -32,6 +32,10 @@ impl Transformation2d for AxisTransform2d {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         normal
     }
+
+    fn scaling_factor(&self) -> f32  {
+        self.scale
+    }
 }
 
 impl Invertible for AxisTransform2d {

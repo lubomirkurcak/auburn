@@ -31,6 +31,10 @@ impl Transformation2d for Vec2 {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         normal
     }
+
+    fn scaling_factor(&self) -> f32 {
+        1.0
+    }
 }
 
 impl Invertible for Vec2 {
@@ -70,6 +74,10 @@ impl Transformation2d for Translate2d {
 
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         normal
+    }
+
+    fn scaling_factor(&self) -> f32 {
+        1.0
     }
 }
 

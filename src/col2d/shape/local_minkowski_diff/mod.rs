@@ -165,8 +165,6 @@ impl Simplex2d {
                 }
             }
             3 => {
-                warn!("this is definitely wrong");
-
                 let a = self.0.points[0];
                 let b = self.0.points[1];
                 let c = self.0.points[2];

@@ -41,6 +41,10 @@ impl Transformation2d for Transform2d {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         self.rot.inverse() * normal
     }
+
+    fn scaling_factor(&self) -> f32 {
+        self.scale.x.max(self.scale.y)
+    }
 }
 
 impl Invertible for Transform2d {

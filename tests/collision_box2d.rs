@@ -1,5 +1,6 @@
 mod collider2d;
 pub mod common;
+use common::F32Iterator;
 
 use approx::assert_relative_eq;
 use auburn::assert_approx_eq;
@@ -285,7 +286,7 @@ fn box_box_transform2d_distance_bounds_check<'a>(
     let distance_between_centers =
         (a.transform.apply_origin() - b.transform.apply_origin()).length();
 
-    let d = a.transform.determinant();
+    let d = a.transform.scaling_factor();
 
     let a_min_radius = d * a.shape.halfsize.x.min(a.shape.halfsize.y);
     let a_max_radius = d * a.shape.halfsize.length();
@@ -501,42 +502,6 @@ fn box_v_box_collision_random_case_7() {
     assert!(sdfv.length() > 1.0);
 }
 
-struct F32Iterator {
-    min: f32,
-    max: f32,
-    steps: usize,
-    current: usize,
-}
-
-impl F32Iterator {
-    fn new(min: f32, max: f32, steps: usize) -> Self {
-        Self {
-            min,
-            max,
-            steps,
-            current: 0,
-        }
-    }
-
-    fn lerp(&self, t: f32) -> f32 {
-        self.min + t * (self.max - self.min)
-    }
-}
-
-impl Iterator for F32Iterator {
-    type Item = f32;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current < self.steps {
-            let t = self.current as f32 / self.steps as f32;
-            self.current += 1;
-            Some(self.lerp(t))
-        } else {
-            None
-        }
-    }
-}
-
 #[test_log::test]
 fn box_v_box_collision_diamond_with_offset() {
     let mut errors = 0;
@@ -655,4 +620,50 @@ fn collision_x() {
         let b = (&b_shape, &b_pos);
         assert_eq!(expect, a.collides(b));
     }
+}
+
+#[test_log::test]
+fn box_v_point_case_1() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d::IDENTITY;
+    let t2 = Transform2d {
+        pos: Vec2::new(1.0, 0.0),
+        rot: Rotor2d::IDENTITY,
+        scale: Vec2::ONE,
+    };
+    let col1 = Collider2d {
+        shape: &Point,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    trace!("sdfv: {sdfv}");
+    assert_approx_eq!(sdfv, Vec2::new(0.5, 0.0));
+}
+
+#[test_log::test]
+fn box_v_point_case_2() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t1 = Transform2d::IDENTITY;
+    let t2 = Transform2d {
+        pos: Vec2::new(1.0, 0.0),
+        rot: Rotor2d::from_angle(core::f32::consts::FRAC_PI_4),
+        scale: Vec2::ONE,
+    };
+    let col1 = Collider2d {
+        shape: &Point,
+        transform: &t1,
+    };
+    let col2 = Collider2d {
+        shape: &b,
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(!collides);
+    trace!("sdfv: {sdfv}");
+    assert_approx_eq!(sdfv, Vec2::new(1.0 - core::f32::consts::FRAC_1_SQRT_2, 0.0));
 }

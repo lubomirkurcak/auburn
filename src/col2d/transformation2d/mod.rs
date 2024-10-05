@@ -36,13 +36,8 @@ pub trait Transformation2d {
     /// Inverse transform direction.
     fn unapply_normal(&self, normal: Vec2) -> Vec2;
 
-    /// Compute the determinant of the transformation.
-    fn determinant(&self) -> f32 {
-        // Default implementation assumes linearity.
-        let x = self.apply_normal(Vec2::X);
-        let y = self.apply_normal(Vec2::Y);
-        x.x * y.y - x.y * y.x
-    }
+    /// Get the scaling factor of the transformation.
+    fn scaling_factor(&self) -> f32;
 }
 
 impl Transformation2d for IdentityTransform {
@@ -65,6 +60,10 @@ impl Transformation2d for IdentityTransform {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         normal
     }
+
+    fn scaling_factor(&self) -> f32 {
+        1.0
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -82,7 +81,7 @@ impl Default for Rotor2d {
 }
 
 impl Rotor2d {
-    const IDENTITY: Self = Self {
+    pub const IDENTITY: Self = Self {
         a: Vec2::new(1.0, 0.0),
     };
 

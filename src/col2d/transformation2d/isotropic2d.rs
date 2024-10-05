@@ -27,6 +27,10 @@ impl Transformation2d for Isotropic2d {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         todo!()
     }
+
+    fn scaling_factor(&self) -> f32  {
+        self.scale
+    }
 }
 
 impl Invertible for Isotropic2d {

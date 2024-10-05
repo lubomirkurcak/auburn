@@ -1,9 +1,9 @@
 use super::*;
 
-impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
-    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Point> for RoundedBox2d
+impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool, T: Transformation2d>
+    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Point, T> for RoundedBox2d
 {
-    fn sdfv_common_rel(&self, _: &Point, rel: &impl Transformation2d) -> (bool, Vec2) {
+    fn sdfv_common_rel(&self, _: &Point, rel: &T) -> (bool, Vec2) {
         let delta = rel.apply_origin();
         let delta_x = delta.x.abs() - self.halfsize.x;
         let delta_y = delta.y.abs() - self.halfsize.y;

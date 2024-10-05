@@ -1,5 +1,3 @@
-mod v_poly2d;
-
 use crate::trace;
 
 use super::*;
@@ -30,6 +28,15 @@ impl Poly2d {
             let angle = 2.0 * std::f32::consts::PI * (i as f32) / (sides as f32);
             // points[i] = radius * Vec2::new(angle.cos(), angle.sin());
             points.push(radius * Vec2::new(angle.cos(), angle.sin()))
+        }
+        Self { points }
+    }
+
+    pub fn regular_upright(sides: usize, radius: f32) -> Self {
+        let mut points = Vec::with_capacity(sides);
+        for i in 0..sides {
+            let angle = 2.0 * std::f32::consts::PI * (i as f32) / (sides as f32);
+            points.push(radius * Vec2::new(angle.sin(), angle.cos()))
         }
         Self { points }
     }
@@ -97,8 +104,12 @@ impl ExtremePoint2d for Poly2d {
     }
 }
 
-impl DefaultCol2dImpls for Poly2d {}
+impl<T: Transformation2d> ExtremePointT2d<T> for Poly2d {}
 
+impl DefaultMinkowski<Box2d> for Poly2d {}
+impl DefaultMinkowski<Poly2d> for Poly2d {}
+// impl DefaultMinkowski<Ball> for Box2d {}
+//
 #[cfg(test)]
 mod tests {
     use super::*;

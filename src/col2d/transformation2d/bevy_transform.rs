@@ -34,6 +34,10 @@ impl Transformation2d for bevy::prelude::Transform {
     fn unapply_normal(&self, normal: Vec2) -> Vec2 {
         Into::<Transform2d>::into(*self).unapply_normal(normal)
     }
+
+    fn scaling_factor(&self) -> f32 {
+        Into::<Transform2d>::into(*self).scaling_factor()
+    }
 }
 
 #[cfg(test)]

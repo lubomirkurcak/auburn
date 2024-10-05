@@ -1,15 +1,15 @@
 use super::*;
 
-/// Trait for computing the *vector* signed-distance between `Self` and `T`.
+/// Trait for computing the *vector* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [SdfRel2d]
-pub trait SdfvRel2d<T> {
-    /// Computes *vector* signed-distance between `self` and `t` in `self`-centric space.
+pub trait SdfvRel2d<B, T: Transformation2d> {
+    /// Computes *vector* signed-distance between `self` and `b` in `self`-oriented space.
     ///
     /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `b` - The object to compute distance to
+    /// * `rel` - The *relative* transform from `self` to `b`
     ///
     /// # Example
     /// ```
@@ -22,10 +22,10 @@ pub trait SdfvRel2d<T> {
     ///
     /// # See also
     /// * [Sdf2d::sdf].
-    fn sdfv_rel(&self, t: &T, rel: &impl Transformation2d) -> (bool, Vec2);
+    fn sdfv_rel(&self, t: &B, rel: &T) -> (bool, Vec2);
 }
 
-/// Trait for computing the *vector* signed-distance between `Self` and `T`.
+/// Trait for computing the *vector* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [Sdf2d]
@@ -33,13 +33,13 @@ pub trait Sdfv2d<'a, A: 'a, B: 'a, T, BB>
 where
     T: Transformation2d + 'a,
     BB: Into<Collider2d<'a, B, T>>,
-    A: SdfvRel2d<B>,
+    A: SdfvRel2d<B, T>,
 {
-    /// Computes *vector* signed-distance between `self` and `t`.
+    /// Computes *vector* signed-distance between `self` and `b`.
     ///
     /// # Arguments
-    /// * `t` - The object to compute distance to
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `b` - The object to compute distance to
+    /// * `rel` - The *relative* transform from `self` to `b`
     ///
     /// # Example
     /// ```
@@ -62,7 +62,7 @@ where
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Sdfv2d<'a, A, B, T, BB> for AA
 where
-    A: SdfvRel2d<B>,
+    A: SdfvRel2d<B, T>,
     T: Transformation2d + DeltaTransform + 'a,
     Collider2d<'a, A, T>: From<AA>,
     Collider2d<'a, B, T>: From<BB>,

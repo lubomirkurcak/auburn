@@ -37,7 +37,7 @@ where
 
             let (collides, new_direction) = simplex.add_point(a);
             trace!("new direction: {}", new_direction);
-            let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
+            let new_direction_too_small = direction_is_too_small(new_direction);
             trace!("new direction too small: {}", new_direction_too_small);
             if collides || new_direction_too_small {
                 trace!("Simplex collides");
@@ -81,9 +81,9 @@ where
             last_a = a;
 
             let (collides, new_direction) = simplex.add_point(a);
-            let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
-
+            let new_direction_too_small = direction_is_too_small(new_direction);
             let new_direction = if new_direction_too_small {
+                // panic!("new direction too small: {new_direction:?}");
                 direction.perp()
             } else {
                 new_direction
@@ -134,10 +134,11 @@ where
 
             let (collides, new_direction) = simplex.add_point(a);
             trace!("new direction: {}", new_direction);
-            let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
+            let new_direction_too_small = direction_is_too_small(new_direction);
             let new_direction = if new_direction_too_small {
                 let perp = direction.perp();
                 warn!("new direction too small: {new_direction:?} OVERRIDING with {perp:?}");
+                // panic!("new direction too small: {new_direction:?} OVERRIDING with {perp:?}");
                 perp
             } else {
                 new_direction
@@ -232,8 +233,9 @@ where
             // We mainly have two options:
             //   - Consider this a collision
             //   - Start a new iteration with a new direction
-            let new_direction_too_small = new_direction.length_squared() < f32::EPSILON;
+            let new_direction_too_small = direction_is_too_small(new_direction);
             let new_direction = if new_direction_too_small {
+                // panic!("new direction too small: {new_direction:?}");
                 direction.perp()
             } else {
                 new_direction
@@ -260,6 +262,10 @@ where
 }
 
 const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
+
+fn direction_is_too_small(direction: Vec2) -> bool {
+    direction.length_squared() < f32::EPSILON * f32::EPSILON
+}
 
 fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
     if b > 0.0 {

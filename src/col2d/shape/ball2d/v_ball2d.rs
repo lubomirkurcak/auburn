@@ -1,9 +1,9 @@
 use super::*;
 
-impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
-    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Ball> for Ball
+impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool, T: Transformation2d>
+    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Ball, T> for Ball
 {
-    fn sdfv_common_rel(&self, b: &Ball, rel: &impl Transformation2d) -> (bool, Vec2) {
+    fn sdfv_common_rel(&self, b: &Ball, rel: &T) -> (bool, Vec2) {
         let radius = self.radius + b.radius;
         let delta = rel.apply_origin();
         let length = delta.length();

@@ -65,6 +65,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 
 // Collides
 
+#[cfg(disable)]
 impl CollidesRel2d<Point> for RoundedBox2d {
     fn collides_rel(&self, t: &Point, rel: &impl Transformation2d) -> bool {
         let bbox = self.symmetric_bounding_box();
@@ -115,6 +116,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 
 // Penetrates
 
+#[cfg(disable)]
 impl PenetratesRel2d<Point> for RoundedBox2d {
     fn penetrates_rel(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let bbox = self.symmetric_bounding_box();
@@ -203,9 +205,4 @@ impl PenetratesRel2d<RoundedBox2d> for RoundedBox2d {
     fn penetrates(&self, t: &RoundedBox2d, delta: &Vec2) -> Option<Vec2> {
         Point.penetrates(&self.minkowski_difference(t), &delta)
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }

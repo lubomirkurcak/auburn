@@ -2,12 +2,12 @@ use rounded_box2d::RoundedBox2d;
 
 use super::*;
 
-impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool>
-    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Ball> for Box2d
+impl<const COMPUTE_PENETRATION: bool, const COMPUTE_DISTANCE: bool, T: Transformation2d>
+    SdfvCommonRel2d<COMPUTE_PENETRATION, COMPUTE_DISTANCE, Ball, T> for Box2d
 {
-    fn sdfv_common_rel(&self, t: &Ball, rel: &impl Transformation2d) -> (bool, Vec2) {
+    fn sdfv_common_rel(&self, t: &Ball, rel: &T) -> (bool, Vec2) {
         let rounded_box = RoundedBox2d::new(self.halfsize, t.radius);
-        SdfvCommonRel2d::<COMPUTE_PENETRATION, COMPUTE_DISTANCE, _>::sdfv_common_rel(
+        SdfvCommonRel2d::<COMPUTE_PENETRATION, COMPUTE_DISTANCE, _, T>::sdfv_common_rel(
             &rounded_box,
             &Point,
             rel,

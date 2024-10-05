@@ -1,4 +1,7 @@
-use auburn::col2d::*;
+use auburn::{assert_approx_eq, col2d::*, trace};
+
+use auburn::utils::approx::Approx;
+use common::F32Iterator;
 
 mod common;
 
@@ -303,4 +306,84 @@ fn sdfv_diag() {
         let b = (&b_shape, &b_pos);
         assert_eq!(expect, a.sdfv(b));
     }
+}
+
+#[test_log::test]
+fn triangle_v_box_case_1() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t2 = Transform2d {
+        pos: Vec2::new(-0.88888913, 0.56944436),
+        rot: Rotor2d::IDENTITY,
+        scale: Vec2::ONE,
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &Transform2d::IDENTITY,
+    };
+    let col2 = Collider2d {
+        shape: &Poly2d::regular_upright(3, 1.0),
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(collides);
+    trace!("sdfv: {sdfv}");
+    // assert_approx_eq!(sdfv, Vec2::new());
+}
+
+#[test_log::test]
+fn upright_triangle_v_box_descend() {
+    let mut errors = 0;
+    for offset in F32Iterator::new(2.0, 0.5, 100) {
+        let col1 = Collider2d {
+            shape: &Box2d::with_halfdims(0.5, 0.5),
+            transform: &Transform2d::IDENTITY,
+        };
+        let col2 = Collider2d {
+            shape: &Poly2d::regular_upright(3, 1.0),
+            transform: &Transform2d {
+                pos: Vec2::new(0.0, offset),
+                rot: Rotor2d::IDENTITY,
+                scale: Vec2::ONE,
+            },
+        };
+        let (collides, sdfv) = col1.sdfv(col2);
+        // assert!(collides);
+        trace!("sdfv: {sdfv}");
+        let expected = Vec2::new(0.0, offset - 1.0);
+        if !sdfv.approx_eq_tolerance(&expected, 10e-5) {
+            auburn::error!("expected offset: {expected:?}, got sdfv: {sdfv:?}");
+            errors += 1;
+        }
+        // assert_approx_eq!(sdfv, Vec2::new(padding, padding));
+    }
+    assert_eq!(errors, 0);
+}
+
+#[test_log::test]
+fn upright_triangle_v_box_descend_slight_offset() {
+    let mut errors = 0;
+    for offset in F32Iterator::new(2.0, 0.5, 100) {
+        let col1 = Collider2d {
+            shape: &Box2d::with_halfdims(0.5, 0.5),
+            transform: &Transform2d::IDENTITY,
+        };
+        let col2 = Collider2d {
+            shape: &Poly2d::regular_upright(3, 1.0),
+            transform: &Transform2d {
+                pos: Vec2::new(0.01, offset),
+                rot: Rotor2d::IDENTITY,
+                scale: Vec2::ONE,
+            },
+        };
+        let (collides, sdfv) = col1.sdfv(col2);
+        // assert!(collides);
+        trace!("sdfv: {sdfv}");
+        let expected = Vec2::new(0.0, offset - 1.0);
+        if !sdfv.approx_eq_tolerance(&expected, 10e-5) {
+            auburn::error!("expected offset: {expected:?}, got sdfv: {sdfv:?}");
+            errors += 1;
+        }
+        // assert_approx_eq!(sdfv, Vec2::new(padding, padding));
+    }
+    assert_eq!(errors, 0);
 }

@@ -1,15 +1,15 @@
 use super::*;
 
-/// Trait for computing smallest penetration vector between `Self` and `T`.
+/// Trait for computing smallest penetration vector between `Self` and `B`.
 ///
 /// # See also
 /// * [Collides2d]
-pub trait PenetratesRel2d<T> {
-    /// Computes the smallest penetration vector between `self` and `t` in `self`-centric space.
+pub trait PenetratesRel2d<B, T: Transformation2d> {
+    /// Computes the smallest penetration vector between `self` and `b` in `self`-oriented space.
     ///
     /// # Arguments
-    /// * `t` - The object to compute penetration into
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `b` - The object to compute penetration into
+    /// * `rel` - The *relative* transform from `self` to `b`
     ///
     /// # Example
     /// ```
@@ -22,10 +22,10 @@ pub trait PenetratesRel2d<T> {
     ///
     /// # See also
     /// * [Collides2d::collides].
-    fn penetrates_rel(&self, t: &T, rel: &impl Transformation2d) -> Option<Vec2>;
+    fn penetrates_rel(&self, t: &B, rel: &T) -> Option<Vec2>;
 }
 
-/// Trait for computing smallest penetration vector between `Self` and `T`.
+/// Trait for computing smallest penetration vector.
 ///
 /// # See also
 /// * [Collides2d]
@@ -33,13 +33,13 @@ pub trait Penetrates2d<'a, A: 'a, B: 'a, T, BB>
 where
     T: Transformation2d + 'a,
     BB: Into<Collider2d<'a, B, T>>,
-    A: PenetratesRel2d<B>,
+    A: PenetratesRel2d<B, T>,
 {
-    /// Computes the smallest penetration vector between `self` and `t`.
+    /// Computes the smallest penetration vector between `self` and `b`.
     ///
     /// # Arguments
-    /// * `t` - The object to compute penetration into
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `b` - The object to compute penetration into
+    /// * `rel` - The *relative* transform from `self` to `b`
     ///
     /// # Example
     /// ```
@@ -62,7 +62,7 @@ where
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Penetrates2d<'a, A, B, T, BB> for AA
 where
-    A: PenetratesRel2d<B>,
+    A: PenetratesRel2d<B, T>,
     T: Transformation2d + DeltaTransform + 'a,
     Collider2d<'a, A, T>: From<AA>,
     Collider2d<'a, B, T>: From<BB>,

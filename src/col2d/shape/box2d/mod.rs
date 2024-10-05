@@ -10,8 +10,6 @@ pub struct Box2d {
     pub halfsize: Vec2,
 }
 
-impl DefaultCol2dImpls for Box2d {}
-
 impl Box2d {
     pub const fn with_halfdims(x: f32, y: f32) -> Self {
         Self::new(Vec2::new(x, y))
@@ -41,6 +39,8 @@ impl ExtremePoint2d for Box2d {
         )
     }
 }
+
+impl<T: Transformation2d> ExtremePointT2d<T> for Box2d {}
 
 impl DefaultMinkowski<Box2d> for Box2d {}
 impl DefaultMinkowski<Poly2d> for Box2d {}
