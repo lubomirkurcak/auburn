@@ -5,12 +5,12 @@ use super::*;
 /// # See also
 /// * [SymmetricBoundingBox2d]
 /// * [PenetratesRel2d]
-pub trait CollidesRel2d<T> {
+pub trait CollidesRel2d<B, T: Transformation2d> {
     /// Checks whether objects collide.
     ///
     /// # Arguments
-    /// * `t` - The object to check collision against
-    /// * `rel` - The *relative* transform from `self` to `t`
+    /// * `b` - The object to check collision against
+    /// * `rel` - The *relative* transform from `self` to `b`
     ///
     /// # Example
     /// ```
@@ -23,7 +23,7 @@ pub trait CollidesRel2d<T> {
     ///
     /// # See also
     /// * [Penetrates2d::penetrates].
-    fn collides_rel(&self, t: &T, rel: &impl Transformation2d) -> bool;
+    fn collides_rel(&self, b: &B, rel: &T) -> bool;
 }
 
 //
@@ -40,7 +40,7 @@ pub trait Collides2d<'a, A: 'a, B: 'a, T, BB>
 where
     T: Transformation2d + 'a,
     BB: Into<Collider2d<'a, B, T>>,
-    A: CollidesRel2d<B>,
+    A: CollidesRel2d<B, T>,
 {
     /// Checks whether objects collide.
     ///
@@ -69,10 +69,12 @@ where
 
 impl<'a, A: 'a, B: 'a, T, AA, BB> Collides2d<'a, A, B, T, BB> for AA
 where
-    A: CollidesRel2d<B>,
+    A: CollidesRel2d<B, T>,
     T: Transformation2d + DeltaTransform + 'a,
     Collider2d<'a, A, T>: From<AA>,
     Collider2d<'a, B, T>: From<BB>,
+    AA: Copy,
+    BB: Copy,
 {
     fn collides(self, bb: BB) -> bool {
         let a: Collider2d<'a, A, T> = self.into();

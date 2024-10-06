@@ -1,32 +1,33 @@
 use super::*;
 
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+/// Trait for computing the *scalar* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [SdfvRel2d]
-pub trait SdfRel2d<T> {
-    /// Computes *scalar* signed-distance between `self` and `t`.
+pub trait SdfRel2d<B> {
+    /// Computes *scalar* signed-distance between `self` and `b` (in `self`-centric space, which
+    /// does not matter since `sdf` is rotation-symmetric scalar value).
     ///
     /// # Arguments
     /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
+    /// * `b` - The object to check collision against
+    /// * `rel` - Relative transform of `b` in relation to `self`
     ///
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
-    /// let a = Box2d::with_halfdims(1.0, 1.0);
-    /// let b = Box2d::with_halfdims(1.0, 1.0);
+    /// let a = Ball::with_radius(1.0);
+    /// let b = Ball::with_radius(1.0);
     /// let rel = Translate2d::from(Vec2::new(1.0, 0.0));
     /// assert_eq!(a.sdf_rel(&b, &rel), -1.0);
     /// ```
     ///
     /// # See also
     /// * [Sdfv2d::sdfv].
-    fn sdf_rel(&self, t: &T, rel: &impl Transformation2d) -> f32;
+    fn sdf_rel(&self, t: &B, rel: &impl Transformation2d) -> f32;
 }
 
-/// Trait for computing the *scalar* signed-distance between `Self` and `T`.
+/// Trait for computing the *scalar* signed-distance between `Self` and `B`.
 ///
 /// # See also
 /// * [Sdfv2d]
@@ -36,22 +37,20 @@ where
     BB: Into<Collider2d<'a, B, T>>,
     A: SdfRel2d<B>,
 {
-    /// Computes *scalar* signed-distance between `self` and `t`.
+    /// Computes *scalar* signed-distance between `self` and `b`.
     ///
     /// # Arguments
-    /// * `transform` - Transform of `Self`
-    /// * `t` - The object to check collision against
-    /// * `delta` - Transform of `t`
+    /// * `b` - The collider to check collision against
     ///
     /// # Example
     /// ```
     /// # use auburn::col2d::*;
     /// let a = Collider2d {
-    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     shape: &Ball::with_radius(1.0),
     ///     transform: &Vec2::new(0.0, 0.0),
     /// };
     /// let b = Collider2d {
-    ///     shape: &Box2d::with_halfdims(1.0, 1.0),
+    ///     shape: &Ball::with_radius(1.0),
     ///     transform: &Vec2::new(1.0, 0.0),
     /// };
     /// assert_eq!(a.sdf(b), -1.0);

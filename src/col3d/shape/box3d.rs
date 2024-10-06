@@ -178,7 +178,7 @@ mod tests {
 
     use super::*;
 
-    #[test]
+    #[test_log::test]
     fn point_v_box_collides() {
         let b = Box3d::with_halfdims(2.0, 1.0, 3.0);
         let y1 = Vec3::new(0.0, 0.0, 0.0);
@@ -210,7 +210,7 @@ mod tests {
         assert!(!Point.collides_rel(&b, &n4));
         assert!(!Point.collides_rel(&b, &n5));
     }
-    #[test]
+    #[test_log::test]
     fn point_v_box_penetrates() {
         let b = Box3d::with_halfdims(2.0, 1.0, 3.0);
         let y1 = Vec3::new(0.0, 0.0, 0.0);
@@ -260,7 +260,7 @@ mod tests {
         assert_eq!(None, Point.penetrates_rel(&b, &n5));
     }
 
-    #[test]
+    #[test_log::test]
     fn point_v_box_sdf() {
         let b = Box3d::with_halfdims(2.0, 1.0, 3.0);
         let y1 = Vec3::new(0.0, 0.0, 0.0);
@@ -281,7 +281,7 @@ mod tests {
         assert_relative_eq!(b.sdf_rel(&Point, &n5), 0.1414213);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_v_box_no_collision() {
         let b = Box3d::with_halfdims(0.5, 0.5, 0.0);
         let delta = Vec3::new(2.0, 0.0, 0.0);
@@ -289,7 +289,7 @@ mod tests {
         assert_eq!(b.penetrates_rel(&b, &delta), None);
     }
 
-    #[test]
+    #[test_log::test]
     fn box_v_box_perfect_overlap() {
         let b = Box3d::with_halfdims(0.5, 0.5, 0.5);
         let delta = Vec3::new(0.0, 0.0, 0.0);
@@ -298,7 +298,7 @@ mod tests {
         assert!(b.penetrates_rel(&b, &delta).is_some());
     }
 
-    #[test]
+    #[test_log::test]
     fn box_v_box_collision() {
         let b = Box3d::with_halfdims(0.5, 0.5, 8.0);
         for i in 1..=9 {

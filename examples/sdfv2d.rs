@@ -10,7 +10,7 @@ fn main() {
     };
 
     println!(
-        "Distance: {}",
+        "Distance: {:?}",
         (&a_shape, &a_pos).sdfv((b.shape, b.transform))
     );
 
@@ -19,11 +19,11 @@ fn main() {
         transform: &a_pos,
     };
 
-    println!("Distance: {}", a.sdfv(b));
-    println!("Distance: {}", a.sdfv((b.shape, b.transform)));
+    println!("Distance: {:?}", a.sdfv(b));
+    println!("Distance: {:?}", a.sdfv((b.shape, b.transform)));
 
     println!(
-        "Distance: {}",
+        "Distance: {:?}",
         (&a_shape, &a_pos).sdfv((b.shape, b.transform))
     );
 }

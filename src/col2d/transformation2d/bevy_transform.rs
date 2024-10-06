@@ -26,4 +26,29 @@ impl Transformation2d for bevy::prelude::Transform {
     fn unapply(&self, point: Vec2) -> Vec2 {
         Into::<Transform2d>::into(*self).unapply(point)
     }
+
+    fn apply_normal(&self, normal: Vec2) -> Vec2 {
+        Into::<Transform2d>::into(*self).apply_normal(normal)
+    }
+
+    fn unapply_normal(&self, normal: Vec2) -> Vec2 {
+        Into::<Transform2d>::into(*self).unapply_normal(normal)
+    }
+
+    fn scaling_factor(&self) -> f32 {
+        Into::<Transform2d>::into(*self).scaling_factor()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::col2d::*;
+    use glam::Vec3;
+
+    #[test_log::test]
+    fn test_bevy_transform() {
+        let transform = bevy::prelude::Transform::from_translation(Vec3::new(1.0, 2.0, 0.0));
+        let transform2d: Transform2d = transform.into();
+        assert_eq!(transform2d.pos, Vec2::new(1.0, 2.0));
+    }
 }

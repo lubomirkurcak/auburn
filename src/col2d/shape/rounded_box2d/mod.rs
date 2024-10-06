@@ -1,3 +1,5 @@
+mod v_point;
+
 use super::*;
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
@@ -32,6 +34,7 @@ impl ExtremePoint2d for RoundedBox2d {
     }
 }
 
+#[cfg(minkoski)]
 impl MinkowskiNegationIsIdentity for RoundedBox2d {}
 
 // impl MinkowskiSum<RoundedBox2d> for RoundedBox2d {
@@ -62,6 +65,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 
 // Collides
 
+#[cfg(disable)]
 impl CollidesRel2d<Point> for RoundedBox2d {
     fn collides_rel(&self, t: &Point, rel: &impl Transformation2d) -> bool {
         let bbox = self.symmetric_bounding_box();
@@ -112,6 +116,7 @@ impl CollidesRel2d<Point> for RoundedBox2d {
 
 // Penetrates
 
+#[cfg(disable)]
 impl PenetratesRel2d<Point> for RoundedBox2d {
     fn penetrates_rel(&self, t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
         let bbox = self.symmetric_bounding_box();
@@ -200,50 +205,4 @@ impl PenetratesRel2d<RoundedBox2d> for RoundedBox2d {
     fn penetrates(&self, t: &RoundedBox2d, delta: &Vec2) -> Option<Vec2> {
         Point.penetrates(&self.minkowski_difference(t), &delta)
     }
-}
-
-impl SdfRel2d<Point> for RoundedBox2d {
-    fn sdf_rel(&self, t: &Point, rel: &impl Transformation2d) -> f32 {
-        SdfRel2d::sdf_rel(&self.box_part(), t, rel) - self.radius
-    }
-}
-
-impl SdfvRel2d<Point> for RoundedBox2d {
-    fn sdfv_rel(&self, t: &Point, rel: &impl Transformation2d) -> Vec2 {
-        // let d = Sdfv2d::sdfv(&self.box_part(), t, rel);
-        // let l = d.length();
-        // if l > 0.0 {
-        //     d * (l - self.radius) / l
-        // } else {
-        //     d
-        // }
-
-        let delta = rel.apply_origin();
-        let delta_x = delta.x.abs() - self.halfsize.x;
-        let delta_y = delta.y.abs() - self.halfsize.y;
-
-        if self.box_part().collides_rel(t, rel) {
-            if delta_x > delta_y {
-                return Vec2::new((delta_x - self.radius) * delta.x.signum(), 0.0);
-            } else {
-                return Vec2::new(0.0, (delta_y - self.radius) * delta.y.signum());
-            }
-        } else {
-            if delta_x <= 0.0 {
-                return Vec2::new(0.0, (delta_y - self.radius) * delta.y.signum());
-            } else if delta_y <= 0.0 {
-                return Vec2::new((delta_x - self.radius) * delta.x.signum(), 0.0);
-            } else {
-                let corner = Vec2::new(delta_x * delta.x.signum(), delta_y * delta.y.signum());
-                let corner_length = corner.length();
-                let corner = corner * (corner_length - self.radius) / corner_length;
-                return corner;
-            }
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }

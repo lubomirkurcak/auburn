@@ -16,12 +16,12 @@ impl Ball {
     }
 }
 
-impl MinkowskiSum<Ball> for Ball {
-    type Output = Self;
-
-    fn minkowski_sum(&self, t: &Ball) -> Self::Output {
-        Self::Output::with_radius(self.radius + t.radius)
-    }
-}
-
-impl MinkowskiNegationIsIdentity for Ball {}
+// impl MinkowskiSum<Ball> for Ball {
+//     type Output = Self;
+// 
+//     fn minkowski_sum(&self, t: &Ball) -> Self::Output {
+//         Self::Output::with_radius(self.radius + t.radius)
+//     }
+// }
+// 
+// impl MinkowskiNegationIsIdentity for Ball {}

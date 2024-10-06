@@ -10,7 +10,7 @@ impl From<()> for Point {
     }
 }
 
-impl MinkowskiNegationIsIdentity for Point {}
+// impl MinkowskiNegationIsIdentity for Point {}
 
 // impl<T: Copy> MinkowskiSum<T> for Point {
 //     type Output = T;
