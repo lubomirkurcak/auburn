@@ -327,7 +327,7 @@ fn triangle_v_box_case_1() {
     let (collides, sdfv) = col1.sdfv(col2);
     assert!(collides);
     trace!("sdfv: {sdfv}");
-    // assert_approx_eq!(sdfv, Vec2::new());
+    assert_approx_eq!(sdfv, Vec2::new(0.0, -0.4305557));
 }
 
 #[test_log::test]
@@ -386,4 +386,48 @@ fn upright_triangle_v_box_descend_slight_offset() {
         // assert_approx_eq!(sdfv, Vec2::new(padding, padding));
     }
     assert_eq!(errors, 0);
+}
+
+#[test_log::test]
+fn triangle_v_box_case_2() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t2 = Transform2d {
+        pos: Vec2::new(-0.013888678, -0.13888897),
+        rot: Rotor2d::IDENTITY,
+        scale: Vec2::ONE,
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &Transform2d::IDENTITY,
+    };
+    let col2 = Collider2d {
+        shape: &Poly2d::regular_upright(3, 1.0),
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(collides);
+    trace!("sdfv: {sdfv}");
+    assert_approx_eq!(sdfv, Vec2::new(0.95396185, 0.55077016));
+}
+
+#[test_log::test]
+fn triangle_v_box_case_3() {
+    let b = Box2d::with_halfdims(0.5, 0.5);
+    let t2 = Transform2d {
+        pos: Vec2::new(0.0, -0.097222336),
+        rot: Rotor2d::IDENTITY,
+        scale: Vec2::ONE,
+    };
+    let col1 = Collider2d {
+        shape: &b,
+        transform: &Transform2d::IDENTITY,
+    };
+    let col2 = Collider2d {
+        shape: &Poly2d::regular_upright(3, 1.0),
+        transform: &t2,
+    };
+    let (collides, sdfv) = col1.sdfv(col2);
+    assert!(collides);
+    trace!("sdfv: {sdfv}");
+    assert_approx_eq!(sdfv, Vec2::new(0.0, -1.0972223));
 }

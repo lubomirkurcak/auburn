@@ -93,7 +93,11 @@ impl EpaPoly2d {
             let fitness_to_beat = a.dot(normal);
             trace!("fitness to beat: {}", fitness_to_beat);
 
-            if fitness - fitness_to_beat < f32::EPSILON {
+            if !is_a_sufficiently_better_than_b(
+                fitness,
+                fitness_to_beat,
+                DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED,
+            ) {
                 trace!("EPA converged");
                 let denom = normal.dot(normal);
                 trace!("denom: {}", denom);
@@ -120,8 +124,14 @@ impl EpaPoly2d {
             let b = self.0.points[(i + 1) % self.0.points.len()];
             let ab = b - a;
             let ao = -a;
-            let ab_perp = ab.cross_aba(ao);
-            let distance = ab_perp.length_squared();
+
+            // Project the origin onto the edge
+            let t = ao.dot(ab) / ab.dot(ab);
+            let t_clamped = t.clamp(0.0, 1.0);
+
+            // Calculate the closest point on the edge to the origin
+            let closest_point = a + ab * t_clamped;
+            let distance = closest_point.length_squared();
 
             if distance < closest_distance {
                 closest_edge = (a, b);
@@ -428,5 +438,20 @@ mod tests {
         }
 
         assert_approx_eq!(m_gt, extreme_point);
+    }
+}
+
+
+
+
+
+
+const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
+
+fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
+    if b > 0.0 {
+        return a > b * (1.0 + t);
+    } else {
+        return a > b * (1.0 - t);
     }
 }

@@ -261,16 +261,6 @@ where
     }
 }
 
-const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
-
 fn direction_is_too_small(direction: Vec2) -> bool {
     direction.length_squared() < f32::EPSILON * f32::EPSILON
-}
-
-fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
-    if b > 0.0 {
-        return a > b * (1.0 + t);
-    } else {
-        return a > b * (1.0 - t);
-    }
 }
