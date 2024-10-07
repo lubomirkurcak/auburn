@@ -9,10 +9,11 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use super::{
-    Ball, Box2d, CollidesRel2d, PenetratesRel2d, Point, SymmetricBoundingBox2d, Transformation2d,
-    Vec2,
+    Ball, Box2d, CollidesRel2d, PenetratesRel2d, Point, SdfvCommonRel2d, SymmetricBoundingBox2d,
+    Transformation2d, Vec2,
 };
 
+use crate::error;
 use crate::utils::publisher::{Ledger, Publisher};
 use crate::utils::rect2::Rect2i32;
 
@@ -188,22 +189,24 @@ impl Tilemap {
     // }
 }
 
-impl CollidesRel2d<Point> for Tilemap {
-    fn collides_rel(&self, _t: &Point, rel: &impl Transformation2d) -> bool {
+impl<T: Transformation2d> SdfvCommonRel2d<false, false, Point, T> for Tilemap {
+    fn sdfv_common_rel(&self, b: &Point, rel: &T) -> (bool, Vec2) {
         let delta = rel.apply_origin();
         let tile_pos = self.world_to_tile_pos(&delta);
         let tile = self.get_tile(tile_pos);
-        tile != 0
+        let collides = tile != 0;
+        (collides, Vec2::NAN)
     }
 }
 
-impl PenetratesRel2d<Point> for Tilemap {
-    fn penetrates_rel(&self, _t: &Point, rel: &impl Transformation2d) -> Option<Vec2> {
+impl<T: Transformation2d> SdfvCommonRel2d<true, false, Point, T> for Tilemap {
+    fn sdfv_common_rel(&self, b: &Point, rel: &T) -> (bool, Vec2) {
         let delta = rel.apply_origin();
         let tile_pos = self.world_to_tile_pos(&delta);
         let tile = self.get_tile(tile_pos);
-        let up = self.get_tile(tile_pos + V2i32::Y);
-        todo!()
+        let collides = tile != 0;
+        error!("tilemap penetration is not implemented yet");
+        (collides, Vec2::Y)
     }
 }
 
@@ -256,5 +259,13 @@ mod tests {
         println!("{serialized}");
         let deserialized: Tilemap = serde_json::from_str(&serialized).unwrap();
         assert_eq!(tilemap.chunks.len(), deserialized.chunks.len());
+    }
+
+    #[test_log::test]
+    fn test_collision() {
+        let mut tilemap = Tilemap::default();
+        tilemap.set_tile(lk_math::vector::V2::from_xy(3, 2), 1);
+        let ball = Ball::with_radius(0.5);
+        let pos = Vec2::new(3.5, 2.5);
     }
 }

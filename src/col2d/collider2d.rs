@@ -7,6 +7,12 @@ pub struct Collider2d<'a, S, T: Transformation2d> {
     pub transform: &'a T,
 }
 
+impl<'a, S, T: Transformation2d> Collider2d<'a, S, T> {
+    pub fn new(shape: &'a S, transform: &'a T) -> Self {
+        Self { shape, transform }
+    }
+}
+
 impl<'a, S, T: Transformation2d> Clone for Collider2d<'a, S, T> {
     fn clone(&self) -> Self {
         Self {

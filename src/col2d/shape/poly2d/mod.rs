@@ -4,7 +4,7 @@ use super::*;
 
 // mod gjk2d;
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "bevy", derive(bevy::prelude::Component))]
 /// # Limitation
 /// Must contain the origin.

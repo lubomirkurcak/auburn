@@ -1,4 +1,8 @@
-use super::*;
+use glam::Vec3;
+
+use crate::col::Transformation3d;
+
+use super::{Composable, Invertible};
 
 impl Transformation3d for bevy::prelude::Transform {
     fn apply_origin(&self) -> Vec3 {
@@ -17,7 +21,7 @@ impl Transformation3d for bevy::prelude::Transform {
 impl Invertible for bevy::prelude::Transform {
     fn inverse(&self) -> Self {
         Self {
-            translation: self.unapply(Vec3::ZERO),
+            translation: Transformation3d::unapply(self, Vec3::ZERO),
             rotation: self.rotation.inverse(),
             scale: 1.0 / self.scale,
         }
@@ -29,7 +33,7 @@ impl Invertible for bevy::prelude::Transform {
 impl Composable for bevy::prelude::Transform {
     fn compose(&self, other: &Self) -> Self {
         Self {
-            translation: self.apply(other.translation),
+            translation: Transformation3d::apply(self, other.translation),
             rotation: self.rotation * other.rotation,
             scale: self.scale * other.scale,
         }
