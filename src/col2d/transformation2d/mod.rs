@@ -5,11 +5,13 @@ use crate::trace;
 use super::*;
 
 mod axis_transform2d;
+#[cfg(any())]
 mod isotropic2d;
 mod transform2d;
 mod translate2d;
 
 pub use axis_transform2d::*;
+#[cfg(any())]
 pub use isotropic2d::*;
 pub use transform2d::*;
 pub use translate2d::*;

@@ -1,7 +1,6 @@
 mod v;
 
-use crate::utils::approx::Approx;
-use crate::{debug, error, info, trace, warn};
+use crate::trace;
 
 use super::*;
 
@@ -25,22 +24,6 @@ where
 {
     fn to_local(&self) -> local_minkowski_diff::LocalMinkowskiDiff2d<'a, A, B, T> {
         local_minkowski_diff::LocalMinkowskiDiff2d::raw(self.a, self.b, self.ab_t)
-    }
-}
-
-impl<'a, A, B, T> MinkowskiDiff2d<'a, A, B, T>
-where
-    A: ExtremePoint2d,
-    B: ExtremePoint2d,
-    T: Transformation2d,
-{
-    pub fn initial_direction(&self) -> Vec2 {
-        let direction = self.ab_t.apply_origin();
-        if direction.length_squared() < f32::EPSILON {
-            Vec2::new(1.0, 0.0)
-        } else {
-            direction
-        }
     }
 }
 
@@ -111,7 +94,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_approx_eq;
+    use crate::utils::approx::Approx;
+    use crate::{assert_approx_eq, debug, info};
 
     use super::*;
 

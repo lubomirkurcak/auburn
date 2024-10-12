@@ -24,12 +24,12 @@ where
         let iteration_limit = 20;
 
         for _i in 0..iteration_limit {
-            let human_counter = _i + 1;
+            let _human_counter = _i + 1;
             trace!("-- iteration {_i}");
             let a = self.extreme_point(direction);
-            trace!("M{human_counter} point: {}", a);
+            trace!("M{_human_counter} point: {}", a);
 
-            trace!("M{human_counter} fitness: {}", a.dot(direction));
+            trace!("M{_human_counter} fitness: {}", a.dot(direction));
             if a.dot(direction) <= 0.0 {
                 trace!("Not colliding");
                 return (false, Vec2::NAN);
@@ -118,14 +118,14 @@ where
         let mut simplex = Simplex2d::new();
 
         for _i in 0..iteration_limit {
-            let human_counter = _i + 1;
+            let _human_counter = _i + 1;
             trace!("-- iteration {_i}");
             trace!("direction: {}", direction);
             let a = self.extreme_point(direction);
-            trace!("M{human_counter} point: {}", a);
+            trace!("M{_human_counter} point: {}", a);
 
             let fitness = a.dot(direction);
-            trace!("M{human_counter} fitness: {}", fitness);
+            trace!("M{_human_counter} fitness: {}", fitness);
 
             if fitness <= 0.0 {
                 trace!("Collision no longer possible");
@@ -163,18 +163,6 @@ where
     }
 }
 
-#[cfg(disabled)]
-impl<A, B, T> LocalMinkowskiDiff2d<'_, A, B, T>
-where
-    A: ExtremePoint2d,
-    B: ExtremePoint2d,
-    T: Transformation2d,
-{
-    fn add_new_point(&mut self, simplex: &mut Simplex2d, direction: Vec2) -> Vec2 {
-        let a = self.extreme_point(direction);
-    }
-}
-
 impl<A, B, T> SdfvMinkowski2d<true, true> for LocalMinkowskiDiff2d<'_, A, B, T>
 where
     A: ExtremePoint2d,
@@ -195,14 +183,14 @@ where
         let mut collision_possible = true;
 
         for _i in 0..iteration_limit {
-            let human_counter = _i + 2;
+            let _human_counter = _i + 2;
             trace!("-- iteration {_i}");
             trace!("direction: {}", direction);
             let a = self.extreme_point(direction);
-            trace!("M{human_counter} point: {}", a);
+            trace!("M{_human_counter} point: {}", a);
 
             let fitness = a.dot(direction);
-            trace!("M{human_counter} fitness: {}", fitness);
+            trace!("M{_human_counter} fitness: {}", fitness);
 
             if fitness <= 0.0 {
                 trace!("Collision no longer possible");
@@ -254,7 +242,6 @@ where
             direction = new_direction;
         }
 
-        // warn_simplex_not_converged!(diff);
         warn_simplex_not_converged!(iteration_limit);
 
         (false, simplex.distance_to_origin())

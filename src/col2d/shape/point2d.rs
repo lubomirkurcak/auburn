@@ -13,7 +13,7 @@ impl ExtremePoint2d for Point {
 }
 
 impl<T: Transformation2d> ExtremePointT2d<T> for Point {
-    fn extreme_point_t(&self, t: &T, direction: Vec2) -> Vec2 {
+    fn extreme_point_t(&self, t: &T, _: Vec2) -> Vec2 {
         t.apply_origin()
     }
 }

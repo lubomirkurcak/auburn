@@ -2,10 +2,10 @@ use super::*;
 
 mod ball2d;
 mod box2d;
-#[cfg(disabled)]
+#[cfg(any())]
 mod ellipse2d;
 pub mod local_minkowski_diff;
-mod minkowski_diff;
+// mod minkowski_diff;
 mod point2d;
 #[cfg(all(feature = "poly", feature = "std"))]
 mod poly2d;
@@ -16,7 +16,7 @@ mod tilemap;
 pub use box2d::*;
 #[cfg(all(feature = "poly", feature = "std"))]
 pub use poly2d::*;
-#[cfg(disabled)]
+#[cfg(any())]
 pub use rounded_box2d::*;
 #[cfg(feature = "tilemap")]
 pub use tilemap::*;

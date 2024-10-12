@@ -1,7 +1,6 @@
 mod v;
 
-use crate::utils::approx::Approx;
-use crate::{debug, error, info, trace, warn};
+use crate::{error, info, trace, warn};
 
 use super::*;
 
@@ -80,14 +79,14 @@ impl EpaPoly2d {
             self.0.points
         );
 
-        for i in 0..iteration_limit {
-            trace!("[EPA] iteration {}", i);
+        for _i in 0..iteration_limit {
+            trace!("[EPA] iteration {}", _i);
             let (edge_index, a, b) = self.find_closest_edge();
             trace!("closest edge: {:?} {:?}", a, b);
             let normal = (b - a).perp_right();
             trace!("its normal (outwards direction): {}", normal);
             let point = diff.extreme_point(normal);
-            trace!("Me{i} point: {}", point);
+            trace!("Me{_i} point: {}", point);
             let fitness = point.dot(normal);
             trace!("fitness: {}", fitness);
             let fitness_to_beat = a.dot(normal);
@@ -331,9 +330,20 @@ impl Cross2d for Vec2 {
     }
 }
 
+const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
+
+fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
+    if b > 0.0 {
+        return a > b * (1.0 + t);
+    } else {
+        return a > b * (1.0 - t);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::assert_approx_eq;
+    use crate::utils::approx::Approx;
+    use crate::{assert_approx_eq, debug};
 
     use super::*;
 
@@ -438,20 +448,5 @@ mod tests {
         }
 
         assert_approx_eq!(m_gt, extreme_point);
-    }
-}
-
-
-
-
-
-
-const DISTANCE_ITERATION_FITNESS_RELATIVE_IMPROVEMENT_REQUIRED: f32 = 0.01;
-
-fn is_a_sufficiently_better_than_b(a: f32, b: f32, t: f32) -> bool {
-    if b > 0.0 {
-        return a > b * (1.0 + t);
-    } else {
-        return a > b * (1.0 - t);
     }
 }
