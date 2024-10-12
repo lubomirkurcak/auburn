@@ -52,24 +52,23 @@ mod tests {
         assert_eq!(transform2d.pos, Vec2::new(1.0, 2.0));
     }
 
-#[test_log::test]
-fn box_v_box_collision_random_case_1() {
-    let b = Box2d::with_halfdims(0.5, 0.5);
-    let t1 = bevy::prelude::Transform::from_translation(Vec3::new(0.0, 0.0, 0.0));
-    let t2 = bevy::prelude::Transform::from_translation(Vec3::new(2.0, 0.0, 0.0));
-    let col1 = Collider2d {
-        shape: &b,
-        transform: &t1,
-    };
-    let col2 = Collider2d {
-        shape: &b,
-        transform: &t2,
-    };
-    let (collides, sdfv) = col1.sdfv(col2);
-    assert!(!collides);
-    let distance = sdfv.length();
-    trace!("sdfv length: {distance}");
-    assert!(sdfv.length() < 0.1);
-}
-
+    #[test_log::test]
+    fn box_v_box_collision_random_case_1() {
+        let b = Box2d::with_halfdims(0.5, 0.5);
+        let t1 = bevy::prelude::Transform::from_translation(Vec3::new(0.0, 0.0, 0.0));
+        let t2 = bevy::prelude::Transform::from_translation(Vec3::new(2.0, 0.0, 0.0));
+        let col1 = Collider2d {
+            shape: &b,
+            transform: &t1,
+        };
+        let col2 = Collider2d {
+            shape: &b,
+            transform: &t2,
+        };
+        let (collides, sdfv) = col1.sdfv(col2);
+        assert!(!collides);
+        let distance = sdfv.length();
+        trace!("sdfv length: {distance}");
+        assert!(sdfv.length() < 0.1);
+    }
 }

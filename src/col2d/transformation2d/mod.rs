@@ -18,8 +18,6 @@ pub use translate2d::*;
 
 #[cfg(feature = "bevy")]
 mod bevy_transform;
-#[cfg(feature = "bevy")]
-pub use bevy_transform::*;
 
 /// Trait for transforming 2D points.
 pub trait Transformation2d {

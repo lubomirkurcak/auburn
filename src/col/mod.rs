@@ -5,8 +5,6 @@ mod point;
 mod transform;
 
 pub use ball::*;
-#[cfg(feature = "bevy")]
-pub use bevy_transform::*;
 use glam::Vec3;
 pub use point::*;
 pub use transform::*;
