@@ -52,6 +52,21 @@ macro_rules! shape_union {
 
 shape_union!(Shape2d; Ball, Box2d, Poly2d);
 
+impl Shape2d {
+    pub fn ball(radius: f32) -> Self {
+        Self::Ball(Ball::with_radius(radius))
+    }
+
+    pub fn rect(radius_x: f32, radius_y: f32) -> Self {
+        Self::Box2d(Box2d::with_halfdims(radius_x, radius_y))
+    }
+
+    #[cfg(all(feature = "poly", feature = "std"))]
+    pub fn poly(points: &[Vec2]) -> Self {
+        Self::Poly2d(Poly2d::new(points))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
