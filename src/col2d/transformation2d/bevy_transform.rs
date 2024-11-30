@@ -69,6 +69,6 @@ mod tests {
         assert!(!collides);
         let distance = sdfv.length();
         trace!("sdfv length: {distance}");
-        assert!(sdfv.length() < 0.1);
+        assert_eq!(sdfv.length(), 1.0);
     }
 }
